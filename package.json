@@ -1,0 +1,29 @@
+{
+  "name": "moten",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ui": "pnpm -F @moten/ui dev",
+    "clear": "rimraf --glob ./node_modules ./packages/**/node_modules ./packages/**/dist",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": "eslint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1",
+  "dependencies": {
+    "@moten/playground-vue3": "workspace:*",
+    "@moten/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "cz-vinyl": "^2.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.0",
+    "rimraf": "^6.0.1"
+  }
+}
