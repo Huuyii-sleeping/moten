@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -14,14 +14,14 @@ export default defineConfig({
     vueDevTools(),
     AutoImport({
       resolvers: [ElementPlusResolver()],
-    }),
+    }) as Plugin,
     Components({
       resolvers: [ElementPlusResolver()],
       dirs: ['src/components'],
       extensions: ['vue'],
       deep: true,
       dts: true,
-    }),
+    }) as Plugin,
   ],
   resolve: {
     alias: {

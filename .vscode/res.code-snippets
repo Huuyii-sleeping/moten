@@ -1,0 +1,21 @@
+{
+  "输出响应式": {
+    "scope": "sass,scss",
+    "prefix": "res",
+    "body": ["@include res($1, $2, $2);"]
+  },
+  "输出响应式宽高": {
+    "scope": "sass,scss",
+    "prefix": "resw",
+    "body": ["@include res(width, $1, $1)", "@include res(height, $2, $2)"]
+  },
+  "输出响应式文字": {
+    "scope": "sass,scss",
+    "prefix": "resf",
+    "body": [
+      "@include res(color, $1, $1)",
+      "@include res(font-size, $2, $2)",
+      "@include res(font-weight, $3, $3)"
+    ]
+  }
+}

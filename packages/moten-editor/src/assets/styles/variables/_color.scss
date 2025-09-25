@@ -1,0 +1,45 @@
+:root {
+  --color-bg: #ffffff;                     // 页面背景
+  --color-border: #dee0e3;                 // 边框颜色（浅灰）
+  --color-block-hover: #f5f5f5;            // 区块悬停背景（极浅灰）
+  --color-icon-hover: #e8e9eb;             // 图标悬停背景（更浅灰）
+  --color-text: #1f2937;                   // 主文字色（深灰）
+  --color-active-bg: #ecf5ff;              // 激活/选中背景（主色浅）
+  --color-active-text: #409eff;            // 激活文字色（主色）
+  --color-edit-render-block-bg: #ffffff;    // 编辑区块背景（纯白）
+  --color-edit-render-block-border: #dddddd; // 编辑区块边框（浅灰）
+  --color-edit-render-block-border-hover: var(--color-active-text); // 悬停边框 = 主色
+  --color-config-block-bg: #f3f5f7;         // 配置区块背景（浅灰蓝）
+
+  // 🎨 主题扩展色 —— 建议搭配使用
+  --color-primary: #3b82f6;                // 主色（活力蓝）
+  --color-success: #10b981;                // 成功色（翡翠绿）
+  --color-warning: #f59e0b;                // 警告色（琥珀金）
+  --color-danger: #ef4444;                 // 错误色（亮红）
+  --color-info: #3b82f6;                   // 信息色（同主色）
+  --color-disabled: #9ca3af;               // 禁用态文字/边框
+
+  // 🌞 深色模式备用（可选）
+  --color-bg-dark: #111827;
+  --color-text-dark: #f9fafb;
+  --color-border-dark: #374151;
+}
+
+// 💡 可选：在 SCSS 中定义变量别名（方便调用）
+$bg: var(--color-bg);
+$border: var(--color-border);
+$text: var(--color-text);
+$primary: var(--color-primary);
+$success: var(--color-success);
+$warning: var(--color-warning);
+$danger: var(--color-danger);
+$disabled: var(--color-disabled);
+
+// 🖌️ 颜色工具函数（可选，用于动态计算）
+@function color-lighten($color, $amount) {
+  @return mix(white, $color, $amount);
+}
+
+@function color-darken($color, $amount) {
+  @return mix(black, $color, $amount);
+}
