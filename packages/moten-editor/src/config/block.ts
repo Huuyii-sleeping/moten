@@ -43,7 +43,7 @@ export const seniorBlocks: BaseBlock[] = [
   {
     id: '',
     name: '多行',
-    code: 'row',
+    code: 'mo-row',
     icon: 'row',
     nested: true,
     children: [[], []],
@@ -52,7 +52,7 @@ export const seniorBlocks: BaseBlock[] = [
   {
     id: '',
     name: '多列',
-    code: 'column',
+    code: 'mo-column',
     icon: 'column',
     nested: true,
     children: [[], []],
@@ -61,7 +61,7 @@ export const seniorBlocks: BaseBlock[] = [
   {
     id: '',
     name: '画布',
-    code: 'canvas',
+    code: 'mo-canvas',
     icon: 'canvas',
     nested: true,
     children: [[], []],
@@ -73,14 +73,14 @@ export const canvasBlocks: BaseBlock[] = [
   {
     id: '',
     name: '图片',
-    code: 'image',
+    code: 'mo-image',
     icon: 'image',
     formData: {},
   },
   {
     id: '',
     name: '文本',
-    code: 'text',
+    code: 'mo-text',
     icon: 'text',
     formData: {},
   },
