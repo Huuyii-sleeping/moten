@@ -20,6 +20,7 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
     "sass": "^1.93.2",
+    "typebox": "^1.0.16",
     "typescript": "~5.8.3",
     "vite": "^7.1.7",
     "vite-plugin-vue2": "^2.0.3",
