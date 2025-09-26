@@ -13,7 +13,7 @@ const { n } = createNameSpace('link')
 defineOptions({ name: 'mo-link' })
 const propsData = defineProps(props)
 const { to, target } = toRefs(propsData)
-const classes = computed(() => { [n()] })
+const classes = computed(() => [n()])
 const tag = computed(() => {
     if (to.value) return 'span'
     return isExternalLink.value ? 'a' : 'router-link'
