@@ -1,13 +1,24 @@
 <template>
     <div>
-        <draggable :list="list" :group="group" :sort="sort" animation="200" item-key="id" ghost-class="ghost-class"
+        <draggable :list="list" :group="group" :sort="sort" animation="200" ghost-class="ghost-class"
             class="edit-render-drag" :move="move" @click="console.log(list)">
             <template #item="{ element }">
                 <div class="element">
-                    <div class="block-render" :class="activeClass(element)"
+                    <div v-if="element.nested && level < 2" class="block-nested-render" :class="activeClass(element)"
                         @click.stop="edit.setCurrentSelect(element)">
                         <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
-                            :viewport="edit.viewport" :children="element.children"></component>
+                            :viewport="edit.viewport" :children="element.children">
+                            <template #default="{ item, index }">
+                                <edit-render-drag :key="element.id + '-' + index" :list="item" :level="level + 1"
+                                    :group="group" class="nested-item" :class="nestedClass">
+                                </edit-render-drag>
+                            </template>
+                        </component>
+                    </div>
+                    <div v-else class="block-render" :class="activeClass(element)"
+                        @click.stop="edit.setCurrentSelect(element)">
+                        <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
+                            :viewport="element.viewport"></component>
                     </div>
                 </div>
             </template>
@@ -18,7 +29,7 @@
 <script setup lang="ts">
 
 import { computed } from 'vue';
-import { move } from './nested';
+import { move, nestedClass } from './nested';
 import { useEditStore } from '@/stores/edit';
 import type { BaseBlock } from '@/types/edit';
 const edit = useEditStore()
@@ -64,6 +75,7 @@ const activeClass = computed(() => {
 <style scoped lang="scss">
 .edit-render-drag {
     height: 100%;
+
     .element {
         position: relative;
     }

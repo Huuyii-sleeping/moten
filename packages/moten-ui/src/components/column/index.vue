@@ -14,16 +14,16 @@ import { props } from './props'
 
 const { n } = createNameSpace('column')
 defineOptions({
-    name: 'mo-image'
+    name: 'mo-column'
 })
 const propsData = defineProps(props)
 const { data, viewport, children } = toRefs(propsData)
 const classes = computed(() => [n()])
-const cols = computed(() => data.value?.cols?.[viewport.value] || '')
+const cols = computed(() => data.value?.cols?.[viewport.value] || [0.5, 0.5])
 const background = computed(() => data.value?.background?.[viewport.value] || '')
 const styles = computed(() => ({ background: background.value }))
 const itemStyle = computed(() => (item: number | string) => ({ width: Number(item) * 100 + '%' }))
-const itemComputed = computed(() => (index: number) => children.value?.[viewport.value]?.[index] || [])
+const itemComputed = computed(() => (index: number) => children.value?.[index] || [])
 </script>
 
 <style scoped lang="scss">

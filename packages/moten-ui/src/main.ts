@@ -10,7 +10,7 @@ import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
 import type { App } from "vue";
 
-const components = [MoImage];
+const components = [MoImage, MoColumn];
 
 const install = (app: App) => {
   components.forEach((component) => {
