@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "ui": "pnpm -F @moten/ui dev",
     "v3": "pnpm -F @moten/playground-vue3 dev",
     "clear": "rimraf --glob ./node_modules ./packages/**/node_modules ./packages/**/dist",

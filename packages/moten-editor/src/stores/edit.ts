@@ -1,14 +1,20 @@
-import { ref, computed } from "vue";
-import { defineStore } from "pinia";
+import { ref } from 'vue'
+import { defineStore } from 'pinia'
+import type { BaseBlockNull, Viewport } from '@/types/edit'
 
 export const useEditStore = defineStore('edit', () => {
-    const count = ref(0)
-    const doubleCount = computed(() => {
-        return count.value * 2
-    })
-    
-    return {
-        count,
-        doubleCount,
-    }
+  const viewport = ref<Viewport>('desktop')
+  const currentSelect = ref<BaseBlockNull>(null)
+  function setViewport(value: Viewport) {
+    viewport.value = value
+  }
+  function setCurrentSelect(value: BaseBlockNull) {
+    currentSelect.value = value
+  }
+  return {
+    viewport,
+    currentSelect,
+    setViewport,
+    setCurrentSelect,
+  }
 })

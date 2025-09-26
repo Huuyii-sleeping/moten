@@ -1,43 +1,24 @@
-import icon from './icon'
-import type { BlockSchema, BlockSchemaKeys } from './schema'
+import type { BaseBlock } from '@/types/edit'
 
-const { row, column, image, video, text, swiper, blank, canvas } = icon
 
-export interface BaseBlock {
-  // id 区分组件
-  id: string
-  // 组件名字
-  code: string
-  // 物料区标题
-  name: string
-  // 物料区图标
-  icon: string
-  // 是否是嵌套组件
-  nested?: boolean
-  // 嵌套子项
-  children?: BaseBlock[][]
-  // 配置内容
-  formData: BlockSchema[BlockSchemaKeys] | Object
-}
-
-export const BaseBlock: BaseBlock[] = [
+export const baseBlock: BaseBlock[] = [
   {
     id: '',
-    code: 'image',
+    code: 'mo-image',
     name: '图片',
     icon: 'image',
     formData: {},
   },
   {
     id: '',
-    code: 'video',
+    code: 'mo-video',
     name: '视频',
     icon: 'video',
     formData: {},
   },
   {
     id: '',
-    code: 'text',
+    code: 'mo-text',
     name: '文本',
     icon: 'text',
     formData: {},
@@ -45,14 +26,14 @@ export const BaseBlock: BaseBlock[] = [
   {
     id: '',
     name: '幻灯片',
-    code: 'swiper',
+    code: 'mo-swiper',
     icon: 'swiper',
     formData: {},
   },
   {
     id: '',
     name: '留白',
-    code: 'blank',
+    code: 'mo-blank',
     icon: 'blank',
     formData: {},
   },

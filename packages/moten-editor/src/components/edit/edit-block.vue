@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 // import { dragGroup } from './nested'
-import { BaseBlock as baseBlocks, seniorBlocks } from '@/config/block'
+import { baseBlock as baseBlocks, seniorBlocks } from '@/config/block'
 import { dragGroup } from './nested'
 
 const menuList = ref([
