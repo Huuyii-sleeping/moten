@@ -9,8 +9,8 @@ import { createNameSpace } from '@/utils/components';
 import { computed, toRefs } from 'vue';
 import { props } from './props'
 
-const { name, n } = createNameSpace('link')
-defineOptions({ name })
+const { n } = createNameSpace('link')
+defineOptions({ name: 'mo-link' })
 const propsData = defineProps(props)
 const { to, target } = toRefs(propsData)
 const classes = computed(() => { [n()] })

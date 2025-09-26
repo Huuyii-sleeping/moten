@@ -1,30 +1,36 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
-import tailwindcss from '@tailwindcss/vite'
-
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
+import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
-      '@': resolve('./src')
-    }
+      "@": resolve("./src"),
+    },
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/main.ts'),
-      name: 'moten',
-      fileName: 'moten'
+      entry: resolve(__dirname, "src/main.ts"),
+      name: "moten",
+      fileName: "moten",
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ["vue"],
       output: {
         globals: {
-          vue: 'Vue',
-        }
-      }
-    }
-  }
-})
+          vue: "Vue",
+        },
+      },
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "@/assets/styles/resources.scss";`,
+      },
+    },
+  },
+});

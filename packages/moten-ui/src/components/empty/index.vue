@@ -1,7 +1,7 @@
 <template>
     <div :class="classes">
-        <!-- attrs拿到所有的属性 -->
-        <img v-bind="$attrs" :src="src" alt="" :styles="styles">
+        <img :src="src" class="image">
+        <div class="description" v-html="description"></div>
     </div>
 
 </template>
@@ -9,18 +9,15 @@
 <script setup lang="ts">
 import { createNameSpace } from '@/utils/components';
 import { computed, toRefs } from 'vue';
+import noDataIcon from '@/assets/images/no-data.png'
 import { props } from './props'
 
-const { name, n } = createNameSpace('image')
-defineOptions({ name })
+const { n } = createNameSpace('empty')
+defineOptions({ name: 'mo-empty' })
 const propsData = defineProps(props)
-const { data, viewport } = toRefs(propsData)
-const classes = computed(() => { [n()] })
-const display = computed(() => data.value?.display?.[viewport.value] || '')
-const src = computed(() => data.value?.src?.[viewport.value] || '')
-const width = computed(() => data.value?.width?.[viewport.value] || '')
-const height = computed(() => data.value?.height?.[viewport.value] || '')
-const styles = computed(() => [{ width: width.value, height: height.value }])
+const { image, description } = toRefs(propsData)
+const classes = computed(() => [n()])
+const src = computed(() => image.value || noDataIcon)
 </script>
 
 <style scoped lang="scss">

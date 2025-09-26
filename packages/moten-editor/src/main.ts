@@ -7,6 +7,7 @@ import './assets/styles/mian.scss'
 import { Icon } from '@iconify/vue'
 import Draggable from 'vuedraggable'
 import moten from '@moten/ui'
+import '@moten/ui/dist/moten.css'
 
 const app = createApp(App)
 
