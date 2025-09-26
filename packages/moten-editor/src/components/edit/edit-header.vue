@@ -1,0 +1,80 @@
+<template>
+    <div class="header">
+        <div class="header-left">
+            <div class="back">
+                <v-icon content="返回" icon="back" />
+                <div class="header-title">页面</div>
+            </div>
+
+            <div class="line"></div>
+
+            <v-select v-model="viewport" />
+        </div>
+        <div class="header-right">
+            <el-button>
+                <v-icon icon="preview" />
+                预览
+            </el-button>
+            <el-button type="primary">
+                <v-icon :icon="icon.publish" />
+                发布
+            </el-button>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import icon from '@/config/icon'
+import type { Viewport } from '@/types/edit';
+import { ref } from 'vue';
+const viewport = ref<Viewport>('desktop')
+</script>
+
+<style scoped lang="scss">
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 500;
+    height: var(--edit-header-height);
+    background: white;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        .back {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 0 16px;
+            flex-shrink: 0;
+
+            .header-title {
+                font-size: 14px;
+                padding-left: 4px;
+            }
+        }
+
+        .line {
+            width: 1px;
+            height: 20px;
+            border-left: 1px solid var(--color-border);
+            padding-right: 16px;
+        }
+    }
+
+    .header-right {
+        position: relative;
+        padding-right: 16px;
+    }
+}
+</style>

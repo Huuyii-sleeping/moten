@@ -8,7 +8,20 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    EditBlock: typeof import('./src/components/edit/edit-block.vue')['default']
+    EditBlockDrag: typeof import('./src/components/edit/edit-block-drag.vue')['default']
+    EditConfig: typeof import('./src/components/edit/edit-config.vue')['default']
+    EditHeader: typeof import('./src/components/edit/edit-header.vue')['default']
+    EditRender: typeof import('./src/components/edit/edit-render.vue')['default']
+    ElButton: typeof import('element-plus/es')['ElButton']
+    ElCollapse: typeof import('element-plus/es')['ElCollapse']
+    ElCollapseItem: typeof import('element-plus/es')['ElCollapseItem']
+    ElOption: typeof import('element-plus/es')['ElOption']
+    ElSelect: typeof import('element-plus/es')['ElSelect']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    VIcon: typeof import('./src/components/base/v-icon.vue')['default']
+    VIconTooltip: typeof import('./src/components/base/v-icon-tooltip.vue')['default']
+    VSelect: typeof import('./src/components/base/v-select.vue')['default']
   }
 }
