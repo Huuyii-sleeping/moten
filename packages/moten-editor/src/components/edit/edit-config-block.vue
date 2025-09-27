@@ -1,11 +1,10 @@
 <template>
     <div class="edit-config-block">
-        <!-- 渲染动态组件 -->
         <edit-config-render :list="list" @callback="callback">
-            <div v-if="!edit.currentSelect">
-                <el-empty description="请从左侧拖入组件之后，点击选中组件">
+            <div v-if="edit.currentSelect?.id">
+                <el-empty description="请在左侧拖入组件后，点击选中组件">
                     <template #image>
-                        <v-icon icon="dragBlank" class="icon"></v-icon>
+                        <v-icon icon="dragBlank" class="icon" />
                     </template>
                 </el-empty>
             </div>
@@ -27,15 +26,20 @@ const callback = (params: { data: Object; id: string }) => {
     const blockConfig = edit.blockConfig || []
     const newBlockConfig = findNodeById(blockConfig, id, data)
     edit.setBlockConfig(newBlockConfig as BaseBlock[])
+    // if (edit.currentSelect?.id === id) {
+    //     const currentSelect = edit.currentSelect
+    //     currentSelect.formData = deepmerge.all([edit.currentSelect.formData || {}, data])
+    //     edit.setCurrentSelect(currentSelect)
+    // }
 }
-watch(() => edit.currentSelect, (value) => {
-    const code = value?.code as BlockSchemaKeys
+watch(() => edit.currentSelect, () => {
+    const code = edit.currentSelect?.code as BlockSchemaKeys
     const properties = blockSchema[code]?.properties
-    if (!value || !properties) {
+    if (!edit.currentSelect || !properties) {
         list.value = []
         return
     }
-    const { formData, id } = value as any
+    const { formData, id } = edit.currentSelect as any
     const listResult = Object.fromEntries(
         Object.entries(properties).map((itemChild) => {
             const [key, value] = itemChild as any

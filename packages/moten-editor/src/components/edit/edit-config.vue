@@ -1,15 +1,15 @@
 <template>
     <div class="edit-config" ref="target" :class="{ 'is-show': edit.configPanelShow }">
         <div class="icon-group">
-            <v-icon icon="expand" class="icon" :content="edit.configPanelShow ? 'close' : 'show'"
-                @click.native="panelSwitch" />
+            <v-icon icon="expand" class="icon" :content="edit.configPanelShow ? '收起侧边栏' : '展开侧边栏'" @click="panelSwitch" />
         </div>
+
         <div class="content">
-            <transition-group>
-                <div class="title" v-if="edit.currentSelect">组件</div>
+            <transition-group name="fade">
+                <div class="title" v-if="edit.currentSelect?.id">组件</div>
                 <div class="title" v-else>页面</div>
-                <edit-config-block v-if="edit.currentSelect"></edit-config-block>
-                <edit-config-page v-else></edit-config-page>
+                <edit-config-block v-if="edit.currentSelect?.id" />
+                <edit-config-page v-else />
             </transition-group>
         </div>
     </div>
