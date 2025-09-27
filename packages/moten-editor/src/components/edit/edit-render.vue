@@ -1,5 +1,5 @@
 <template>
-    <div class="edit-render">
+    <div class="edit-render" :class="pageClass">
         <edit-render-drag :list="list" :group="dragGroup" class="render"></edit-render-drag>
         <el-empty class="empty" v-if="!list?.length" description="请将左侧的组件拖入到此处">
             <template #image>
@@ -24,7 +24,9 @@ watch(() => edit.blockConfig, (val) => {
     list.value = val
 }, { deep: true })
 // const pageStyle = computed(() => { })
-// const pageClass = computed(() => { })
+const pageClass = computed(() => {
+    return { 'is-mobile': edit.isMobileViewport }
+})
 </script>
 
 <style scoped lang="scss">

@@ -25,8 +25,14 @@
 
 <script setup lang="ts">
 import type { Viewport } from '@/types/edit';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useEditStore } from '@/stores/edit';
+const edit = useEditStore()
 const viewport = ref<Viewport>('desktop')
+watch(viewport, (val) => {
+    edit.setViewport(val)
+    edit.setConfigPanelShow(val === 'mobile')
+})
 </script>
 
 <style scoped lang="scss">

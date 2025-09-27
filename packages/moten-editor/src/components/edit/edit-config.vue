@@ -23,13 +23,10 @@ const panelSwitch = () => {
     edit.setConfigPanelShow(!edit.configPanelShow)
 }
 watch(() => edit.currentSelect, (value) => {
-    if (value) edit.setConfigPanelShow(true)
-})
+    if (value?.id) edit.setConfigPanelShow(true)
+}, { deep: true })
 watch(() => edit.configPanelShow, (value) => {
-    if (!value) edit.setConfigPanelShow(null)
-})
-watch(() => edit.isMobileViewport, (value) => {
-    if (value) edit.setConfigPanelShow(true)
+    if (!value) edit.setCurrentSelect({} as any)
 })
 </script>
 

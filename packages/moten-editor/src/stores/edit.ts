@@ -18,7 +18,7 @@ export const useEditStore = defineStore('edit', () => {
     currentSelect.value = value
   }
 
-  function setConfigPanelShow(value: boolean | null) {
+  function setConfigPanelShow(value: boolean) {
     configPanelShow.value = value
   }
   function setBlockConfig(value: BaseBlock[]){

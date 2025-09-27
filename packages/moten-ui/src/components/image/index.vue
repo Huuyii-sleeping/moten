@@ -24,7 +24,7 @@ defineOptions({
 const propsData = defineProps(props)
 const { data, viewport } = toRefs(propsData)
 const classes = computed(() =>  [n()] )
-console.log(classes.value)
+console.log(viewport.value)
 const src = computed(() => data.value?.src?.[viewport.value] || '')
 const width = computed(() => data.value?.width?.[viewport.value] || '')
 const link = computed(() => data.value?.link?.[viewport.value] || '')

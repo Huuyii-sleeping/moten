@@ -18,7 +18,6 @@ import { useEditStore } from '@/stores/edit';
 import { ref, watch } from 'vue';
 import { blockSchema, type BlockSchemaKeys } from '@/config/schema';
 import { findNodeById } from './nested';
-import deepmerge from 'deepmerge'
 import type { BaseBlock } from '@/types/edit';
 const edit = useEditStore()
 const list = ref<any[]>([])
@@ -26,16 +25,12 @@ const callback = (params: { data: Object; id: string }) => {
     const { data, id } = params
     if (!id) return
     const blockConfig = edit.blockConfig || []
-    const newBlockConfig = findNodeById(blockConfig, id, (params: any) => {
-        let { array, index, node } = params
-        const overwriteMerge = (_destinationArray: any, sourceArray: any, options: any) => sourceArray
-        array[index].formData = deepmerge(node.formData, data, { arrayMerge: overwriteMerge })
-    })
+    const newBlockConfig = findNodeById(blockConfig, id, data)
     edit.setBlockConfig(newBlockConfig as BaseBlock[])
 }
 watch(() => edit.currentSelect, (value) => {
     const code = value?.code as BlockSchemaKeys
-    const properties = blockSchema[code].properties
+    const properties = blockSchema[code]?.properties
     if (!value || !properties) {
         list.value = []
         return

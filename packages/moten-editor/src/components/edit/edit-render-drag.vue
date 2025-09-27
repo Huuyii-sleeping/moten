@@ -18,7 +18,7 @@
                     <div v-else class="block-render" :class="activeClass(element)"
                         @click.stop="edit.setCurrentSelect(element)">
                         <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
-                            :viewport="element.viewport"></component>
+                            :viewport="edit.viewport"></component>
                     </div>
                 </div>
             </template>
