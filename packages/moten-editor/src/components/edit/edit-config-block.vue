@@ -17,20 +17,37 @@ import { useEditStore } from '@/stores/edit';
 import { ref, watch } from 'vue';
 import { blockSchema, type BlockSchemaKeys } from '@/config/schema';
 import { findNodeById } from './nested';
-import type { BaseBlock } from '@/types/edit';
+import deepmerge from 'deepmerge';
 const edit = useEditStore()
 const list = ref<any[]>([])
-const callback = (params: { data: Object; id: string }) => {
+const callback = (params: { data: object; id: string }) => {
     const { data, id } = params
     if (!id) return
     const blockConfig = edit.blockConfig || []
-    const newBlockConfig = findNodeById(blockConfig, id, data)
-    edit.setBlockConfig(newBlockConfig as BaseBlock[])
-    // if (edit.currentSelect?.id === id) {
-    //     const currentSelect = edit.currentSelect
-    //     currentSelect.formData = deepmerge.all([edit.currentSelect.formData || {}, data])
-    //     edit.setCurrentSelect(currentSelect)
-    // }
+    const newBlockConfig = findNodeById(blockConfig, id, (params: any) => {
+        let { array, index, node } = params
+        const overwriteMerge = (_destinationArray: any, sourceArray: any, _options: any) => sourceArray
+        array[index].formData = deepmerge(node.formData, data, {
+            arrayMerge: overwriteMerge,
+        })
+
+        // 下面的作用就是将对应children的值进行设置操作 每个column因该有自己对应的children。用来放置
+        // children  的更新
+        if (node.nested && node.code === 'column') {
+            const cols = node.formData?.cols?.desktop || [0.5, 0.5]
+            const oldCols = node.children || [[], []]
+            if (oldCols.length > cols.length) {
+                const count = oldCols.length - cols.length
+                array[index].children?.splice(oldCols.length - count, count)
+            } else {
+                const count = cols.length - oldCols.length
+                const diff = Array.from({ length: count }, (_) => [])
+                array[index].children?.push(...diff)
+            }
+        }
+    })
+
+    edit.setBlockConfig(newBlockConfig)
 }
 watch(() => edit.currentSelect, () => {
     const code = edit.currentSelect?.code as BlockSchemaKeys

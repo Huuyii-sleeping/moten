@@ -39,7 +39,6 @@ export const batchDynamicComponents = (name: string, importUrl: Record<string, C
       }
     }),
   )
-  // 根据name查找组件使用
   const importComponent = componentMap[name]
   if (!importComponent) return ''
   // markRaw非响应式包装 组件本身不需要响应式包装
