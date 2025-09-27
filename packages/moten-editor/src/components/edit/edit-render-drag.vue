@@ -5,7 +5,12 @@
             <template #item="{ element }">
                 <div class="element">
                     <div v-if="element.nested && level < 2" class="block-nested-render" :class="activeClass(element)"
-                        @click.stop="edit.setCurrentSelect(element)">
+                        @click.stop="edit.setCurrentSelect(element)" @mouseenter="hoverId = element.id"
+                        @mouseleave="hoverId = ''">
+                        <transition name="fade">
+                            <edit-render-hover v-show="hoverId === element.id" :id="element.id" :name="element.name"
+                                @copy="copy" @clear="clear" />
+                        </transition>
                         <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
                             :viewport="edit.viewport" :children="element.children">
                             <template #default="{ item, index }">
@@ -16,9 +21,15 @@
                         </component>
                     </div>
                     <div v-else class="block-render" :class="activeClass(element)"
-                        @click.stop="edit.setCurrentSelect(element)">
+                        @click.stop="edit.setCurrentSelect(element)" @mouseenter="hoverId = element.id"
+                        @mouseleave="hoverId = ''">
+                        <transition name="fade">
+                            <edit-render-hover v-show="hoverId === element.id" :id="element.id" :name="element.name"
+                                @copy="copy" @clear="clear" />
+                        </transition>
                         <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
-                            :viewport="edit.viewport"></component>
+                            :viewport="edit.viewport">
+                        </component>
                     </div>
                 </div>
             </template>
@@ -28,8 +39,8 @@
 
 <script setup lang="ts">
 
-import { computed } from 'vue';
-import { move, nestedClass } from './nested';
+import { computed, ref } from 'vue';
+import { findNodeById, move, nestedClass, replaceNodeId } from './nested';
 import { useEditStore } from '@/stores/edit';
 import type { BaseBlock } from '@/types/edit';
 import { COMPONENT_PREFIX } from '@/config';
@@ -56,14 +67,13 @@ defineProps({
         default: 1
     }
 })
-
+const hoverId = ref('')
 // 返回名字直接进行组件的渲染
 const renderComponentCode = computed(() => {
     return (element: { code: string }) => {
         return COMPONENT_PREFIX + '-' + element.code
     }
 })
-
 const activeClass = computed(() => {
     return (element: BaseBlock) => {
         const id = edit.currentSelect?.id || ''
@@ -71,6 +81,27 @@ const activeClass = computed(() => {
     }
 })
 
+const handleNodeById = (arr: BaseBlock[], nodeId: string, type: 'copy' | 'clear') => {
+    return findNodeById(arr, nodeId, (params) => {
+        const { array, node, index } = params
+        if (type === 'copy') array.splice(index, 0, replaceNodeId(node))
+        if (type === 'clear') array.splice(index, 1)
+    })
+}
+
+const copy = (id: string) => {
+    if (!edit.blockConfig?.length) return
+    const newBlockConfig = handleNodeById(edit.blockConfig, id, 'copy')
+    edit.setCurrentSelect({} as any)
+    edit.setBlockConfig(newBlockConfig)
+}
+
+const clear = (id: string) => {
+    if (!edit.blockConfig?.length) return
+    const newBlockConfig = handleNodeById(edit.blockConfig, id, 'clear')
+    edit.setCurrentSelect({} as any)
+    edit.setBlockConfig(newBlockConfig)
+}
 </script>
 
 <style scoped lang="scss">
