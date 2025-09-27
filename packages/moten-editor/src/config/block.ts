@@ -4,21 +4,21 @@ import type { BaseBlock } from '@/types/edit'
 export const baseBlock: BaseBlock[] = [
   {
     id: '',
-    code: 'mo-image',
+    code: 'image',
     name: '图片',
     icon: 'image',
     formData: {},
   },
   {
     id: '',
-    code: 'mo-video',
+    code: 'video',
     name: '视频',
     icon: 'video',
     formData: {},
   },
   {
     id: '',
-    code: 'mo-text',
+    code: 'text',
     name: '文本',
     icon: 'text',
     formData: {},
@@ -26,14 +26,14 @@ export const baseBlock: BaseBlock[] = [
   {
     id: '',
     name: '幻灯片',
-    code: 'mo-swiper',
+    code: 'swiper',
     icon: 'swiper',
     formData: {},
   },
   {
     id: '',
     name: '留白',
-    code: 'mo-blank',
+    code: 'blank',
     icon: 'blank',
     formData: {},
   },
@@ -43,7 +43,7 @@ export const seniorBlocks: BaseBlock[] = [
   {
     id: '',
     name: '多行',
-    code: 'mo-row',
+    code: 'row',
     icon: 'row',
     nested: true,
     children: [[], []],
@@ -52,7 +52,7 @@ export const seniorBlocks: BaseBlock[] = [
   {
     id: '',
     name: '多列',
-    code: 'mo-column',
+    code: 'column',
     icon: 'column',
     nested: true,
     children: [[], []],
@@ -61,7 +61,7 @@ export const seniorBlocks: BaseBlock[] = [
   {
     id: '',
     name: '画布',
-    code: 'mo-canvas',
+    code: 'canvas',
     icon: 'canvas',
     nested: true,
     children: [[], []],
@@ -73,14 +73,14 @@ export const canvasBlocks: BaseBlock[] = [
   {
     id: '',
     name: '图片',
-    code: 'mo-image',
+    code: 'image',
     icon: 'image',
     formData: {},
   },
   {
     id: '',
     name: '文本',
-    code: 'mo-text',
+    code: 'text',
     icon: 'text',
     formData: {},
   },

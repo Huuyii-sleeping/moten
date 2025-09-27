@@ -16,7 +16,7 @@
                 预览
             </el-button>
             <el-button type="primary">
-                <v-icon :icon="icon.publish" />
+                <v-icon icon="publish" />
                 发布
             </el-button>
         </div>
@@ -24,7 +24,6 @@
 </template>
 
 <script setup lang="ts">
-import icon from '@/config/icon'
 import type { Viewport } from '@/types/edit';
 import { ref } from 'vue';
 const viewport = ref<Viewport>('desktop')

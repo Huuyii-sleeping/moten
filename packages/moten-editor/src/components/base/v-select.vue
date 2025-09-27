@@ -7,7 +7,9 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-
+import { useEditStore } from '@/stores/edit'
+import type { Viewport } from '@/types/edit'
+const edit = useEditStore()
 const props = defineProps({
     options: {
         type: Array,
@@ -32,8 +34,9 @@ const styles = computed(() => ({ width: props.width + 'px' }))
 
 const model = defineModel({ default: 'desktop' })
 
-const change = (value: string) => {
+const change = (value: Viewport) => {
     model.value = value
+    edit.setViewport(value)
 }
 </script>
 

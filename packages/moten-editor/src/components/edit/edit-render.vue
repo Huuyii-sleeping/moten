@@ -11,10 +11,20 @@
 
 <script setup lang="ts">
 import type { BaseBlock } from '@/types/edit';
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { dragGroup } from './nested';
+import { useEditStore } from '@/stores/edit';
+const edit = useEditStore()
 const list = ref<BaseBlock[]>([])
-
+// 及时添加和更新
+watch(() => list.value, (val) => {
+    edit.setBlockConfig(val)
+}, { deep: true })
+watch(() => edit.blockConfig, (val) => {
+    list.value = val
+}, { deep: true })
+// const pageStyle = computed(() => { })
+// const pageClass = computed(() => { })
 </script>
 
 <style scoped lang="scss">

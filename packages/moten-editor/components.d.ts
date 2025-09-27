@@ -8,9 +8,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ConfigInput: typeof import('./src/components/config/config-input.vue')['default']
     EditBlock: typeof import('./src/components/edit/edit-block.vue')['default']
     EditBlockDrag: typeof import('./src/components/edit/edit-block-drag.vue')['default']
     EditConfig: typeof import('./src/components/edit/edit-config.vue')['default']
+    EditConfigBlock: typeof import('./src/components/edit/edit-config-block.vue')['default']
+    EditConfigPage: typeof import('./src/components/edit/edit-config-page.vue')['default']
+    EditConfigRender: typeof import('./src/components/edit/edit-config-render.vue')['default']
     EditHeader: typeof import('./src/components/edit/edit-header.vue')['default']
     EditRender: typeof import('./src/components/edit/edit-render.vue')['default']
     EditRenderDrag: typeof import('./src/components/edit/edit-render-drag.vue')['default']
@@ -18,6 +22,9 @@ declare module 'vue' {
     ElCollapse: typeof import('element-plus/es')['ElCollapse']
     ElCollapseItem: typeof import('element-plus/es')['ElCollapseItem']
     ElEmpty: typeof import('element-plus/es')['ElEmpty']
+    ElForm: typeof import('element-plus/es')['ElForm']
+    ElFormItem: typeof import('element-plus/es')['ElFormItem']
+    ElInput: typeof import('element-plus/es')['ElInput']
     ElOption: typeof import('element-plus/es')['ElOption']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     RouterLink: typeof import('vue-router')['RouterLink']

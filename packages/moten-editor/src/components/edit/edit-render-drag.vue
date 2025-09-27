@@ -32,6 +32,7 @@ import { computed } from 'vue';
 import { move, nestedClass } from './nested';
 import { useEditStore } from '@/stores/edit';
 import type { BaseBlock } from '@/types/edit';
+import { COMPONENT_PREFIX } from '@/config';
 const edit = useEditStore()
 defineOptions({
     name: 'edit-render-drag'
@@ -59,7 +60,7 @@ defineProps({
 // 返回名字直接进行组件的渲染
 const renderComponentCode = computed(() => {
     return (element: { code: string }) => {
-        return element.code
+        return COMPONENT_PREFIX + '-' + element.code
     }
 })
 

@@ -22,13 +22,13 @@ const link = Type.String({
 const width = Type.String({
   code: "config-input",
   title: "宽度",
-  default: "",
+  default: "100%",
 });
 
 const height = Type.String({
   code: "config-input",
   title: "高度",
-  default: "",
+  default: "295px",
 });
 
 const schema = Type.Object({
