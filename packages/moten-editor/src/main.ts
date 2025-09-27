@@ -12,7 +12,7 @@ import '@moten/ui/dist/moten.css'
 const app = createApp(App)
 
 app.use(createPinia())
-app.use(moten)
+app.use<{ platform: 'editor' | 'user' }>(moten, { platform: 'editor' })
 app.use(router)
 app.component('icon', Icon)
 app.component('draggable', Draggable)

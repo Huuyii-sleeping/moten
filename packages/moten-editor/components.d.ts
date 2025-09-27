@@ -8,9 +8,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ConfigBaseTab: typeof import('./src/components/config/base/config-base-tab.vue')['default']
     ConfigColumn: typeof import('./src/components/config/config-column.vue')['default']
     ConfigFiles: typeof import('./src/components/config/config-files.vue')['default']
     ConfigInput: typeof import('./src/components/config/config-input.vue')['default']
+    ConfigViewport: typeof import('./src/components/config/config-viewport.vue')['default']
     EditBlock: typeof import('./src/components/edit/edit-block.vue')['default']
     EditBlockDrag: typeof import('./src/components/edit/edit-block-drag.vue')['default']
     EditConfig: typeof import('./src/components/edit/edit-config.vue')['default']
@@ -29,6 +31,7 @@ declare module 'vue' {
     ElInput: typeof import('element-plus/es')['ElInput']
     ElOption: typeof import('element-plus/es')['ElOption']
     ElSelect: typeof import('element-plus/es')['ElSelect']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     VIcon: typeof import('./src/components/base/v-icon.vue')['default']

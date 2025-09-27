@@ -3,8 +3,8 @@
         class="edit-block-drag" :clone="clone" :move="move">
         <template #item="{ element }">
             <div class="block-item">
-                <v-icon class="block-icon" :icon="element.icon"></v-icon>
-                <div class="block-name" v-html="element.name"></div>
+                <v-icon class="block-icon" :icon="element.icon" />
+                <div class="block-name" v-html="element.name" />
             </div>
         </template>
     </draggable>

@@ -2,7 +2,7 @@
     <div class="icon">
         <el-tooltip class="tip" effect="dark" :content="content" :placement="placement" :hide-after="0">
             <div class="image-box">
-                <Icon v-if="icon" class="image" :icon="icon" />
+                <v-icon v-if="icon" class="image" :icon="icon" />
                 <slot v-else class="image" />
             </div>
         </el-tooltip>
@@ -10,7 +10,6 @@
 </template>
 
 <script lang="ts" setup>
-import { Icon } from '@iconify/vue'
 defineProps({
     icon: {
         type: String,
@@ -51,8 +50,8 @@ defineProps({
     }
 
     .image {
-        width: 90%;
-        height: 90%;
+        width: 100%;
+        height: 100%;
     }
 }
 </style>

@@ -8,7 +8,7 @@
     "v3": "pnpm -F @moten/playground-vue3 dev",
     "clear": "rimraf --glob ./node_modules ./packages/**/node_modules ./packages/**/dist",
     "prepare": "husky",
-    "cz": "npx git-cz",
+    "cz": "git add . && npx git-cz",
     "dev": "pnpm -F @moten/editor dev"
   },
   "config": {

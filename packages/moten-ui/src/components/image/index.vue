@@ -1,7 +1,7 @@
 <template>
     <div :class="classes">
         <mo-link v-if="src" :to="link" target="_blank">
-            <img class="image" v-bind="$attrs" :src="src" alt="" :styles="styles">
+            <img class="image" :style="displayStyle" v-bind="$attrs" :src="src" alt="" :styles="styles">
         </mo-link>
         <div v-else class="no-image">
             <mo-empty description="暂无图片，请上传"></mo-empty>
@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { createNameSpace } from '@/utils/components';
-import { computed, toRefs } from 'vue';
+import { computed, toRefs, inject } from 'vue';
 import { props } from './props'
 import MoLink from '@/components/link'
 import MoEmpty from '@/components/empty'
@@ -21,15 +21,27 @@ const { n } = createNameSpace('image')
 defineOptions({
     name: 'mo-image'
 })
+const platform = inject('platform')
 const propsData = defineProps(props)
 const { data, viewport } = toRefs(propsData)
-const classes = computed(() =>  [n()] )
-console.log(viewport.value)
+const classes = computed(() => [n()])
 const src = computed(() => data.value?.src?.[viewport.value] || '')
 const width = computed(() => data.value?.width?.[viewport.value] || '')
 const link = computed(() => data.value?.link?.[viewport.value] || '')
 const height = computed(() => data.value?.height?.[viewport.value] || '')
 const styles = computed(() => [{ width: width.value, height: height.value }])
+const display = computed(() => {
+    const display = data.value?.display?.[viewport.value]
+    return typeof display === 'boolean' ? display : true
+})
+// 多端展示的配置
+const displayStyle = computed(() => {
+    if (platform === 'editor') {
+        return !display.value ? { opacity: 0.4, fliter: 'brightness(0.7)' } : {}
+    } else {
+        return !display.value ? { display: 'none' } : {}
+    }
+})
 </script>
 
 <style scoped lang="scss">

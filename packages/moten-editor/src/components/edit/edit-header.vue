@@ -32,6 +32,7 @@ const viewport = ref<Viewport>('desktop')
 watch(viewport, (val) => {
     edit.setViewport(val)
     edit.setConfigPanelShow(val === 'mobile')
+    edit.setCurrentSelect({} as any)
 })
 </script>
 
