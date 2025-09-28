@@ -14,7 +14,7 @@ app.listen(port, () => {
 
 // 分页查询
 app.get("/rest/v1/page", pageController.findAll());
-// app.get("/rest/v1/page/:pageId", pageController.findOne());
+app.get("/rest/v1/page/:id", pageController.findOne());
 // app.post("/rest/v1/page/create", pageController.create());
 // app.post("/rest/v1/page/delete", pageController.remove());
 // app.post("/rest/v1/page/update", pageController.update());

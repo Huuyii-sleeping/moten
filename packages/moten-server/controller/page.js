@@ -19,7 +19,19 @@ export class PageController {
     };
     return [validate(rules), handler];
   }
-  findOne() {}
+  findOne() {
+    const rules = Joi.object({
+      id: Joi.number().optional(),
+    });
+
+    const handler = async (req, res) => {
+      const { id } = req.params;
+      const { status, message, result } = await pageDAO.findOne(id);
+      if (!status) return res.json(response.fail(message));
+      return res.json(response.success(result));
+    };
+    return [validate(rules), handler];
+  }
   create() {}
   update() {}
   remove() {}

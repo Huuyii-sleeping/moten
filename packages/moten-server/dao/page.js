@@ -12,7 +12,14 @@ class PageDAO {
     const res = await daoErrorHandler(() => query(sql, params));
     return res;
   }
-  findOne() {}
+  async findOne(id) {
+    const sql = `SELECT * FROM page WHERE page_id = ? LIMIT 1`;
+    // 游标分页，当你突然将某个数据删除，为了保证数据的准确性就可以使用这个方法 找到<多少的数据
+    // const othersql = ;
+    const params = [id].map(String);
+    const res = await daoErrorHandler(() => query(sql, params));
+    return res;
+  }
   create() {}
   update() {}
   remove() {}
