@@ -1,3 +1,1 @@
-import { PageDAO } from "./page";
-
-export const pageController = new PageDAO()
+export { pageDAO } from "./page";
