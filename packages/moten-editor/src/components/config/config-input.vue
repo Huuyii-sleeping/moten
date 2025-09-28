@@ -1,6 +1,6 @@
 <template>
     <div class="config-input">
-        <el-form-item :label="title">
+        <el-form-item :label="title" :prop="key + '.' + viewport">
             <el-input v-model="input" :placeholder="placeholder" class="input"></el-input>
         </el-form-item>
     </div>
@@ -18,9 +18,9 @@ const props = defineProps({
         default: 'desktop'
     }
 })
-const emit = defineEmits(['callback'])
+const emit = defineEmits(['callback', 'update'])
 const { data } = toRefs(props)
-const { formData, parentKey, key, id } = data.value
+const { formData, key, id } = data.value
 const { title, default: defaultValue, placeholder } = data.value.properties[props.viewport]
 const input = ref('')
 
@@ -34,13 +34,16 @@ watch(input, (value) => {
     // 进行赋值操作 当我们没有formData 我们需要同时对两端进行设置参数，保证数据的统一
     if (Object.values(formData || {}).length < 2) data = { desktop: _value, mobile: _value }
     else data = { [props.viewport]: _value }
-    
+
     // 用来找到特定的对应的组件，精准匹配
     emit('callback', {
         data: {
             [key]: data,
         },
         id,
+    })
+    emit('update', {
+        [key]: data
     })
 }, { immediate: true })
 </script>

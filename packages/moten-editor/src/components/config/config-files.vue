@@ -1,6 +1,6 @@
 <template>
     <div class="config-files">
-        <el-form-item :label="title">
+        <el-form-item :label="title" :prop="key + '.' + viewport">
             <img v-if="src" :src="src" class="image" @click="fileClick" />
             <div v-else class="file" @click="fileClick">
                 <v-icon icon="upload" class="icon" />
@@ -12,7 +12,8 @@
 
 <script setup lang="ts">
 import { ref, toRefs, watch } from 'vue'
-
+import { useFormItem } from 'element-plus'
+const { formItem } = useFormItem()
 const props = defineProps({
     data: {
         type: Object,
@@ -24,7 +25,7 @@ const props = defineProps({
     },
 })
 
-const emit = defineEmits(['callback'])
+const emit = defineEmits(['callback', 'update'])
 
 const { data } = toRefs(props)
 const { formData, key, id } = data.value
@@ -44,6 +45,7 @@ watch(
 watch(
     src,
     (value) => {
+        
         let data = {}
         const _value = value || ''
         if (Object.values(formData || {}).length < 2) data = { desktop: _value, mobile: _value }
@@ -53,6 +55,9 @@ watch(
                 [key]: data,
             },
             id,
+        })
+        emit('update', {
+            [key]: data
         })
     },
     {
