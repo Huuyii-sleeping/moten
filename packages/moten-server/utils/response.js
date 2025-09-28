@@ -4,6 +4,8 @@ const FAILED = { code: 500, message: "fail" };
 
 const VALIDATOR_FAILED = { code: 400, message: "params validated failed" };
 
+const AUTHORIZE_FAILED = { code: 401, message: "authorize failed" };
+
 const API_NOT_FOUNT = { code: 404, message: "api does not exist" };
 
 class Response {
@@ -37,6 +39,10 @@ class Response {
       VALIDATOR_FAILED.code,
       VALIDATOR_FAILED.message + `${keys ? ":" + keys : ""}`
     );
+  }
+
+  static authorizeFailed() {
+    return new Response(AUTHORIZE_FAILED.code, AUTHORIZE_FAILED.message);
   }
 
   static apiNotFount() {

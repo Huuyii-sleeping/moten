@@ -16,6 +16,14 @@ class UserDAO {
     const res = await daoErrorHandler(() => query(sql, params));
     return res;
   }
+  async login(body) {
+    const { username, password } = body;
+    const sql =
+      "SELECT user_id,user_name FROM user WHERE user_name = ? AND password = ? LIMIT 1";
+    const params = [username, password].map(String);
+    const res = await daoErrorHandler(() => query(sql, params));
+    return res;
+  }
 }
 
 export const userDAO = new UserDAO();
