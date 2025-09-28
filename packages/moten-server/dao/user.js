@@ -19,14 +19,14 @@ class UserDAO {
   async login(body) {
     const { username, password } = body;
     const sql =
-      "SELECT user_id,user_name,disable FROM user WHERE user_name = ? AND password = ? LIMIT 1";
+      "SELECT user_id,user_name,create_time,disable,role_id FROM user WHERE user_name = ? AND password = ? LIMIT 1";
     const params = [username, password].map(String);
     const res = await daoErrorHandler(() => query(sql, params));
     return res;
   }
 
   async findAll(page = 1, size = 10) {
-    const sql = `SELECT user_id,user_name,create_time,disable FROM user ORDER BY user_id DESC LIMIT ?,?`;
+    const sql = `SELECT u.user_id,u.user_name,u.create_time,u.disable,r.role FROM user AS u JOIN role as r ON u.role_id = r.role_id LIMIT ?,?`;
     const params = [(page - 1) * size, size].map(String);
     const res = await daoErrorHandler(() => query(sql, params));
     return res;
@@ -35,6 +35,13 @@ class UserDAO {
   async disable(id, disable = 1) {
     const sql = `UPDATE user SET disable = ? WHERE user_id = ? LIMIT 1`;
     const params = [disable, id].map(String);
+    const res = await daoErrorHandler(() => query(sql, params));
+    return res;
+  }
+
+  async findOne(id) {
+    const sql = `SELECT user_id,user_name,create_time,disable,role_id FROM user WHERE user_id = ? LIMIT 1`;
+    const params = [id].map(String);
     const res = await daoErrorHandler(() => query(sql, params));
     return res;
   }
