@@ -14,9 +14,11 @@
   "packageManager": "pnpm@10.12.1",
   "dependencies": {
     "cors": "^2.8.5",
+    "dayjs": "^1.11.18",
     "express": "^5.1.0",
     "express-async-errors": "^3.1.1",
     "joi": "^18.0.1",
+    "lodash-es": "^4.17.21",
     "mysql2": "^3.15.1"
   }
 }
