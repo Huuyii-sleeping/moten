@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { error404Handler, errorHandler } from "./middleware/error.js";
-import { pageController } from "./controller/index.js";
+import { pageController, userController } from "./controller/index.js";
 
 const app = express();
 const port = 8081;
@@ -13,6 +13,8 @@ app.use(express.json());
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
 });
+
+app.post('/rest/v1/user/register', userController.register())
 
 // 分页查询
 app.get("/rest/v1/page", pageController.findAll());
