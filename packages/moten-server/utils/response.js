@@ -6,6 +6,8 @@ const VALIDATOR_FAILED = { code: 400, message: "params validated failed" };
 
 const AUTHORIZE_FAILED = { code: 401, message: "authorize failed" };
 
+const ACCESS_DENIED = { code: 403, message: "access denied" };
+
 const API_NOT_FOUNT = { code: 404, message: "api does not exist" };
 
 class Response {
@@ -43,6 +45,10 @@ class Response {
 
   static authorizeFailed() {
     return new Response(AUTHORIZE_FAILED.code, AUTHORIZE_FAILED.message);
+  }
+
+  static accessDenied() {
+    return new Response(ACCESS_DENIED.code, ACCESS_DENIED.message);
   }
 
   static apiNotFount() {

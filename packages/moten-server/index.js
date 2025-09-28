@@ -26,6 +26,8 @@ app.listen(port, () => {
 
 app.post("/rest/v1/user/register", userController.register());
 app.post("/rest/v1/user/login", userController.login());
+app.get("/rest/v1/user", userController.findAll());
+app.post("/rest/v1/user/disabled", userController.disable());
 
 // 分页查询
 app.get("/rest/v1/page", pageController.findAll());
