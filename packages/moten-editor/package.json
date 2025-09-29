@@ -16,6 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "@types/crypto-js": "^4.2.2",
     "axios": "^1.12.2",
     "crypto-js": "^4.2.0",
