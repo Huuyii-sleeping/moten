@@ -6,6 +6,7 @@ import {
   pageController,
   userController,
   logController,
+  mediaController,
 } from "./controller/index.js";
 import { expressjwt } from "express-jwt";
 import { SECRET_KEY } from "./config/index.js";
@@ -60,6 +61,9 @@ app.post("/rest/v1/package/update", packageController.update());
 
 // 日志
 app.get("/rest/v1/log", logController.findAll());
+
+// 媒体上传
+app.post('/rest/v1/media/upload', mediaController.upload())
 
 app.use(authFailedHandler);
 app.use(errorHandler);
