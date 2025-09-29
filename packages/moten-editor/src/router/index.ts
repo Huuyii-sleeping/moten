@@ -13,6 +13,16 @@ const router = createRouter({
       name: 'edit',
       component: () => import('../pages/edit.vue'),
     },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../pages/login.vue'),
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('../pages/register.vue'),
+    },
   ],
 })
 
