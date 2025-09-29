@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-
+import { useUserStore } from '@/stores/user'
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
@@ -7,11 +7,17 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('../pages/list.vue'),
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/edit',
       name: 'edit',
       component: () => import('../pages/edit.vue'),
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/login',
@@ -24,6 +30,24 @@ const router = createRouter({
       component: () => import('../pages/register.vue'),
     },
   ],
+})
+
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore()
+  const isLogin = !!userStore.token
+  console.log(isLogin)
+
+  if (isLogin && ['/login', '/register'].includes(to.path)) {
+    next('/')
+    return
+  }
+
+  if (!isLogin && to.meta.requiresAuth) {
+    next(`/login`)
+    return
+  }
+
+  next()
 })
 
 export default router

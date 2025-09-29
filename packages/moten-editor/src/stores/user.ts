@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { setToken as setLocalStore } from '@/utils/store'
 
-export const useUserStore = defineStore('edit', () => {
+export const useUserStore = defineStore('user', () => {
   const token = ref('')
   const role = ref(10)
 

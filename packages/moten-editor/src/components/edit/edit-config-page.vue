@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { useEditStore } from '@/stores/edit';
 import { ref } from 'vue';
-import { pageSchema, type PageSchemaFormData } from '@/config/schema';
+import { pageSchema } from '@/config/schema';
 import deepmerge from 'deepmerge';
 
 const edit = useEditStore()

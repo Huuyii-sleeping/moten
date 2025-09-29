@@ -14,10 +14,10 @@ import { getToken } from './utils/store'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 const app = createApp(App)
+app.use(createPinia())
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
-app.use(createPinia())
 app.use(ElementPlus)
 app.use<{ platform: 'editor' | 'user' }>(moten, { platform: 'editor' })
 app.use(router)
@@ -27,3 +27,4 @@ app.mount('#app')
 
 const userStore = useUserStore()
 userStore.setToken(getToken())
+
