@@ -1,5 +1,6 @@
 import { customAlphabet } from 'nanoid'
 import { defineAsyncComponent, markRaw, type Component } from 'vue'
+import CryptoJS from 'crypto-js'
 
 /**
  * 随机id生成
@@ -10,6 +11,12 @@ export const nanoid = (length = 8) => {
   // 创建自定义字符级和长度的唯一id生成器 控制生成的id的所用的字符和长度
   const generateId = customAlphabet('123456789qwertyuiopasdfghjklzxcvbnm', length)
   return generateId()
+}
+
+export const md5 = (str: string) => {
+  if (!str) return ''
+  var hash = CryptoJS.MD5(str)
+  return hash.toString(CryptoJS.enc.Hex)
 }
 
 /**

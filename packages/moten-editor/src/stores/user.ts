@@ -1,0 +1,25 @@
+import { computed, ref } from 'vue'
+import { defineStore } from 'pinia'
+import { setToken as setLocalStore } from '@/utils/store'
+
+export const useUserStore = defineStore('edit', () => {
+  const token = ref('')
+  const role = ref(10)
+
+  const isAdminRole = computed(() => role.value === 20)
+
+  const setToken = (value: string) => {
+    setLocalStore(value)
+    token.value = value
+  }
+  const setRole = (value: number) => {
+    role.value = value
+  }
+  return {
+    token,
+    role,
+    isAdminRole,
+    setToken,
+    setRole,
+  }
+})

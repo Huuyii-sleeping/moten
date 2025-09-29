@@ -22,8 +22,11 @@
 </template>
 
 <script setup lang="ts">
-import type { FormInstance } from 'element-plus'
+import { userRegisterAsync } from '@/api/user'
+import { ElMessage, type FormInstance } from 'element-plus'
 import { reactive, ref } from 'vue'
+import { md5 } from '@/utils'
+import router from '@/router'
 
 const form = reactive({
     name: '',
@@ -58,13 +61,31 @@ const rules = reactive({
 })
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
-    await formEl.validate((valid, fields) => {
-        if (valid) {
-            console.log('submit!')
-        } else {
+    await formEl.validate(async (valid, fields) => {
+        if (!valid) {
             console.log('error submit!', fields)
+            return
+        }
+
+        const params = {
+            username: form.name,
+            password: md5(form.password)
+        }
+        const { status, message } = await userRegisterAsync(params)
+        if (status) {
+            ElMessage({
+                message: '注册成功',
+                type: "success"
+            })
+            router.push('/login')
+        } else {
+            ElMessage({
+                message: "注册失败" + message,
+                type: "error"
+            })
         }
     })
+
 }
 </script>
 

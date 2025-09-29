@@ -39,9 +39,15 @@ importers:
 
   packages/moten-editor:
     dependencies:
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       axios:
         specifier: ^1.12.2
         version: 1.12.2
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       element-plus:
         specifier: ^2.11.3
         version: 2.11.3(vue@3.5.22(typescript@5.8.3))
@@ -1170,6 +1176,9 @@ packages:
 
   '@types/conventional-commits-parser@5.0.1':
     resolution: {integrity: sha512-7uz5EHdzz2TqoMfV7ee61Egf5y6NkcO4FB/1iCCQnbeiI1F3xzv3vK5dBCXUCLQgGYS+mUeigK1iKQzvED+QnQ==}
+
+  '@types/crypto-js@4.2.2':
+    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
 
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
@@ -5498,6 +5507,8 @@ snapshots:
     dependencies:
       '@types/node': 22.18.6
     optional: true
+
+  '@types/crypto-js@4.2.2': {}
 
   '@types/deep-eql@4.0.2': {}
 

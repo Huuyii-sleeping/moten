@@ -1,6 +1,7 @@
 import router from '@/router'
 import axios, { type AxiosRequestConfig } from 'axios'
-
+import { useUserStore } from '@/stores/user'
+const userStore = useUserStore()
 const axiosInstance = axios.create({
   baseURL: 'http://127.0.0.1:8081',
   timeout: 30000,
@@ -9,9 +10,7 @@ const axiosInstance = axios.create({
 // 添加请求拦截器
 axiosInstance.interceptors.request.use(
   (config) => {
-    config.headers['Authorization'] =
-      'Bearer ' +
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im15OHIxcDJueTYiLCJpYXQiOjE3NTkxMTcxMDEsImV4cCI6MTc1OTIwMzUwMX0.QDu3nLsrBIDf_TL02QQ08NYh5rvBtH5K9J0twL1C51A'
+    if (userStore.token) config.headers['Authorization'] = userStore.token
     return config
   },
 
@@ -23,7 +22,11 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     if (response.data.code === 401) {
+      userStore.setToken('')
       router.replace('/login')
+    }
+    if (response.data.code === 200) {
+      response.data['status'] = true
     }
     return response
   },
@@ -38,6 +41,6 @@ export async function get(url: string, data?: any, config?: AxiosRequestConfig) 
 }
 
 export async function post(url: string, data?: any, config?: AxiosRequestConfig) {
-  const response = await axiosInstance.post(url, { ...config, params: data })
+  const response = await axiosInstance.post(url, data, config)
   return response.data
 }
