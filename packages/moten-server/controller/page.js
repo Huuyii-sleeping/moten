@@ -3,6 +3,7 @@ import { response } from "../utils/response.js";
 import { pageDAO } from "../dao/page.js";
 import validate from "../middleware/validate.js";
 import { omit } from "lodash-es";
+import { oprateLogHandler } from "../middleware/opratelog.js";
 
 export class PageController {
   findAll() {
@@ -51,14 +52,15 @@ export class PageController {
       name: Joi.string().optional(),
       content: Joi.string().optional(),
     });
-    const handler = async (req, res) => {
+    const handler = async (req, res, next) => {
       const pickBody = omit(req.body, ["id"]);
       const { id } = req.body;
       const { status, message, result } = await pageDAO.update(pickBody, id);
       if (!status) return res.json(response.fail(message));
-      return res.json(response.success(result));
+      res.json(response.success(result));
+      next();
     };
-    return [validate(rules, "body"), handler];
+    return [validate(rules, "body"), handler, oprateLogHandler];
   }
   remove() {
     const rules = Joi.object({

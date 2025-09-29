@@ -5,6 +5,7 @@ import {
   packageController,
   pageController,
   userController,
+  logController,
 } from "./controller/index.js";
 import { expressjwt } from "express-jwt";
 import { SECRET_KEY } from "./config/index.js";
@@ -56,6 +57,9 @@ app.post(
   packageController.remove()
 );
 app.post("/rest/v1/package/update", packageController.update());
+
+// 日志
+app.get("/rest/v1/log", logController.findAll());
 
 app.use(authFailedHandler);
 app.use(errorHandler);
