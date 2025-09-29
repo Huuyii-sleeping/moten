@@ -1,7 +1,11 @@
 import express from "express";
 import cors from "cors";
 import { error404Handler, errorHandler } from "./middleware/error.js";
-import { pageController, userController } from "./controller/index.js";
+import {
+  packageController,
+  pageController,
+  userController,
+} from "./controller/index.js";
 import { expressjwt } from "express-jwt";
 import { SECRET_KEY } from "./config/index.js";
 import { authFailedHandler } from "./middleware/auth.js";
@@ -25,17 +29,33 @@ app.listen(port, () => {
   console.log(`listening on port ${port}`);
 });
 
+// user
 app.post("/rest/v1/user/register", userController.register());
 app.post("/rest/v1/user/login", userController.login());
 app.get("/rest/v1/user", userController.findAll());
 app.post("/rest/v1/user/disabled", userController.disable());
 
-// 分页查询
+// 页面
 app.get("/rest/v1/page", pageController.findAll());
 app.get("/rest/v1/page/:id", pageController.findOne());
 app.post("/rest/v1/page/create", pageController.create());
-app.post("/rest/v1/page/delete", [permissionHandler(20)], pageController.remove());
+app.post(
+  "/rest/v1/page/delete",
+  [permissionHandler(20)],
+  pageController.remove()
+);
 app.post("/rest/v1/page/update", pageController.update());
+
+// 套件
+app.get("/rest/v1/package", packageController.findAll());
+app.get("/rest/v1/package/:id", packageController.findOne());
+app.post("/rest/v1/package/create", packageController.create());
+app.post(
+  "/rest/v1/package/delete",
+  [permissionHandler(20)],
+  packageController.remove()
+);
+app.post("/rest/v1/package/update", packageController.update());
 
 app.use(authFailedHandler);
 app.use(errorHandler);
