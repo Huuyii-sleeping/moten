@@ -13,6 +13,7 @@ declare module 'vue' {
     ConfigColumn: typeof import('./src/components/config/config-column.vue')['default']
     ConfigFiles: typeof import('./src/components/config/config-files.vue')['default']
     ConfigInput: typeof import('./src/components/config/config-input.vue')['default']
+    ConfigRichtext: typeof import('./src/components/config/config-richtext.vue')['default']
     ConfigSelect: typeof import('./src/components/config/config-select.vue')['default']
     ConfigTextarea: typeof import('./src/components/config/config-textarea.vue')['default']
     ConfigViewport: typeof import('./src/components/config/config-viewport.vue')['default']

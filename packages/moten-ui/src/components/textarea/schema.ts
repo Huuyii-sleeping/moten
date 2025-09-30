@@ -41,7 +41,7 @@ const height = Type.String({
 });
 
 const content = Type.String({
-  code: "config-textarea",
+  code: "config-richtext",
   title: "内容",
   default: "",
   placeholder: "请输入内容",

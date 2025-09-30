@@ -12,6 +12,8 @@ import ElementPlus from 'element-plus'
 import { useUserStore } from './stores/user'
 import { getToken } from './utils/store'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 const app = createApp(App)
 app.use(createPinia())
@@ -23,8 +25,8 @@ app.use<{ platform: 'editor' | 'user' }>(moten, { platform: 'editor' })
 app.use(router)
 app.component('icon', Icon)
 app.component('draggable', Draggable)
+app.component('QuillEditor', QuillEditor)
 app.mount('#app')
 
 const userStore = useUserStore()
 userStore.setToken(getToken())
-
