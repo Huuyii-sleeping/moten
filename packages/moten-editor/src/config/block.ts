@@ -18,7 +18,7 @@ export const baseBlock: BaseBlock[] = [
   },
   {
     id: '',
-    code: 'text',
+    code: 'textarea',
     name: '文本',
     icon: 'text',
     formData: {},

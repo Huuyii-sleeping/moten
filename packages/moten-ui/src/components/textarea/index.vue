@@ -1,0 +1,37 @@
+<template>
+    <div :class="classes" :style="displayStyle">
+        <el-mention class="textarea" v-model="content" type="textarea" :style="styles" placeholder="请输入内容"></el-mention>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { createNameSpace } from '@/utils/components';
+import { props } from './props';
+import { computed, inject, toRefs } from 'vue';
+defineOptions({
+    name: 'mo-textarea'
+})
+const platform = inject('platform')
+const { n } = createNameSpace('textarea')
+const propsData = defineProps(props)
+const { data, viewport } = toRefs(propsData)
+const classes = computed(() => [n()])
+const width = computed(() => data.value?.width?.[viewport.value] || '')
+const height = computed(() => data.value?.height?.[viewport.value] || '')
+const content = computed(() => data.value?.content?.[viewport.value] || '')
+const styles = computed(() => [{ width: width.value, height: height.value }])
+const display = computed(() => {
+    const display = data.value?.display?.[viewport.value]
+    return typeof display === 'boolean' ? display : true
+})
+// 多端展示的配置
+const displayStyle = computed(() => {
+    if (platform === 'editor') {
+        return !display.value ? { opacity: 0.4, fliter: 'brightness(0.7)' } : {}
+    } else {
+        return !display.value ? { display: 'none' } : {}
+    }
+})
+</script>
+
+<style scoped lang="scss"></style>

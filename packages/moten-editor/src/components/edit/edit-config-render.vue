@@ -69,7 +69,6 @@ watch(() => props.list, () => {
 
 const emit = defineEmits(['callback'])
 const callback = (data: any) => {
-    console.log(data)
     emit('callback', data)
 }
 const getComponent = (item: any) => {

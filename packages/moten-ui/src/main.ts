@@ -3,16 +3,18 @@ import "./assets/styles/index.scss";
 import MoImage from "@/components/image";
 import MoColumn from "@/components/column";
 import MoVideo from "@/components/video";
+import MoTextarea from "@/components/textarea";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
 import videoSchema from "@/components/video/schema";
+import textareaSchema from "@/components/textarea/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
 import type { App } from "vue";
 
-const components = [MoImage, MoColumn, MoVideo];
+const components = [MoImage, MoColumn, MoVideo, MoTextarea];
 
 const install = (
   app: App,
@@ -31,9 +33,10 @@ export const schema = {
   image: imageSchema,
   column: columnSchema,
   video: videoSchema,
+  textarea: textareaSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
 export const COMPONENT_PREFIX = _COMPONENT_PREFIX;
 
-export default { install, MoImage, MoColumn, MoVideo };
+export default { install, MoImage, MoColumn, MoVideo, MoTextarea };
