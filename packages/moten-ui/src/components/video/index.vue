@@ -1,35 +1,33 @@
 <template>
-    <div :class="classes" :style="displayStyle">
-        <mo-link v-if="src" :to="link" target="_blank">
-            <img class="image" v-bind="$attrs" :src="src" alt="" :style="styles">
-        </mo-link>
-        <div v-else class="no-image">
-            <mo-empty description="暂无图片，请上传"></mo-empty>
-        </div>
+    <div :class="classes" :style="displayStyle" v-if="videoUrl">
+        <video class="video" :style="styles" controls :src="videoUrl" :poster="posterUrl" :width="width"
+            :height="height">
+        </video>
     </div>
-
+    <div v-else :class="classes" class="no-video">
+        <mo-empty description="暂无视频,请上传" />
+    </div>
 </template>
 
 <script setup lang="ts">
 import { createNameSpace } from '@/utils/components';
 import { computed, toRefs, inject } from 'vue';
-import { props } from './props'
-import MoLink from '@/components/link'
+import { props } from './props';
 import MoEmpty from '@/components/empty'
 
-const { n } = createNameSpace('image')
+const { n } = createNameSpace('video')
 defineOptions({
-    name: 'mo-image'
+    name: 'mo-video'
 })
 const platform = inject('platform')
 const propsData = defineProps(props)
 const { data, viewport } = toRefs(propsData)
 const classes = computed(() => [n()])
-const src = computed(() => data.value?.src?.[viewport.value] || '')
+const posterUrl = computed(() => data.value?.posterUrl?.[viewport.value] || '')
 const width = computed(() => data.value?.width?.[viewport.value] || '')
-const link = computed(() => data.value?.link?.[viewport.value] || '')
+const videoUrl = computed(() => data.value?.videoUrl?.[viewport.value] || '')
 const height = computed(() => data.value?.height?.[viewport.value] || '')
-const styles = computed(() => ({ width: width.value, height: height.value }))
+const styles = computed(() => [{ width: width.value, height: height.value }])
 const display = computed(() => {
     const display = data.value?.display?.[viewport.value]
     return typeof display === 'boolean' ? display : true
@@ -45,5 +43,5 @@ const displayStyle = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import './index.scss'
+@import "./index.scss";
 </style>

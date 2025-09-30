@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/6</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -92,57 +92,57 @@
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&lt;template&gt;
-    &lt;component :is="tag" :class="classes" v-bind="$attrs" :href="to" :to="to" :target="target"&gt;
-        &lt;slot&gt;&lt;/slot&gt;
-    &lt;/component&gt;
+<span class="cstat-no" title="statement not covered" >    &lt;component :is="tag" :class="classes" v-bind="$attrs" :href="to" :to="to" :target="target"&gt;</span>
+<span class="cstat-no" title="statement not covered" >        &lt;slot&gt;&lt;/slot&gt;</span>
+<span class="cstat-no" title="statement not covered" >    &lt;/component&gt;</span>
 &lt;/template&gt;
 &nbsp;
 &lt;script setup lang="ts"&gt;
-import { createNameSpace } from '@/utils/components';
-import { computed, toRefs } from 'vue';
-import { props } from './props'
+<span class="cstat-no" title="statement not covered" >import { createNameSpace } from '@/utils/components';</span>
+<span class="cstat-no" title="statement not covered" >import { computed, toRefs } from 'vue';</span>
+<span class="cstat-no" title="statement not covered" >import { props } from './props'</span>
 &nbsp;
-const { n } = createNameSpace('link')
+<span class="cstat-no" title="statement not covered" >const { n } = createNameSpace('link')</span>
 defineOptions({ name: 'mo-link' })
-const propsData = defineProps(props)
-const { to, target } = toRefs(propsData)
-const classes = computed(() =&gt; [n()])
-const tag = computed(() =&gt; {
-    if (to.value) <span class="branch-0 cbranch-no" title="branch not covered" >return 'span'</span>
-    return isExternalLink.<span class="branch-0 cbranch-no" title="branch not covered" >value ? 'a' : '</span>router-link'
-})
+<span class="cstat-no" title="statement not covered" >const propsData = defineProps(props)</span>
+<span class="cstat-no" title="statement not covered" >const { to, target } = toRefs(propsData)</span>
+<span class="cstat-no" title="statement not covered" >const classes = computed(() =&gt; [n()])</span>
+<span class="cstat-no" title="statement not covered" >const tag = computed(() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (to.value) return 'span'</span>
+<span class="cstat-no" title="statement not covered" >    return isExternalLink.value ? 'a' : 'router-link'</span>
+<span class="cstat-no" title="statement not covered" >})</span>
 &nbsp;
-const isExternalLink = computed(() =&gt; {
-    return to.value.match(/^(http:\/\/|https:\/\/|javascript:.*|tel:.*|mailto:.*)/)
-})
+<span class="cstat-no" title="statement not covered" >const isExternalLink = computed(() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    return to.value.match(/^(http:\/\/|https:\/\/|javascript:.*|tel:.*|mailto:.*)/)</span>
+<span class="cstat-no" title="statement not covered" >})</span>
 &lt;/script&gt;
 &nbsp;
 &lt;style scoped lang="scss"&gt;
@@ -154,7 +154,7 @@ const isExternalLink = computed(() =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-26T10:07:00.947Z
+                at 2025-09-29T13:47:15.291Z
             </div>
         <script src="../prettify.js"></script>
         <script>

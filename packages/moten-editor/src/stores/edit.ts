@@ -9,6 +9,7 @@ export const useEditStore = defineStore('edit', () => {
   const configPanelShow = ref<boolean | null>(false)
   const blockConfig = ref<BaseBlock[]>([])
   const pageConfig = ref<PageSchemaFormData>({})
+  const isPreview = ref(false)
   const isMobileViewport = computed(() => {
     return viewport.value === 'mobile'
   })
@@ -29,6 +30,9 @@ export const useEditStore = defineStore('edit', () => {
   function setPageConfig(value: BasePage) {
     pageConfig.value = value
   }
+  function setPreview(value: boolean){
+    isPreview.value = value
+  }
   return {
     viewport,
     currentSelect,
@@ -36,6 +40,8 @@ export const useEditStore = defineStore('edit', () => {
     isMobileViewport,
     blockConfig,
     pageConfig,
+    isPreview,
+    setPreview,
     setPageConfig,
     setBlockConfig,
     setConfigPanelShow,

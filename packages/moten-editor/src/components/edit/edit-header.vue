@@ -11,7 +11,7 @@
             <v-select v-model="viewport" />
         </div>
         <div class="header-right">
-            <el-button>
+            <el-button @click="togglePreview">
                 <v-icon icon="preview" />
                 预览
             </el-button>
@@ -80,7 +80,10 @@ const submit = () => {
         validateAll(item)
     })
 }
-
+// 预览模式的替换
+const togglePreview = () => {
+    edit.setPreview(!edit.isPreview)
+}
 
 const edit = useEditStore()
 const viewport = ref<Viewport>('desktop')
