@@ -1,12 +1,13 @@
 <template>
-    <div :class="classes" :style="displayStyle" v-if="videoUrl">
-        <video class="video" :style="styles" controls :src="videoUrl" :poster="posterUrl" :width="width"
+    <div :class="classes" :style="displayStyle">
+        <video v-if="videoUrl" class="video" :style="styles" controls :src="videoUrl" :poster="posterUrl" :width="width"
             :height="height">
         </video>
+        <div v-else :class="classes" class="no-video">
+            <mo-empty description="暂无视频,请上传" />
+        </div>
     </div>
-    <div v-else :class="classes" class="no-video">
-        <mo-empty description="暂无视频,请上传" />
-    </div>
+
 </template>
 
 <script setup lang="ts">

@@ -1,6 +1,6 @@
 <template>
     <div :class="classes" :style="displayStyle">
-        <QuillEditor v-model:content="content" content-type="html" :toolbar="[]" :style="styles" placeholder="请输入内容" />
+        <QuillEditor class="textarea" v-model:content="content" content-type="html" :toolbar="[]" :style="styles" placeholder="请输入内容" />
     </div>
 </template>
 
@@ -20,10 +20,7 @@ const { data, viewport } = toRefs(propsData)
 const classes = computed(() => [n()])
 const width = computed(() => data.value?.width?.[viewport.value] || '')
 const height = computed(() => data.value?.height?.[viewport.value] || '')
-const content = computed(() => {
-    console.log('content更新')
-    return data.value?.content?.[viewport.value] || ''
-})
+const content = computed(() => data.value?.content?.[viewport.value] || '')
 const styles = computed(() => [{ width: width.value, height: height.value }])
 const display = computed(() => {
     const display = data.value?.display?.[viewport.value]
@@ -39,4 +36,6 @@ const displayStyle = computed(() => {
 })
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+@import './index.scss'
+</style>

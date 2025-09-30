@@ -26,7 +26,7 @@ export const baseBlock: BaseBlock[] = [
   {
     id: '',
     name: '幻灯片',
-    code: 'swiper',
+    code: 'slide',
     icon: 'swiper',
     formData: {},
   },
