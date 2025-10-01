@@ -8,7 +8,7 @@ export type MoColumnPropsData = {
     mobile: number[];
   };
   // 背景
-  background: {
+  color: {
     desktop: string;
     mobile: string;
   };
@@ -24,7 +24,7 @@ export const props = {
         desktop: [0.5, 0.5],
         mobile: [0.5, 0.5],
       },
-      background: {
+      color: {
         desktop: "",
         mobile: "",
       },

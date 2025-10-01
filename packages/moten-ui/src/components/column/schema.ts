@@ -1,7 +1,7 @@
 import { schemaAllViewport } from "@/utils/components";
 import { Type } from "typebox";
 
-const background = Type.String({
+const color = Type.String({
   code: "config-color",
   title: "背景",
   default: "#fff",
@@ -16,7 +16,7 @@ const cols = Type.Array(Type.Number(), {
 });
 
 const schema = Type.Object({
-  background: schemaAllViewport(background),
+  color: schemaAllViewport(color),
   cols: schemaAllViewport(cols),
 });
 
