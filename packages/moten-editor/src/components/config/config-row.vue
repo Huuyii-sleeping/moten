@@ -1,8 +1,8 @@
 <template>
-    <div class="config-column">
+    <div class="config-row">
         <el-form-item>
             <div class="list">
-                <div v-for="(item, index) in column" :key="index" class="item">
+                <div v-for="(item, index) in row" :key="index" class="item">
                     <div v-html="widthFormat(item)" class="input" />
                 </div>
             </div>
@@ -37,14 +37,14 @@ const { formData, key, id } = data.value
 const { default: defaultValue, minItems, maxItems } = data.value.properties[props.viewport]
 const realDefaultValue = Array.from({ length: minItems }, (_) => defaultValue)
 
-const column = ref<number[]>([])
-const isShowAdd = computed(() => column.value.length < maxItems)
-const isShowRemove = computed(() => column.value.length > minItems)
+const row = ref<number[]>([])
+const isShowAdd = computed(() => row.value.length < maxItems)
+const isShowRemove = computed(() => row.value.length > minItems)
 
 watch(
     formData,
     (value) => {
-        column.value = value?.[props.viewport] || realDefaultValue
+        row.value = value?.[props.viewport] || realDefaultValue
     },
     {
         immediate: true,
@@ -52,7 +52,7 @@ watch(
 )
 
 watch(
-    column,
+    row,
     (value) => {
         if (value.length > maxItems) return
 
@@ -76,21 +76,22 @@ const updateNumber = (length: number) => Array.from({ length: length }, (_) => 1
 const widthFormat = (width: number) => parseInt(String(width * 10000)) / 100 + '%'
 
 const add = () => {
-    const { length } = column.value
+    const { length } = row.value
     if (length === maxItems) return
-    column.value = updateNumber(length + 1)
+    row.value = updateNumber(length + 1)
 }
 const remove = () => {
-    const { length } = column.value
+    const { length } = row.value
     if (length === 1) return
-    column.value = updateNumber(length - 1)
+    row.value = updateNumber(length - 1)
 }
 </script>
 
 <style lang="scss" scoped>
-.config-column {
+.config-row {
     .list {
         display: flex;
+        flex-direction: row;
         justify-content: flex-start;
         align-items: center;
         width: 100%;

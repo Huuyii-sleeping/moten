@@ -64,6 +64,17 @@ const callback = (params: { data: object; id: string }) => {
                 const diff = Array.from({ length: count }, (_) => [])
                 array[index].children?.push(...diff)
             }
+        } else if (node.nested && node.code === 'row') {
+            const rows = node.formData?.rows?.desktop || [0.5, 0.5]
+            const oldRows = node.children || [[], []]
+            if (oldRows.length > rows.length) {
+                const count = oldRows.length - rows.length
+                array[index].children?.splice(oldRows.length - count, count)
+            } else {
+                const count = rows.length - oldRows.length
+                const diff = Array.from({ length: count }, (_) => [])
+                array[index].children?.push(...diff)
+            }
         }
     })
 

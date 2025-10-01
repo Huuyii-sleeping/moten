@@ -22,7 +22,7 @@
                                 :viewport="edit.viewport" :children="element.children">
                                 <template #default="{ item, index }">
                                     <edit-render-drag :key="element.id + '-' + index" :list="item" :level="level + 1"
-                                        :group="group" class="nested-item" :class="nestedClass">
+                                        :group="group" class="nested-item" :class="nestedClass" style="height: 296px">
                                     </edit-render-drag>
                                 </template>
                             </component>
@@ -110,6 +110,7 @@ const clear = (id: string) => {
     edit.setCurrentSelect({} as any)
     edit.setBlockConfig(newBlockConfig)
 }
+
 </script>
 
 <style scoped lang="scss">

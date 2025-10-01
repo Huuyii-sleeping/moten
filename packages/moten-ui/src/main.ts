@@ -6,6 +6,7 @@ import MoVideo from "@/components/video";
 import MoTextarea from "@/components/textarea";
 import MoSlide from "@/components/carousel";
 import MoBlank from "@/components/blank";
+import MoRow from "@/components/row";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -13,12 +14,21 @@ import videoSchema from "@/components/video/schema";
 import textareaSchema from "@/components/textarea/schema";
 import slideSchema from "@/components/carousel/schema";
 import blankSchema from "@/components/blank/schema";
+import rowSchema from "@/components/row/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
 import type { App } from "vue";
 
-const components = [MoImage, MoColumn, MoVideo, MoTextarea, MoSlide, MoBlank];
+const components = [
+  MoImage,
+  MoColumn,
+  MoVideo,
+  MoTextarea,
+  MoSlide,
+  MoBlank,
+  MoRow,
+];
 
 const install = (
   app: App,
@@ -40,6 +50,7 @@ export const schema = {
   textarea: textareaSchema,
   slide: slideSchema,
   blank: blankSchema,
+  row: rowSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -53,4 +64,5 @@ export default {
   MoTextarea,
   MoSlide,
   MoBlank,
+  MoRow,
 };

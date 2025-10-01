@@ -1,0 +1,10 @@
+@include b("row") {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  height: 100%;
+  .item {
+    // flex: 1; 
+    min-height: 295px;
+  }
+}
