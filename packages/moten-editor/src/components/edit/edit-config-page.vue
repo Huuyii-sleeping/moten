@@ -24,7 +24,6 @@ const listResult = Object.fromEntries(
 )
 
 list.value = [...Object.values(listResult)]
-
 const callback = (params: { data: Object }) => {
     const { data } = params
     const key = Object.keys(data)[0]

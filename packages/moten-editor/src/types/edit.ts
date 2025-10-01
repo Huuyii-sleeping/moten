@@ -9,15 +9,29 @@ export interface BaseBlock {
   // 物料区标题
   name: string
   // 物料区图标
-  icon: string
+  icon?: string
   // 是否是嵌套组件
   nested?: boolean
   // 嵌套子项
   children?: BaseBlock[][]
   // 配置内容
   formData?: Partial<BlockSchema[BlockSchemaKeys] | Object>
+  // 区分内容
+  type?: string
+}
+
+export interface ElementBlock {
+  id: string
+  code: string
+  name: string
+  icon?: string
+  nested?: boolean
+  formData?: Object
+  style?: Record<string, any>
+  type?: string
 }
 
 export type BasePage = PageSchemaFormData
 
 export type BaseBlockNull = BaseBlock | null
+

@@ -27,6 +27,13 @@
                                 </template>
                             </component>
                         </div>
+                        <div v-else-if="element.type" class="block-render" :class="activeClass(element)"
+                            @click.stop="edit.setCurrentSelect(element)" @mouseenter="hoverId = element.id"
+                            @mouseleave="hoverId = ''">
+                            <component :is="renderComponentCode(element)" v-bind="getComponentValues(element.formData)">
+                                {{ getComponentValues(element.formData)['content'] }}
+                            </component>
+                        </div>
                         <div v-else class="block-render" :class="activeClass(element)"
                             @click.stop="edit.setCurrentSelect(element)" @mouseenter="hoverId = element.id"
                             @mouseleave="hoverId = ''">
@@ -78,7 +85,10 @@ defineProps({
 const hoverId = ref('')
 // 返回名字直接进行组件的渲染
 const renderComponentCode = computed(() => {
-    return (element: { code: string }) => {
+    return (element: { code: string, type: string }) => {
+        if (element.type) {
+            return element.code
+        }
         return COMPONENT_PREFIX + '-' + element.code
     }
 })
@@ -88,6 +98,15 @@ const activeClass = computed(() => {
         return { 'is-active': element.id === id }
     }
 })
+
+const getComponentValues = (defaultValue: any) => {
+    const defaultKeys = Object.keys(defaultValue)
+    let target: Record<string, any> = {}
+    defaultKeys.forEach((key) => {
+        target[key] = defaultValue[key][edit.viewport]       
+    })
+    return target
+}
 
 const handleNodeById = (arr: BaseBlock[], nodeId: string, type: 'copy' | 'clear') => {
     return findNodeById(arr, nodeId, (params) => {
