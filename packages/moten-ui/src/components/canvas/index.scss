@@ -1,0 +1,17 @@
+@include b("canvas") {
+  .canvas {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    margin: 0 auto;
+    @include res(height, 295, 295);
+  }
+  .no-children {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    @include res(height, 295, 295);
+  }
+}

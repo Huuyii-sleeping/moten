@@ -64,7 +64,7 @@ export const seniorBlocks: BaseBlock[] = [
     code: 'canvas',
     icon: 'canvas',
     nested: true,
-    children: [[], []],
+    children: [[]],
     formData: {},
   },
 ]

@@ -30,7 +30,6 @@ watch(formData, (value) => {
 })
 
 watch(color, (value) => {
-    console.log(color.value)
     let data = {}
     const _value = value || ''
     if (Object.values(formData || {}).length < 2) data = { desktop: _value, mobile: _value }

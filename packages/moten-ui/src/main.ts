@@ -7,6 +7,7 @@ import MoTextarea from "@/components/textarea";
 import MoSlide from "@/components/carousel";
 import MoBlank from "@/components/blank";
 import MoRow from "@/components/row";
+import MoCanvas from "@/components/canvas";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -15,6 +16,7 @@ import textareaSchema from "@/components/textarea/schema";
 import slideSchema from "@/components/carousel/schema";
 import blankSchema from "@/components/blank/schema";
 import rowSchema from "@/components/row/schema";
+import canvasSchema from "@/components/canvas/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
@@ -28,6 +30,7 @@ const components = [
   MoSlide,
   MoBlank,
   MoRow,
+  MoCanvas,
 ];
 
 const install = (
@@ -51,6 +54,7 @@ export const schema = {
   slide: slideSchema,
   blank: blankSchema,
   row: rowSchema,
+  canvas: canvasSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -65,4 +69,5 @@ export default {
   MoSlide,
   MoBlank,
   MoRow,
+  MoCanvas,
 };
