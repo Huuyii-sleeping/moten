@@ -37,7 +37,7 @@ const display = computed(() => {
 // 多端展示的配置
 const displayStyle = computed(() => {
     if (platform === 'editor') {
-        return !display.value ? { opacity: 0.4, fliter: 'brightness(0.7)' } : {}
+        return !display.value ? { opacity: 0.4, filter: 'brightness(0.7)' } : {}
     } else {
         return !display.value ? { display: 'none' } : {}
     }
