@@ -30,7 +30,8 @@
                         <div v-else-if="element.type" class="block-render" :class="activeClass(element)"
                             @click.stop="edit.setCurrentSelect(element)" @mouseenter="hoverId = element.id"
                             @mouseleave="hoverId = ''">
-                            <component :is="renderComponentCode(element)" v-bind="getComponentValues(element.formData)">
+                            <component :is="renderComponentCode(element)" v-bind="getComponentValues(element.formData)"
+                                v-model="getComponentValues(element.formData)['content']">
                                 {{ getComponentValues(element.formData)['content'] }}
                             </component>
                         </div>
@@ -103,7 +104,7 @@ const getComponentValues = (defaultValue: any) => {
     const defaultKeys = Object.keys(defaultValue)
     let target: Record<string, any> = {}
     defaultKeys.forEach((key) => {
-        target[key] = defaultValue[key][edit.viewport]       
+        target[key] = defaultValue[key][edit.viewport]
     })
     return target
 }

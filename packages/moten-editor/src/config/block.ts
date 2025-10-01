@@ -1,4 +1,5 @@
 import type { BaseBlock, ElementBlock } from '@/types/edit'
+import { setFormData } from '@/utils'
 
 export const baseBlock: BaseBlock[] = [
   {
@@ -68,21 +69,7 @@ export const seniorBlocks: BaseBlock[] = [
   },
 ]
 
-export const setFormData = (defaultValue: any) => {
-  return {
-    desktop: defaultValue,
-    monile: defaultValue,
-  }
-}
-
 export const canvasBlocks: ElementBlock[] = [
-  {
-    id: '',
-    code: 'image',
-    name: '图片',
-    icon: 'image',
-    formData: {},
-  },
   {
     id: '',
     code: 'ElButton',
@@ -92,6 +79,20 @@ export const canvasBlocks: ElementBlock[] = [
       type: setFormData('primary'),
       content: setFormData('button'),
       size: setFormData(''),
+    },
+    type: 'el',
+  },
+  {
+    id: '',
+    code: 'ElInput',
+    name: '输入框',
+    icon: 'input',
+    formData: {
+      type: setFormData('text'),
+      placeholder: setFormData(''),
+      clearable: setFormData(true),
+      'show-password': setFormData(false),
+      content: setFormData(''),
     },
     type: 'el',
   },

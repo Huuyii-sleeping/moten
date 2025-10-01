@@ -51,3 +51,10 @@ export const batchDynamicComponents = (name: string, importUrl: Record<string, C
   // markRaw非响应式包装 组件本身不需要响应式包装
   return markRaw(defineAsyncComponent(importComponent))
 }
+
+export const setFormData = (defaultValue: any) => {
+  return {
+    desktop: defaultValue,
+    mobile: defaultValue,
+  }
+}
