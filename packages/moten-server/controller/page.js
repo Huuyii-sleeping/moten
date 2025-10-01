@@ -16,6 +16,7 @@ export class PageController {
     const handler = async (req, res) => {
       const { page, size, id } = req.query;
       const { status, message, result } = await pageDAO.findAll(page, size, id);
+      
       if (!status) return res.json(response.fail(message));
       return res.json(response.success(result));
     };

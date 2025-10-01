@@ -64,7 +64,7 @@ const edit = useEditStore()
 defineOptions({
     name: 'edit-render-drag'
 })
-defineProps({
+const props = defineProps({
     list: {
         type: Array,
         required: true,
@@ -83,6 +83,7 @@ defineProps({
         default: 1
     }
 })
+console.log(props.list)
 const hoverId = ref('')
 // 返回名字直接进行组件的渲染
 const renderComponentCode = computed(() => {
@@ -90,6 +91,7 @@ const renderComponentCode = computed(() => {
         if (element.type) {
             return element.code
         }
+        console.log(element.code)
         return COMPONENT_PREFIX + '-' + element.code
     }
 })

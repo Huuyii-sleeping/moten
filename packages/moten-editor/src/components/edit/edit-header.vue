@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <div class="header-left">
-            <div class="back">
+            <div class="back" @click="goHome()">
                 <v-icon content="返回" icon="back" />
                 <div class="header-title">页面</div>
             </div>
@@ -11,6 +11,7 @@
             <v-select v-model="viewport" />
         </div>
         <div class="header-right">
+            <el-input v-model="pageName" placeholder="请输入页面名字" style="width: 200px;margin-right: 20px;"></el-input>
             <el-button @click="togglePreview">
                 <v-icon icon="preview" />
                 预览
@@ -25,13 +26,16 @@
 
 <script setup lang="ts">
 import type { Viewport } from '@/types/edit';
-import { nextTick, ref, watch } from 'vue';
+import { nextTick, ref, toRaw, watch } from 'vue';
 import { useEditStore } from '@/stores/edit';
 import Ajv from 'ajv'
 import AjvErrors from 'ajv-errors'
 import { blockSchema, type BlockSchemaKeys } from '@/config/schema';
 import { findNodeById } from './nested';
-
+import { useRouter } from 'vue-router';
+import { submitPageAsync } from '@/api/user';
+import { ElMessage } from 'element-plus';
+const router = useRouter()
 // 在发布区域进行检验
 const ajv = new Ajv({ allErrors: true })
 ajv.addKeyword({
@@ -39,6 +43,7 @@ ajv.addKeyword({
 })
 AjvErrors(ajv)
 
+const pageName = ref('')
 const validateAll = async (item: any) => {
     const { value, schema, id } = item
     const validate = ajv.compile(schema)
@@ -67,19 +72,52 @@ const validateAll = async (item: any) => {
     console.warn('ajv submit!')
 }
 
-const submit = () => {
+const submit = async () => {
     const list = edit.blockConfig.map((item) => {
         return {
             id: item.id,
+            name: pageName.value,
             value: item.formData,
             schema: blockSchema[item.code as BlockSchemaKeys],
+            code: item.code
         }
     })
-    console.log(list)
     list.forEach((item) => {
         validateAll(item)
     })
+    const JSONList = convertToJSON(list)
+    try {
+        const { status, message } = await submitPageAsync({ name: list[0].name, content: JSONList })
+        if (status) {
+            ElMessage({
+                message: '发布成功',
+                type: 'success'
+            })
+            router.push('/')
+        } else {
+            ElMessage({
+                message: '发布失败: ' + message,
+                type: 'error'
+            })
+        }
+    } catch (error) {
+        console.warn('发布异常', error)
+        ElMessage({
+            message: '发布过程中出现错误',
+            type: 'error'
+        })
+    }
 }
+
+const convertToJSON = (data: any) => {
+    const raw = toRaw(data)
+    return JSON.stringify(raw, null, 2)
+}
+
+const goHome = () => {
+    router.push('/')
+}
+
 // 预览模式的替换
 const togglePreview = () => {
     edit.setPreview(!edit.isPreview)

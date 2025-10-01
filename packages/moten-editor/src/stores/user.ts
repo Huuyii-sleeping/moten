@@ -5,6 +5,7 @@ import { setToken as setLocalStore } from '@/utils/store'
 export const useUserStore = defineStore('user', () => {
   const token = ref('')
   const role = ref(10)
+  const list = ref([])
 
   const isAdminRole = computed(() => role.value === 20)
 
@@ -15,10 +16,15 @@ export const useUserStore = defineStore('user', () => {
   const setRole = (value: number) => {
     role.value = value
   }
+  const setList = (value: any) => {
+    list.value = value
+  }
   return {
     token,
     role,
     isAdminRole,
+    list,
+    setList,
     setToken,
     setRole,
   }

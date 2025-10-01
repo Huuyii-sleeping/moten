@@ -12,11 +12,36 @@
 <script setup lang="ts">
 import type { BaseBlock } from '@/types/edit';
 import { computed, ref, watch } from 'vue';
-import { dragGroup } from './nested';
+import { dragGroup, reverseBlockConfig } from './nested';
 import { useEditStore } from '@/stores/edit';
+import { useRoute } from 'vue-router';
+import { useUserStore } from '@/stores/user';
+const route = useRoute()
 const edit = useEditStore()
 const list = ref<BaseBlock[]>([])
+const useUser = useUserStore()
+const allPages = useUser.list
 // 及时添加和更新
+
+if (route.params) {
+    const { id } = route.params
+    if (id) {
+        let selectPage: any
+        allPages.forEach((page: any) => {
+            console.log('---page:', page)
+            if (page.page_id === Number(id)) {
+                selectPage = page
+                return
+            }
+        })
+
+        if (selectPage) {
+            const _page = reverseBlockConfig(selectPage.content)
+            list.value = _page
+        }
+    }
+}
+
 watch(() => list.value, (val) => {
     edit.setBlockConfig(val)
 }, { deep: true })
@@ -27,6 +52,7 @@ watch(() => edit.blockConfig, (val) => {
 const pageClass = computed(() => {
     return { 'is-mobile': edit.isMobileViewport }
 })
+
 </script>
 
 <style scoped lang="scss">

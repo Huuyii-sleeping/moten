@@ -6,13 +6,14 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      //@ts-ignore
       component: () => import('../pages/list.vue'),
       meta: {
         requiresAuth: true,
       },
     },
     {
-      path: '/edit',
+      path: '/edit/:id?',
       name: 'edit',
       component: () => import('../pages/edit.vue'),
       meta: {
@@ -35,7 +36,6 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
   const isLogin = !!userStore.token
-  console.log(isLogin)
 
   if (isLogin && ['/login', '/register'].includes(to.path)) {
     next('/')

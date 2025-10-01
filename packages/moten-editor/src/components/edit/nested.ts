@@ -1,6 +1,7 @@
 import type { BaseBlock } from '@/types/edit'
 import { nanoid } from '@/utils/index'
 import { cloneDeep, isEqual } from 'lodash-es'
+import { toRaw } from 'vue'
 
 /**
  * column嵌套class
@@ -104,3 +105,13 @@ export const findNodeById = (
 
   return array
 }
+
+export const reverseBlockConfig = (config: any) => {
+  console.log(config)
+  return config.map((item: any) => ({
+    id: item.id,
+    code: item.code,
+    formData: toRaw(item.value),
+  }))
+}
+

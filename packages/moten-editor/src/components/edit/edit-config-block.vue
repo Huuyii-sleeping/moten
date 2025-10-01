@@ -38,7 +38,6 @@ watch(() => edit.currentSelect, () => {
         })
     )
     list.value = [...Object.values(listResult)]
-        console.log(list.value)
 }, { immediate: true, deep: true })
 
 const callback = (params: { data: object; id: string }) => {
