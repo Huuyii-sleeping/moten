@@ -1,10 +1,7 @@
 <template>
     <div :class="classes" :style="displayStyle">
-        <div :style="styles" v-if="children.length > 1" class="canvas" v-for="(item, index) in children" :key="index">
+        <div :style="styles" class="canvas" v-for="(item, index) in children" :key="index">
             <slot :item="item" :index="index"></slot>
-        </div>
-        <div v-else class="no-children" :style="[styles, displayStyle]">
-            <MoEmpty description="暂无组件，请上传"></MoEmpty>
         </div>
     </div>
 </template>
@@ -13,7 +10,6 @@
 import { computed, inject, toRefs } from 'vue';
 import { props } from './props';
 import { createNameSpace } from '@/utils/components';
-import MoEmpty from '@/components/empty/index.vue'
 const { n } = createNameSpace('canvas')
 defineOptions({
     name: 'mo-canvas'

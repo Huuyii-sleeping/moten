@@ -80,8 +80,12 @@ export const canvasBlocks: BaseBlock[] = [
   {
     id: '',
     name: '文本',
-    code: 'text',
+    code: 'textarea',
     icon: 'text',
     formData: {},
   },
+  // {
+  //   id: '',
+  //   name: ''
+  // }
 ]
