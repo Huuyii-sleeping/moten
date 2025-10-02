@@ -81,7 +81,8 @@ const submit = async () => {
             value: item.formData,
             schema: blockSchema[item.code as BlockSchemaKeys],
             code: item.code,
-            children: item.children
+            children: item.children,
+            nested: item.nested
         }
     })
     list.forEach((item) => {

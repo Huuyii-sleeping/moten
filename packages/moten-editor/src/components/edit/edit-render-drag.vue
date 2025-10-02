@@ -5,12 +5,27 @@
             <template #item="{ element }">
                 <div class="element">
                     <div v-if="edit.isPreview">
-                        <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
-                            :viewport="edit.viewport" :children="element.children">
-                            <template v-if="element.children && element.children.length > 0" #default>
-                                    <edit-render-drag :list="element.children"></edit-render-drag>
-                            </template>
-                        </component>
+                        <div v-if="element.nested && level < 2">
+                            <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
+                                :viewport="edit.viewport" :children="element.children">
+                                <template #default="{ item, index }">
+                                    <edit-render-drag :key="element.id + '-' + index" :list="item" :level="level + 1"
+                                        :group="group">
+                                    </edit-render-drag>
+                                </template>
+                            </component>
+                        </div>
+                        <div v-else-if="element.type">
+                            <component :is="renderComponentCode(element)" v-bind="getComponentValues(element.formData)"
+                                v-model="getComponentValues(element.formData)['content']">
+                                {{ getComponentValues(element.formData)['content'] }}
+                            </component>
+                        </div>
+                        <div v-else>
+                            <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
+                                :viewport="edit.viewport">
+                            </component>
+                        </div>
                     </div>
                     <div v-else>
                         <div v-if="element.nested && level < 2" class="block-nested-render"
