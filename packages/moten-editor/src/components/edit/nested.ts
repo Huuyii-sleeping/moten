@@ -107,11 +107,28 @@ export const findNodeById = (
 }
 
 export const reverseBlockConfig = (config: any) => {
-  console.log(config)
   return config.map((item: any) => ({
     id: item.id,
     code: item.code,
     formData: toRaw(item.value),
+    children: item.children,
   }))
 }
 
+export const getPageList = (route: any, list: any, allPages: any) => {
+  if (route.params) {
+    const { id } = route.params
+    if (id) {
+      let selectPage: any
+      allPages.forEach((page: any) => {
+        if (page.page_id === Number(id)) {
+          selectPage = page
+        }
+      })
+      if (selectPage) {
+        const _page = reverseBlockConfig(selectPage.content)
+        list.value = _page
+      }
+    }
+  }
+}

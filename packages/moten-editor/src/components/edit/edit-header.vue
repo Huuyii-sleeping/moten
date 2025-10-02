@@ -73,18 +73,21 @@ const validateAll = async (item: any) => {
 }
 
 const submit = async () => {
+    console.log('edit.blockConfig:', edit.blockConfig)
     const list = edit.blockConfig.map((item) => {
         return {
             id: item.id,
             name: pageName.value,
             value: item.formData,
             schema: blockSchema[item.code as BlockSchemaKeys],
-            code: item.code
+            code: item.code,
+            children: item.children
         }
     })
     list.forEach((item) => {
         validateAll(item)
     })
+    console.log('list::', list)
     const JSONList = convertToJSON(list)
     try {
         const { status, message } = await submitPageAsync({ name: list[0].name, content: JSONList })

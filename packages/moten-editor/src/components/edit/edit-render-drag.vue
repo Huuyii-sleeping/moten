@@ -7,7 +7,9 @@
                     <div v-if="edit.isPreview">
                         <component :is="renderComponentCode(element)" :key="element.id" :data="element.formData"
                             :viewport="edit.viewport" :children="element.children">
-
+                            <template v-if="element.children && element.children.length > 0" #default>
+                                    <edit-render-drag :list="element.children"></edit-render-drag>
+                            </template>
                         </component>
                     </div>
                     <div v-else>
@@ -60,6 +62,7 @@ import { findNodeById, move, nestedClass, replaceNodeId } from './nested';
 import { useEditStore } from '@/stores/edit';
 import type { BaseBlock } from '@/types/edit';
 import { COMPONENT_PREFIX } from '@/config';
+import { flattedChildren } from 'element-plus/es/utils/index.mjs';
 const edit = useEditStore()
 defineOptions({
     name: 'edit-render-drag'
@@ -83,7 +86,6 @@ const props = defineProps({
         default: 1
     }
 })
-console.log(props.list)
 const hoverId = ref('')
 // 返回名字直接进行组件的渲染
 const renderComponentCode = computed(() => {

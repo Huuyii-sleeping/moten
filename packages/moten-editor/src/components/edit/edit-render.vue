@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import type { BaseBlock } from '@/types/edit';
 import { computed, ref, watch } from 'vue';
-import { dragGroup, reverseBlockConfig } from './nested';
+import { dragGroup, getPageList } from './nested';
 import { useEditStore } from '@/stores/edit';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
@@ -22,25 +22,7 @@ const list = ref<BaseBlock[]>([])
 const useUser = useUserStore()
 const allPages = useUser.list
 // 及时添加和更新
-
-if (route.params) {
-    const { id } = route.params
-    if (id) {
-        let selectPage: any
-        allPages.forEach((page: any) => {
-            console.log('---page:', page)
-            if (page.page_id === Number(id)) {
-                selectPage = page
-                return
-            }
-        })
-
-        if (selectPage) {
-            const _page = reverseBlockConfig(selectPage.content)
-            list.value = _page
-        }
-    }
-}
+getPageList(route, list, allPages)
 
 watch(() => list.value, (val) => {
     edit.setBlockConfig(val)

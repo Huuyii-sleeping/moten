@@ -29,7 +29,7 @@
         <div v-else class="page-grid">
             <el-card v-for="page in pages" :key="page.id" class="page-card" shadow="hover">
                 <!-- 缩略图区域 -->
-                <div class="card-thumbnail" @click="handlePreview(page.id)">
+                <div class="card-thumbnail" @click="handlePreview(page.page_id)">
                     <img v-if="page.thumbnail" :src="page.thumbnail" :alt="page.title" class="thumbnail-img" />
                     <div v-else class="placeholder-thumbnail">
                         <el-icon :size="48" color="#999">
@@ -40,7 +40,7 @@
 
                 <!-- 内容区域 -->
                 <div class="card-content">
-                    <h3 class="card-title" @click="handlePreview(page.id)">
+                    <h3 class="card-title" @click="handlePreview(page.page_id)">
                         {{ page.name }}
                     </h3>
                     <p class="card-meta">
@@ -117,10 +117,13 @@ const handleEdit = (pageId) => {
     router.push(`/edit/${pageId}`)
 }
 
+const handlePreview = (pageId) => {
+    router.push(`/preview/${pageId}`)
+}
+
 // 删除页面
 const handleDelete = async (pageId) => {
     const params = { id: Number(pageId) }
-    console.log(params.id)
     try {
         const { code, data, message } = await deletePageAcync(params)
         if (code === 200) {
@@ -148,7 +151,6 @@ const handleDelete = async (pageId) => {
 // 组件挂载时加载数据
 onMounted(async () => {
     const { code, data, message } = await getPageAsync()
-    console.log(code, data, message)
     if (code === 200) {
         userStore.setList(data)
     } else {

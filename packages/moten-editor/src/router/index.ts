@@ -21,6 +21,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/preview/:id',
+      name: 'preview',
+      component: () => import('../pages/preview.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../pages/login.vue'),
