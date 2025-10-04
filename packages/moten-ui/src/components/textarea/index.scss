@@ -1,7 +1,13 @@
 @include b("textarea") {
+    .ql-toolbar{
+        display: none;
+    }
     width: 100%;
     display: block;
     object-fit: cover;
     margin: 0 auto;
     @include res(height, 295, 295);
+    .textarea {
+        overflow: hidden;
+    }
 }
