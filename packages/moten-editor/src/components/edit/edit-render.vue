@@ -33,7 +33,7 @@ watch(() => edit.blockConfig, (val) => {
 // const pageStyle = computed(() => { })
 const pageClass = computed(() => {
     return { 'is-mobile': edit.isMobileViewport }
-})
+}) 
 
 </script>
 
