@@ -84,7 +84,6 @@
                     :group="group"
                     class="nested-item"
                     :class="nestedClass"
-                    style="height: 296px"
                   >
                   </edit-render-drag>
                 </template>

@@ -1,8 +1,10 @@
 <template>
   <div class="edit" :class="pageClass">
-    <edit-header></edit-header>
+    <edit-header :isPreview="true"></edit-header>
     <div class="container" :class="pageClass">
-      <edit-render-drag :list="newList"></edit-render-drag>
+        
+      <div class="overlay"></div>
+        <edit-render-drag :list="newList"></edit-render-drag>
     </div>
   </div>
 </template>
@@ -50,7 +52,7 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   min-height: calc(100vh - var(--edit-header-height));
-//   margin-left: var(--edit-block-width);
+  //   margin-left: var(--edit-block-width);
   margin-top: var(--edit-header-height);
   background: white;
 
@@ -63,5 +65,16 @@ onUnmounted(() => {
     margin-bottom: 20px;
     transform: translateX(10px);
   }
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0); /* 改为半透明，方便调试 */
+  z-index: 9999; /* 必须高于所有拖拽元素 */
+  cursor: not-allowed;
+  pointer-events: auto; /* 确保拦截事件 */
 }
 </style>
