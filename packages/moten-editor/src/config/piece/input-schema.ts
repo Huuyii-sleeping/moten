@@ -32,12 +32,39 @@ const content = Type.Boolean({
   default: '',
 })
 
+const maxLength = Type.String({
+  code: 'config-input',
+  title: '最大长度',
+})
+
+const minLength = Type.String({
+  code: 'config-input',
+  title: '最小长度',
+})
+
+const showWordLimit = Type.Boolean({
+  code: 'config-select',
+  title: '是否显示统计字数',
+  default: false,
+})
+
+const disabled = Type.Boolean({
+  code: 'config-select',
+  title: '是否禁用',
+  default: false,
+})
+
+
 const T = Type.Object({
   placeholder: schemaAllViewport(placeholder),
   content: schemaAllViewport(content),
   type: schemaAllViewport(type),
   clearable: schemaAllViewport(clearable),
   'show-password': schemaAllViewport(showPassword),
+  maxLength: schemaAllViewport(maxLength),
+  minLength: schemaAllViewport(minLength),
+  'show-word-limit': schemaAllViewport(showWordLimit),
+  disabled: schemaAllViewport(disabled),
 })
 
 export type buttonSchema = Static<typeof T>
