@@ -16,7 +16,7 @@ export class PageController {
     const handler = async (req, res) => {
       const { page, size, id } = req.query;
       const { status, message, result } = await pageDAO.findAll(page, size, id);
-      
+
       if (!status) return res.json(response.fail(message));
       return res.json(response.success(result));
     };
@@ -39,6 +39,7 @@ export class PageController {
     const rules = Joi.object({
       name: Joi.string().optional(),
       content: Joi.string().optional(),
+      description: Joi.string().optional(),
     });
     const handler = async (req, res) => {
       const { status, message, result } = await pageDAO.create(req.body);

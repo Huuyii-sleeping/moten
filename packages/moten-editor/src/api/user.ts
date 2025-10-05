@@ -8,7 +8,8 @@ export const userRegisterAsync = (params: { username: string; password: string }
   return post('/rest/v1/user/register', params)
 }
 
-export const submitPageAsync = (params: { name: string; content: string }) => {
+export const submitPageAsync = (params: { name: string; content: string; description: string }) => {
+  console.log('发送提交请求')
   return post('/rest/v1/page/create', params)
 }
 

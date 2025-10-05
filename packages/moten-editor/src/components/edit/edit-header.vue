@@ -15,11 +15,6 @@
       </div>
     </div>
     <div class="header-right">
-      <el-input
-        v-model="pageName"
-        placeholder="请输入页面名字"
-        style="width: 200px; margin-right: 20px"
-      ></el-input>
       <el-button @click="togglePreview">
         <v-icon icon="preview" />
         预览
@@ -53,7 +48,6 @@ AjvErrors(ajv)
 const props = defineProps<{
   isPreview: boolean
 }>()
-const pageName = ref('')
 const validateAll = async (item: any) => {
   const { value, schema, id } = item
   const validate = ajv.compile(schema)
@@ -83,11 +77,13 @@ const validateAll = async (item: any) => {
 }
 
 const submit = async () => {
-  console.log('edit.blockConfig:', edit.blockConfig)
+  const { title, description, keywords } = edit.pageConfig as any
   const list = edit.blockConfig.map((item) => {
     return {
       id: item.id,
-      name: pageName.value,
+      name: title[edit.viewport],
+      description: description[edit.viewport],
+      keywords: keywords[edit.viewport],
       value: item.formData,
       schema: blockSchema[item.code as BlockSchemaKeys],
       code: item.code,
@@ -98,10 +94,14 @@ const submit = async () => {
   list.forEach((item) => {
     validateAll(item)
   })
-  console.log('list::', list)
   const JSONList = convertToJSON(list)
   try {
-    const { status, message } = await submitPageAsync({ name: list[0].name, content: JSONList })
+    console.log(list[0].name, JSONList, description[edit.viewport])
+    const { status, message } = await submitPageAsync({
+      name: list[0].name,
+      content: JSONList,
+      description: description[edit.viewport],
+    })
     if (status) {
       ElMessage({
         message: '发布成功',
@@ -115,9 +115,8 @@ const submit = async () => {
       })
     }
   } catch (error) {
-    console.warn('发布异常', error)
     ElMessage({
-      message: '发布过程中出现错误',
+      message: '发布过程中出现错误 请添加内容',
       type: 'error',
     })
   }

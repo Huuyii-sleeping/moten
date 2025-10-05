@@ -32,8 +32,15 @@ watch(input, (value) => {
     let data = {}
     const _value = value || ''
     // 进行赋值操作 当我们没有formData 我们需要同时对两端进行设置参数，保证数据的统一
-    if (Object.values(formData || {}).length < 2) data = { desktop: _value, mobile: _value }
-    else data = { [props.viewport]: _value }
+    console.log(value)
+    if (Object.values(formData || {}).length < 2) {
+        console.log('双端切换')
+        data = { desktop: _value, mobile: _value }
+    } else {
+        console.log('单端切换')
+        data = { [props.viewport]: _value }
+    }
+    
 
     // 用来找到特定的对应的组件，精准匹配
     emit('callback', {
