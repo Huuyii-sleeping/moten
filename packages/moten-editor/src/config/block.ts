@@ -110,4 +110,19 @@ export const canvasBlocks: ElementBlock[] = [
     icon: 'data',
     formData: {},
   },
+  {
+    id: '',
+    code: 'ElSwitch',
+    name: '开关',
+    formData: {
+      loading: setFormData(false),
+      content: setFormData(false),
+      size: setFormData(''),
+      width: setFormData(''),
+      disabled: setFormData(false),
+      'active-color': setFormData(''),
+      'inactive-color': setFormData(''),
+    },
+    type: 'el',
+  },
 ]

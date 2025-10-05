@@ -22,7 +22,9 @@ const props = defineProps({
 const emits = defineEmits(['callback'])
 const { data } = toRefs(props)
 const { formData, key, id } = data.value
-const { title, default: defaultValue, placeholder } = data.value
+const { title, default: defaultValue, placeholder } = data.value.properties[props.viewport]
+console.log(title)
+console.log('defaultValue:', defaultValue)
 const color = ref('')
 
 watch(formData, (value) => {
