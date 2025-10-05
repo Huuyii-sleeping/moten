@@ -36,7 +36,7 @@ import AjvErrors from 'ajv-errors'
 import { blockSchema, type BlockSchemaKeys } from '@/config/schema'
 import { findNodeById } from './nested'
 import { useRouter } from 'vue-router'
-import { submitPageAsync } from '@/api/user'
+import { submitPageAsync, uploadPageAsync } from '@/api/page'
 import { ElMessage } from 'element-plus'
 const router = useRouter()
 // 在发布区域进行检验
@@ -78,6 +78,19 @@ const validateAll = async (item: any) => {
 
 const submit = async () => {
   const { title, description, keywords } = edit.pageConfig as any
+  const pageCover = edit.pageCover
+  const formData = new FormData()
+  formData.append('file', pageCover)
+  let imageUrl
+  try {
+    const response = await uploadPageAsync(formData)
+    const { data } = response
+    const { url } = data
+    imageUrl = url
+  } catch (error) {
+    console.warn('图片上传失败' + error)
+  }
+
   const list = edit.blockConfig.map((item) => {
     return {
       id: item.id,
@@ -96,11 +109,11 @@ const submit = async () => {
   })
   const JSONList = convertToJSON(list)
   try {
-    console.log(list[0].name, JSONList, description[edit.viewport])
     const { status, message } = await submitPageAsync({
       name: list[0].name,
       content: JSONList,
       description: description[edit.viewport],
+      coverImage: imageUrl,
     })
     if (status) {
       ElMessage({

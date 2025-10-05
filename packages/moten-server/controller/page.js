@@ -40,6 +40,7 @@ export class PageController {
       name: Joi.string().optional(),
       content: Joi.string().optional(),
       description: Joi.string().optional(),
+      coverImage: Joi.string().optional(),
     });
     const handler = async (req, res) => {
       const { status, message, result } = await pageDAO.create(req.body);

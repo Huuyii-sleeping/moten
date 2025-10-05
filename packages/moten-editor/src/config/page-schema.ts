@@ -21,12 +21,17 @@ const description = Type.String({
   title: '描述',
   placeholder: '请输入页面描述',
 })
+const cover = Type.String({
+  code: 'config-cover',
+  title: '封面图',
+})
 
 const T = Type.Object({
   background: schemaAllViewport(background),
   title: schemaAllViewport(title),
   keywords: schemaAllViewport(keywords),
   description: schemaAllViewport(description),
+  cover: schemaAllViewport(cover),
 })
 
 export type PageSchema = Static<typeof T>

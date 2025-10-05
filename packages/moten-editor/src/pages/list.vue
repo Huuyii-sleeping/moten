@@ -23,8 +23,8 @@
         <!-- 缩略图区域 -->
         <div class="card-thumbnail" @click="handlePreview(page.page_id)">
           <img
-            v-if="page.thumbnail"
-            :src="page.thumbnail"
+            v-if="page.coverImage"
+            :src="`http://localhost:8081${page.coverImage}`"
             :alt="page.title"
             class="thumbnail-img"
           />
@@ -64,7 +64,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Picture } from '@element-plus/icons-vue'
 import icon from '@/config/icon'
-import { deletePageAcync, getPageAsync } from '@/api/user'
+import { deletePageAcync, getPageAsync } from '@/api/page'
 import { useUserStore } from '@/stores/user'
 
 // 路由

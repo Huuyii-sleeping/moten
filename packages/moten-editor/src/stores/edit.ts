@@ -10,6 +10,7 @@ export const useEditStore = defineStore('edit', () => {
   const blockConfig = ref<BaseBlock[]>([])
   const pageConfig = ref<PageSchemaFormData>({})
   const isPreview = ref(false)
+  const pageCover = ref<any>()
   const isMobileViewport = computed(() => {
     return viewport.value === 'mobile'
   })
@@ -30,8 +31,11 @@ export const useEditStore = defineStore('edit', () => {
   function setPageConfig(value: BasePage) {
     pageConfig.value = value
   }
-  function setPreview(value: boolean){
+  function setPreview(value: boolean) {
     isPreview.value = value
+  }
+  function setPageCover(value: any) {
+    pageCover.value = value
   }
   return {
     viewport,
@@ -41,6 +45,8 @@ export const useEditStore = defineStore('edit', () => {
     blockConfig,
     pageConfig,
     isPreview,
+    pageCover,
+    setPageCover,
     setPreview,
     setPageConfig,
     setBlockConfig,
