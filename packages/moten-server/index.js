@@ -23,7 +23,7 @@ app.use(express.json());
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(
   // JWT的设置
-  expressjwt({
+  expressjwt({ 
     secret: SECRET_KEY,
     algorithms: ["HS256"],
   }).unless({ path: ["/rest/v1/user/register", "/rest/v1/user/login"] })

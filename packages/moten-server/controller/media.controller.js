@@ -11,7 +11,7 @@ export class MediaController {
             message: "没有文件上传",
             data: null,
           });
-        }
+        } 
         const fileUrl = `/uploads/${req.file.filename}`;
         return res.json({
           code: 200,

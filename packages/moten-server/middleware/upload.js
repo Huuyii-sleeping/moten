@@ -7,3 +7,4 @@ export const uploadSingle = (filename = "file") => {
 export const uploadMutiple = (filename = "files", maxCount = 5) => {
   return upload.array(filename, maxCount);
 };
+ 
