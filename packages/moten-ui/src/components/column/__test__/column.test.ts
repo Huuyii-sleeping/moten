@@ -20,20 +20,3 @@ describe(`${componentClasses} base test`, () => {
         wrapper.unmount()
     })
 })
-
-describe(`${componentCode} test props`, () => {
-    // test('test src', () => {
-    //     const src = 'https://cn.vite.dev/logo.svg'
-    //     const wrapper = mount(currentComponent, {
-    //         props: {
-    //             data: {
-    //                 src: {
-    //                     desktop: src,
-    //                     mobile: src
-    //                 }
-    //             }
-    //         }
-    //     })
-    //     expect(wrapper.find(componentClasses + ' .image').attributes('src')).toContain(src)
-    // })
-})
