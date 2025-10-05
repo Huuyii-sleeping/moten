@@ -71,7 +71,6 @@ watch(
 watch(
   imageCover,
   (value) => {
-    console.log(imageCover.value)
     let data = {}
     const _value = value || []
     if (Object.values(formData || {}).length < 2) data = { desktop: _value, mobile: _value }

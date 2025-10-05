@@ -96,4 +96,11 @@ export const canvasBlocks: ElementBlock[] = [
     },
     type: 'el',
   },
+  {
+    id: '',
+    code: 'eldropdown',
+    name: '下拉菜单',
+    icon: 'dropdown',
+    formData: {}
+  }
 ]
