@@ -3,9 +3,11 @@ import _pageSchema, { type PageSchema } from './page-schema'
 import buttonSchema from './piece/button-schema'
 import inputSchema from './piece/input-schema'
 import switchSchema from './piece/switch-schema'
+import slideSchema from './piece/slide-schema'
 schema.ElButton = buttonSchema
 schema.ElInput = inputSchema
 schema.ElSwitch = switchSchema
+schema.ElSlide = slideSchema
 
 export type BlockSchema = typeof schema
 

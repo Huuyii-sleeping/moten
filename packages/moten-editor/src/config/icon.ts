@@ -33,6 +33,13 @@ const icon = {
   add: 'fluent:add-16-regular',
   subtract: 'fluent:subtract-16-regular',
   back: 'fluent:chevron-left-20-filled',
+  button: 'ic:twotone-radio-button-checked',
+  input: 'solar:password-minimalistic-input-broken',
+  dropdown: 'material-symbols:menu',
+  data: 'fluent:data-funnel-20-filled',
+  switch: 'line-md:switch',
+  slide: 'fluent:slide-text-16-filled',
+  
 }
 
 export default icon

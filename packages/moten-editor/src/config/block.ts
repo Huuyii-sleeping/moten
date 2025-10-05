@@ -114,6 +114,7 @@ export const canvasBlocks: ElementBlock[] = [
     id: '',
     code: 'ElSwitch',
     name: '开关',
+    icon: 'switch',
     formData: {
       loading: setFormData(false),
       content: setFormData(false),
@@ -124,5 +125,22 @@ export const canvasBlocks: ElementBlock[] = [
       'inactive-color': setFormData(''),
     },
     type: 'el',
+  },
+  {
+    id: '',
+    code: 'ElSlide',
+    name: '滑块',
+    icon: 'slide',
+    formData: {
+      content: setFormData(0),
+      min: setFormData(0),
+      max: setFormData(10),
+      disabled: setFormData(false),
+      step: setFormData(1),
+      'show-input': setFormData(false),
+      'show-stops': setFormData(false),
+      vertical: setFormData(false),
+    },
+    type: 'el'
   },
 ]
