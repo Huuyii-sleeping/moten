@@ -10,6 +10,7 @@ import MoRow from "@/components/row";
 import MoCanvas from "@/components/canvas";
 import MoElDropdown from "@/components/eldropdown";
 import MoElBlock from "@/components/elblock";
+import MoElMenu from "@/components/elmenu";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -21,6 +22,7 @@ import rowSchema from "@/components/row/schema";
 import canvasSchema from "@/components/canvas/schema";
 import eldropdownSchema from "@/components/eldropdown/schema";
 import elblockSchema from "@/components/elblock/schema";
+import elmenuSchema from "@/components/elmenu/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
@@ -37,6 +39,7 @@ const components = [
   MoCanvas,
   MoElDropdown,
   MoElBlock,
+  MoElMenu,
 ];
 
 const install = (
@@ -63,6 +66,7 @@ export const schema = {
   canvas: canvasSchema,
   eldropdown: eldropdownSchema,
   elblock: elblockSchema,
+  elmenu: elmenuSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -80,4 +84,5 @@ export default {
   MoCanvas,
   MoElDropdown,
   MoElBlock,
+  MoElMenu,
 };

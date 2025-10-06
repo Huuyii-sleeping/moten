@@ -141,6 +141,13 @@ export const canvasBlocks: ElementBlock[] = [
       'show-stops': setFormData(false),
       vertical: setFormData(false),
     },
-    type: 'el'
+    type: 'el',
+  },
+  {
+    id: '',
+    code: 'elmenu',
+    name: '菜单',
+    icon: 'Menu',
+    formData: {},
   },
 ]
