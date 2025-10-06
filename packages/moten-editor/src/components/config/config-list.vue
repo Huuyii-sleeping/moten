@@ -19,10 +19,11 @@
       :cell-style="{ padding: '12px 16px' }"
       style="width: 400px"
     >
-      <el-table-column prop="content" width="150px">
+      <el-table-column v-for="(key, index) in keys" :key="index" :prop="key" width="150px">
         <template #default="scope">
+          <div>{{ key }}</div>
           <el-input
-            v-model="scope.row.content"
+            v-model="scope.row[key]"
             size="small"
             placeholder="请输入内容"
             :disabled="scope.row.disabled"
@@ -75,9 +76,7 @@ const { data } = toRefs(props)
 const { formData, key, id } = data.value
 const { title, default: defaultValue } = data.value.properties[props.viewport]
 const list = ref<any>([])
-
 const handleAddItem = () => {
-  console.log('添加')
   list.value.push({
     content: '',
     disabled: false,
@@ -105,7 +104,6 @@ watch(
     } else {
       data = { [props.viewport]: _value }
     }
-    console.log(data)
     emit('callback', {
       data: {
         [key]: data,
@@ -115,6 +113,8 @@ watch(
   },
   { immediate: true, deep: true },
 )
+const keys = Object.keys(list.value[0])
+keys.splice(keys.length - 1, 1)
 </script>
 
 <style scoped lang="scss">
