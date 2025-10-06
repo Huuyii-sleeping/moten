@@ -171,4 +171,11 @@ export const canvasBlocks: ElementBlock[] = [
     icon: 'dialog',
     formData: {},
   },
+  {
+    id: '',
+    code: 'elnotification',
+    name: '通知',
+    icon: 'notification',
+    formData: {},
+  },
 ]

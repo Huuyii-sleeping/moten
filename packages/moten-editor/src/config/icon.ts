@@ -43,6 +43,7 @@ const icon = {
   tabs: 'streamline-cyber:window-tabs-1',
   breadcrumb: 'fluent-mdl2:breadcrumb',
   dialog: 'solar:dialog-2-broken',
+  notification: 'mingcute:notification-line',
 }
 
 export default icon

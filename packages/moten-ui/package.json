@@ -15,6 +15,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
     "@vueup/vue-quill": "^1.2.0",
+    "element-plus": "^2.11.3",
     "tailwindcss": "^4.1.13",
     "vue": "^3.5.21"
   },
@@ -27,6 +28,8 @@
     "sass": "^1.93.2",
     "typebox": "^1.0.16",
     "typescript": "~5.8.3",
+    "unplugin-auto-import": "^20.2.0",
+    "unplugin-vue-components": "^29.1.0",
     "vite": "^7.1.7",
     "vite-plugin-vue2": "^2.0.3",
     "vitest": "^3.2.4",

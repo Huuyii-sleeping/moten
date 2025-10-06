@@ -4,10 +4,22 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
+import AutoImport from "unplugin-auto-import/vite";
+import Components from "unplugin-vue-components/vite";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+    }),
+    Components({
+      resolvers: [ElementPlusResolver()],
+    }),
+  ],
   resolve: {
     alias: {
       "@": resolve("./src"),
@@ -44,8 +56,8 @@ export default defineConfig({
     reporters: ["verbose"],
     environment: "jsdom",
     coverage: {
-      include: ['src/components/**/*'],
-      exclude: ['src/**/schema.ts']
-    }
+      include: ["src/components/**/*"],
+      exclude: ["src/**/schema.ts"],
+    },
   },
 });
