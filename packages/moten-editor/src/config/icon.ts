@@ -41,6 +41,7 @@ const icon = {
   slide: 'fluent:slide-text-16-filled',
   menu: 'gg:menu-round',
   tabs: 'streamline-cyber:window-tabs-1',
+  breadcrumb: 'fluent-mdl2:breadcrumb'
 }
 
 export default icon
