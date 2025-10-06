@@ -39,7 +39,8 @@ const icon = {
   data: 'fluent:data-funnel-20-filled',
   switch: 'line-md:switch',
   slide: 'fluent:slide-text-16-filled',
-  
+  menu: 'gg:menu-round',
+  tabs: 'streamline-cyber:window-tabs-1',
 }
 
 export default icon
