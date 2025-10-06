@@ -12,7 +12,8 @@ import MoElDropdown from "@/components/eldropdown";
 import MoElBlock from "@/components/elblock";
 import MoElMenu from "@/components/elmenu";
 import MoElTabs from "@/components/eltabs";
-import MoBreadcrumb from "@/components/elbreadcrumb";
+import MoElBreadcrumb from "@/components/elbreadcrumb";
+import MoElDialog from "@/components/eldialog";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -27,6 +28,7 @@ import elblockSchema from "@/components/elblock/schema";
 import elmenuSchema from "@/components/elmenu/schema";
 import eltabsSchema from "@/components/eltabs/schema";
 import elbreadcrumb from "@/components/elbreadcrumb/schema";
+import eldialogSchema from "@/components/eldialog/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
@@ -45,7 +47,8 @@ const components = [
   MoElBlock,
   MoElMenu,
   MoElTabs,
-  MoBreadcrumb,
+  MoElBreadcrumb,
+  MoElDialog,
 ];
 
 const install = (
@@ -75,6 +78,7 @@ export const schema = {
   elmenu: elmenuSchema,
   eltabs: eltabsSchema,
   elbreadcrumb: elbreadcrumb,
+  eldialog: eldialogSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -94,5 +98,6 @@ export default {
   MoElBlock,
   MoElMenu,
   MoElTabs,
-  MoBreadcrumb,
+  MoElBreadcrumb,
+  MoElDialog,
 };

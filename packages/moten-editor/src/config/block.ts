@@ -164,4 +164,11 @@ export const canvasBlocks: ElementBlock[] = [
     icon: 'breadcrumb',
     formData: {},
   },
+  {
+    id: '',
+    code: 'eldialog',
+    name: '对话框',
+    icon: 'dialog',
+    formData: {},
+  },
 ]

@@ -35,13 +35,14 @@ const icon = {
   back: 'fluent:chevron-left-20-filled',
   button: 'ic:twotone-radio-button-checked',
   input: 'solar:password-minimalistic-input-broken',
-  dropdown: 'material-symbols:menu',
-  data: 'fluent:data-funnel-20-filled',
+  dropdown: 'fluent:data-funnel-20-filled',
+  data: 'material-symbols:menu',
   switch: 'line-md:switch',
   slide: 'fluent:slide-text-16-filled',
   menu: 'gg:menu-round',
   tabs: 'streamline-cyber:window-tabs-1',
-  breadcrumb: 'fluent-mdl2:breadcrumb'
+  breadcrumb: 'fluent-mdl2:breadcrumb',
+  dialog: 'solar:dialog-2-broken',
 }
 
 export default icon
