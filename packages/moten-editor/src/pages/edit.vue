@@ -1,6 +1,6 @@
 <template>
     <div class="edit">
-        <edit-header></edit-header>
+        <edit-header ></edit-header>
         <div class="container" :class="classes">
             <edit-block></edit-block>
             <edit-render></edit-render>

@@ -9,7 +9,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/editor/',
+  // base: '/editor/',
   plugins: [
     vue(),
     vueDevTools(),

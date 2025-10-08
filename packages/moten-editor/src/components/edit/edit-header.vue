@@ -46,7 +46,7 @@ ajv.addKeyword({
 })
 AjvErrors(ajv)
 const props = defineProps<{
-  isPreview: boolean
+  isPreview?: boolean
 }>()
 const validateAll = async (item: any) => {
   const { value, schema, id } = item

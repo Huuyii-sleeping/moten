@@ -3,7 +3,7 @@
     <div class="page-list-header">
       <h1>低代码展示页面</h1>
       <el-button type="primary" @click="handleCreateNew" icon="Plus">
-        <icon> <Plus /> </icon>新建页面
+        新建页面
       </el-button>
     </div>
 
@@ -20,7 +20,6 @@
 
     <div v-else class="page-grid">
       <el-card v-for="page in pages" :key="page.id" class="page-card" shadow="hover">
-        <!-- 缩略图区域 -->
         <div class="card-thumbnail" @click="handlePreview(page.page_id)">
           <img
             v-if="page.coverImage"
@@ -58,10 +57,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { Plus, Picture } from '@element-plus/icons-vue'
 import icon from '@/config/icon'
 import { deletePageAcync, getPageAsync } from '@/api/page'
@@ -70,11 +69,11 @@ import { useUserStore } from '@/stores/user'
 // 路由
 const router = useRouter()
 const userStore = useUserStore()
-const pages = ref([])
+const pages = ref<any>([])
 const loading = ref(true)
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = (dateString: any) => {
   if (!dateString) return '未知'
   return new Date(dateString).toLocaleString('zh-CN', {
     year: 'numeric',
@@ -105,17 +104,17 @@ const handleCreateNew = () => {
 }
 
 // 编辑页面
-const handleEdit = (pageId) => {
+const handleEdit = (pageId: string) => {
   router.push(`/edit/${pageId}`)
 }
 
-const handlePreview = (pageId) => {
+const handlePreview = (pageId :string) => {
   router.push(`/preview/${pageId}`)
 }
 
 // 删除页面
-const handleDelete = async (pageId) => {
-  const params = { id: Number(pageId) }
+const handleDelete = async (pageId: string) => {
+  const params = { id: (pageId) }
   try {
     const { code, data, message } = await deletePageAcync(params)
     if (code === 200) {
