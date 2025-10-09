@@ -127,7 +127,12 @@ export class BasicCollabService {
           this._handleUserSelection(docId, ws, parsedMessage.payload);
           break;
         case "update_block_delta":
-          this._handleBlockDeltaUpdate(docId, parsedMessage.payload, ws);
+          this._handleBlockDeltaUpdate(
+            docId,
+            parsedMessage.payload,
+            parsedMessage.version,
+            ws
+          );
           break;
         default:
           console.warn("Unknown message type:", parsedMessage.type);
@@ -144,13 +149,30 @@ export class BasicCollabService {
    * @param {Object} patches
    * @param {string} senderWs
    */
-  _handleBlockDeltaUpdate(docId, patches, senderWs) {
+  _handleBlockDeltaUpdate(docId, patches, clientVersion, senderWs) {
     const currentData = this.docData.get(docId);
-    const updateData = applyPatch(currentData, patches, true).newDocument;
+    if (clientVersion < currentData.version) {
+      senderWs.send(
+        JSON.stringify({
+          type: "conflict_detected",
+          expectedVersion: currentData.version,
+          currentBlocks: currentData.blocks, // 可选：发送最新数据
+        })
+      );
+      return;
+    }
+    const updateData = {
+      ...applyPatch(currentData, patches, true).newDocument,
+      version: currentData.version + 1,
+    };
     this.docData.set(docId, updateData);
     this._broadcastUpdate(
       docId,
-      { type: "block_delta_applied", payload: patches },
+      {
+        type: "block_delta_applied",
+        payload: patches,
+        version: updateData.version,
+      },
       senderWs
     );
   }

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import type { BaseBlock } from '@/types/edit'
 import type { PageSchemaFormData } from '@/config/schema'
 import { useEditStore } from './edit'
-import { applyPatch } from 'fast-json-patch'
+import { applyPatch, compare } from 'fast-json-patch'
 
 interface CollaborativeState {
   blockConfig: BaseBlock[]
@@ -200,7 +200,19 @@ export const useCollaborationStore = defineStore('collaboration', () => {
           } catch (error) {
             console.error('Patch 应用失败', error)
           }
+          break
+        case 'conflict_detected':
+          if (confirm('检测到冲突！其他用户已修改内容，是否强制覆盖？')) {
+            const latestBlocks = message.payload.currentBlocks
+            const newPatches = compare({ blocks: latestBlocks }, { blocks: editStore.blockConfig })
+            sendBlockConfigDelta(newPatches)
+          } else {
+            editStore.applyRemoteBlockConfig(message.payload.currentBlocks)
+          }
+          break
 
+        case 'block_delta_applied':
+          localVersion.value = message.version
           break
         case 'user_joined':
           onlineUsers.value = message.payload.userCount || onlineUsers.value + 1
@@ -257,10 +269,14 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
   function sendBlockConfigDelta(patched: any[]) {
     if (!isConnected.value) return
-    console.log(patched)
     const messageId = generateMessageId()
     lastSentMessageId.value = messageId
-    send({ id: messageId, type: 'update_block_delta', payload: patched })
+    send({
+      id: messageId,
+      type: 'update_block_delta',
+      payload: patched,
+      clientVersion: localVersion.value,
+    })
   }
 
   function generateMessageId() {
