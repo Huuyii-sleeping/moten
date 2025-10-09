@@ -19,7 +19,9 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   const lastSentMessageId = ref<string | null>(null)
 
   // 新增状态，短线重连什么的
-  
+  const reconnectAttempts = ref(0)
+  const maxReconnectAttempts = 5
+  const reconnectDelay = ref(1000)
 
   // 本地状态版本号（用于简单冲突检测）
   const localVersion = ref(0)
@@ -38,10 +40,27 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
   const onlineUsers = ref(1)
 
+  function attempReconnect(docId: string) {
+    if (reconnectAttempts.value >= maxReconnectAttempts) {
+      console.error('重连失败，已经达到最大次数')
+      return
+    }
+
+    reconnectAttempts.value++
+    connectionStatus.value = 'connecting'
+    const delay = Math.min(reconnectDelay.value * reconnectAttempts.value, 10000)
+    setTimeout(() => {
+      console.log(`尝试第${reconnectAttempts}次重连...`)
+      connect(docId)
+    }, delay)
+  }
+
+  let currentDocId = ''
+
   // 连接 WebSocket
   async function connect(docId: string) {
     if (isConnected.value) return
-
+    currentDocId = docId
     connectionStatus.value = 'connecting'
 
     try {
@@ -66,6 +85,10 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         console.log('协同编辑连接断开')
         isConnected.value = false
         connectionStatus.value = 'disconnected'
+        // 自动重连
+        if (reconnectAttempts.value < maxReconnectAttempts) {
+          attempReconnect(docId)
+        }
       }
 
       ws.value.onerror = (error) => {
@@ -80,12 +103,14 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
   // 断开连接
   function disconnect() {
+    // 设置重连次数
+    reconnectAttempts.value = 0
     if (ws.value) {
       ws.value.close()
       ws.value = null
-      isConnected.value = false
-      connectionStatus.value = 'disconnected'
     }
+    isConnected.value = false
+    connectionStatus.value = 'disconnected'
   }
 
   // 发送消息
