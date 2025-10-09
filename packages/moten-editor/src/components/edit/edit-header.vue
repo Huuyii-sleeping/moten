@@ -57,13 +57,17 @@ import { useCollaborationStore } from '@/stores/collaborationStore'
 const collabStore = useCollaborationStore()
 const route = useRoute()
 const docId = computed(() => route.params.id || 'default-document')
+const isEditor = computed(() => {
+  if(localStorage.getItem('token')) return true
+  return false
+})
 
 const toggleCollaboration = async () => {
   try {
     if (collabStore.isConnected) {
       collabStore.disconnect()
     } else {
-      await collabStore.connect(docId.value as any)
+      await collabStore.connect(docId.value as any, isEditor.value)
     }
   } catch (error) {
     ElMessage.error('协同操作失败')

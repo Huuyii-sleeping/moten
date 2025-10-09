@@ -8,6 +8,7 @@ export class BasicCollabService {
     this.docData = new Map(); // docId -> 最新文档数据
     this.userCount = new Map();
     this.userSelections = new Map();
+    this.userRole = new Map();
   }
 
   init(server) {
@@ -15,6 +16,7 @@ export class BasicCollabService {
     wss.on("connection", (ws, req) => {
       const params = new URLSearchParams(req.url.split("?")[1]);
       const docId = params.get("docId");
+      const isEditor = params.get("isEditor") === "true";
       ws.id = Date.now().toString() + Math.random().toString(36).slice(2);
 
       if (!docId) {
@@ -22,6 +24,10 @@ export class BasicCollabService {
         return;
       }
 
+      if (!this.userRole.has(docId)) {
+        this.userRole.set(docId, new Map());
+      }
+      this.userRole.get(docId).set(ws, isEditor);
       this._initDocument(docId);
       this.userSelections.set(docId, new Map());
       this.connections.get(docId).add(ws);
@@ -99,6 +105,11 @@ export class BasicCollabService {
   _handleClientMessage(docId, ws, message) {
     try {
       const parsedMessage = JSON.parse(message);
+      const isEditor = this.userRole.get(docId)?.get(ws) || false;
+      if (!isEditor && parsedMessage.type.startsWith("update_")) {
+        console.warn("只读用户尝试编辑，已拒绝");
+        return;
+      }
 
       switch (parsedMessage.type) {
         case "update_block_config":

@@ -100,8 +100,8 @@ export const useEditStore = defineStore('edit', () => {
   function setPageCover(value: any) {
     pageCover.value = value
   }
-  function initCollaboration(roomId: string) {
-    collabStore.connect(roomId)
+  function initCollaboration(roomId: string, isEditor: boolean = true) {
+    collabStore.connect(`${roomId}?isEditor=${isEditor}`)
   }
   function stopCollaboration() {
     collabStore.disconnect()
