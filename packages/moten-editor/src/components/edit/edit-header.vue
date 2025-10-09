@@ -208,6 +208,7 @@ onUnmounted(() => {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
+  margin-right: 20px;
   background-color: #3b82f6;
   color: white;
   cursor: pointer;
@@ -277,6 +278,7 @@ onUnmounted(() => {
   }
 
   .header-right {
+    display: flex;
     position: relative;
     padding-right: 16px;
   }
