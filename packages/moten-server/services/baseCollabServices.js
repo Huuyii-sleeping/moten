@@ -6,6 +6,7 @@ export class BasicCollabService {
     this.connections = new Map(); // docId -> Set<WebSocket>
     this.docData = new Map(); // docId -> 最新文档数据
     this.userCount = new Map();
+    this.userSelections = new Map();
   }
 
   init(server) {
@@ -13,6 +14,7 @@ export class BasicCollabService {
     wss.on("connection", (ws, req) => {
       const params = new URLSearchParams(req.url.split("?")[1]);
       const docId = params.get("docId");
+      ws.id = Date.now().toString() + Math.random().toString(36).slice(2);
 
       if (!docId) {
         ws.close(400, "Missing docId parameter");
@@ -20,6 +22,7 @@ export class BasicCollabService {
       }
 
       this._initDocument(docId);
+      this.userSelections.set(docId, new Map());
       this.connections.get(docId).add(ws);
       console.log(`User connected to document: ${docId}`);
 
@@ -108,13 +111,30 @@ export class BasicCollabService {
         case "update_full_state":
           this._handleFullStateUpdate(docId, parsedMessage.payload);
           break;
-
+        case "user_selection":
+          this._handleUserSelection(docId, ws, parsedMessage.payload);
         default:
           console.warn("Unknown message type:", parsedMessage.type);
       }
     } catch (error) {
       console.warn("Error handling client message", error);
     }
+  }
+
+  /**
+   * 将选中的区域广播出去 排除自己
+   * @param {string} docId
+   * @param {Object} ws
+   * @param {Object} selection
+   */
+  _handleUserSelection(docId, ws, selection) {
+    const selections = this.userSelections.get(docId);
+    selections.set(ws, selection);
+    this._broadcastUpdate(docId, {
+      type: "remote_selection",
+      payload: { wsId: ws.id, ...selection },
+      ws,
+    });
   }
 
   /**

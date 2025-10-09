@@ -11,7 +11,7 @@
       @click="console.log(list)"
     >
       <template #item="{ element }">
-        <div class="element">
+        <div class="element" :style="getRemoteHighlightStyle(element.id) as any">
           <div v-if="edit.isPreview">
             <div v-if="element.nested && level < 2">
               <component
@@ -143,6 +143,7 @@ import { findNodeById, move, nestedClass, replaceNodeId } from './nested'
 import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
 import { COMPONENT_PREFIX } from '@/config'
+import { useCollaborationStore } from '@/stores/collaborationStore'
 const edit = useEditStore()
 defineOptions({
   name: 'edit-render-drag',
@@ -213,9 +214,28 @@ const clear = (id: string) => {
   edit.setCurrentSelect({} as any)
   edit.setBlockConfig(newBlockConfig)
 }
+
+const collabStore = useCollaborationStore()
+
+const getRemoteHighlightStyle = (blockId: string) => {
+  const selections = Object.values(collabStore.remoteSelections).filter(
+    (sel) => sel.blockId === blockId,
+  )
+  if (selections.length === 0) return {}
+  const color = selections[0].color
+  return {
+    outline: `2px solid ${color}`,
+    outlineOffset: '2px',
+    position: 'relative',
+  }
+}
 </script>
 
 <style scoped lang="scss">
+.remote-highlight {
+  outline: 2px solid #4da6ff;
+  outline-offset: 2px;
+}
 .edit-render-drag {
   height: 100%;
 

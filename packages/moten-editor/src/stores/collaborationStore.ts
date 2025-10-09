@@ -18,6 +18,9 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   const lastReceivedMessageId = ref<string | null>(null)
   const lastSentMessageId = ref<string | null>(null)
 
+  // 用来对user的颜色进行区分
+  const userColors = ref<Record<string, string>>({})
+
   // 新增状态，短线重连什么的
   const reconnectAttempts = ref(0)
   const maxReconnectAttempts = 5
@@ -40,6 +43,22 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
   const onlineUsers = ref(1)
 
+  const remoteSelections = ref<Record<string, any>>({})
+
+  let currentDocId = ''
+
+  function generateBrightColor(userId: string): string {
+    let hash = 0
+    for (let i = 0; i < userId.length; i++) {
+      hash = userId.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    const hue = hash % 360
+    const saturation = 70 + (hash % 20) // 70-90%
+    const lightness = 40 + (hash % 20) // 40-60%
+
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+  }
+
   function attempReconnect(docId: string) {
     if (reconnectAttempts.value >= maxReconnectAttempts) {
       console.error('重连失败，已经达到最大次数')
@@ -54,8 +73,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
       connect(docId)
     }, delay)
   }
-
-  let currentDocId = ''
 
   // 连接 WebSocket
   async function connect(docId: string) {
@@ -99,6 +116,11 @@ export const useCollaborationStore = defineStore('collaboration', () => {
       console.error('连接失败:', error)
       connectionStatus.value = 'disconnected'
     }
+  }
+
+  function sendUserSelection(selection: any) {
+    if (!isConnected.value) return
+    send({ type: 'user_selection', payload: selection })
   }
 
   // 断开连接
@@ -150,6 +172,22 @@ export const useCollaborationStore = defineStore('collaboration', () => {
           editStore.applyRemotePageConfig(message.payload.pageConfig)
           break
 
+        case 'remote_selection':
+          const { wsId, userId, blockId } = message.payload
+          if (!userColors.value[userId]) {
+            userColors.value[userId] = generateBrightColor(userId)
+          }
+          const color = userColors.value[userId]
+          remoteSelections.value[message.payload.wsId] = {
+            ...message.payload,
+            color,
+            lastSeen: Date.now(),
+          }
+          setTimeout(() => {
+            if (remoteSelections.value[message.payload.wsId]) {
+              delete remoteSelections.value[message.payload.wsId]
+            }
+          }, 5000)
         case 'user_joined':
           onlineUsers.value = message.payload.userCount || onlineUsers.value + 1
           break
@@ -214,11 +252,13 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     remoteVersion,
     isApplyingRemoteUpdate,
     onlineUsers,
+    remoteSelections,
     connect,
     disconnect,
     send,
     sendBlockConfigUpdate,
     sendPageConfigUpdate,
     applyRemoteState,
+    sendUserSelection,
   }
 })

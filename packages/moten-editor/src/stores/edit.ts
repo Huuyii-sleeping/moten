@@ -38,6 +38,20 @@ export const useEditStore = defineStore('edit', () => {
     { deep: true },
   )
 
+  watch(
+    currentSelect,
+    (newVal) => {
+      if (collabStore.isConnected && newVal) {
+        collabStore.sendUserSelection({
+          blockId: newVal.id,
+          userId: 'currentUser',
+          timestamp: Date.now(),
+        })
+      }
+    },
+    { deep: true },
+  )
+
   function applyRemoteBlockConfig(config: BaseBlock[]) {
     shouldSyncToLocalCollab.value = false
     blockConfig.value = config
