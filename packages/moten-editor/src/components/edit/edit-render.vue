@@ -30,7 +30,6 @@ watch(() => list.value, (val) => {
 watch(() => edit.blockConfig, (val) => {
     list.value = val
 }, { deep: true })
-// const pageStyle = computed(() => { })
 const pageClass = computed(() => {
     return { 'is-mobile': edit.isMobileViewport }
 }) 

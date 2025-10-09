@@ -89,7 +89,6 @@ const loadPages = () => {
   try {
     loading.value = true
     pages.value = userStore.list
-    console.log(pages.value)
   } catch (error) {
     console.error('加载页面列表失败:', error)
     ElMessage.error('加载失败，请刷新重试')

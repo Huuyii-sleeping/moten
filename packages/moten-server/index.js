@@ -13,24 +13,31 @@ import { SECRET_KEY } from "./config/index.js";
 import { authFailedHandler } from "./middleware/auth.js";
 import { permissionHandler } from "./middleware/permission.js";
 import path from "path";
+import { createServer } from "http";
+import { BasicCollabService } from "./services/baseCollabServices.js";
 
 const app = express();
+app.use(cors());
+const server = createServer(app);
 const port = 8081;
 
-app.use(cors());
+const basiccollabService = new BasicCollabService();
+basiccollabService.init(server);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(
   // JWT的设置
-  expressjwt({ 
+  expressjwt({
     secret: SECRET_KEY,
     algorithms: ["HS256"],
-  }).unless({ path: ["/rest/v1/user/register", "/rest/v1/user/login"] })
+  }).unless({ path: ["/rest/v1/user/register", "/rest/v1/user/login", "/"] })
 );
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`listening on port ${port}`);
+  console.log(`Collaboration service avaliable at ws://localhost:${port}`);
 });
 
 // user

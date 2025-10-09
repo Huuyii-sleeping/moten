@@ -15,6 +15,20 @@
       </div>
     </div>
     <div class="header-right">
+      <div class="collaboration-controls">
+        <button
+          class="collab-button"
+          :class="{ connected: collabStore.isConnected }"
+          @click="toggleCollaboration"
+          :disabled="collabStore.connectionStatus === 'connecting'"
+        >
+          {{ collabStore.isConnected ? '退出协同编辑' : '开始协同编辑' }}
+        </button>
+      </div>
+      <div class="online-indicator" v-if="collabStore.isConnected">
+        <span class="user-count">{{ collabStore.onlineUsers }}</span>
+        <span class="label">人在线编辑</span>
+      </div>
       <el-button @click="togglePreview">
         <v-icon icon="preview" />
         预览
@@ -29,15 +43,33 @@
 
 <script setup lang="ts">
 import type { Viewport } from '@/types/edit'
-import { nextTick, ref, toRaw, watch } from 'vue'
+import { computed, nextTick, onUnmounted, ref, toRaw, watch } from 'vue'
 import { useEditStore } from '@/stores/edit'
 import Ajv from 'ajv'
 import AjvErrors from 'ajv-errors'
 import { blockSchema, type BlockSchemaKeys } from '@/config/schema'
 import { findNodeById } from './nested'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { submitPageAsync, uploadPageAsync } from '@/api/page'
 import { ElMessage } from 'element-plus'
+import { useCollaborationStore } from '@/stores/collaborationStore'
+
+const collabStore = useCollaborationStore()
+const route = useRoute()
+const docId = computed(() => route.params.id || 'default-document')
+
+const toggleCollaboration = async () => {
+  try {
+    if (collabStore.isConnected) {
+      collabStore.disconnect()
+    } else {
+      await collabStore.connect(docId.value as any)
+    }
+  } catch (error) {
+    ElMessage.error('协同操作失败')
+  }
+}
+
 const router = useRouter()
 // 在发布区域进行检验
 const ajv = new Ajv({ allErrors: true })
@@ -160,9 +192,49 @@ watch(viewport, (val) => {
   edit.setConfigPanelShow(val === 'mobile')
   edit.setCurrentSelect({} as any)
 })
+onUnmounted(() => {
+  collabStore.disconnect()
+})
 </script>
 
 <style scoped lang="scss">
+.collaboration-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.collab-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+}
+
+.collab-button.connected {
+  background-color: #10b981;
+}
+
+.online-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #6b7280;
+}
+
+.user-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: white;
+  font-size: 12px;
+}
 .header {
   position: fixed;
   top: 0;

@@ -143,7 +143,6 @@ import { findNodeById, move, nestedClass, replaceNodeId } from './nested'
 import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
 import { COMPONENT_PREFIX } from '@/config'
-import { flattedChildren } from 'element-plus/es/utils/index.mjs'
 const edit = useEditStore()
 defineOptions({
   name: 'edit-render-drag',
@@ -174,7 +173,6 @@ const renderComponentCode = computed(() => {
     if (element.type) {
       return element.code
     }
-    console.log(element.code)
     return COMPONENT_PREFIX + '-' + element.code
   }
 })

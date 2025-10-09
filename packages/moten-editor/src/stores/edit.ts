@@ -1,7 +1,8 @@
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import type { BaseBlock, BaseBlockNull, BasePage, Viewport } from '@/types/edit'
 import type { PageSchemaFormData } from '@/config/schema'
+import { useCollaborationStore } from './collaborationStore'
 
 export const useEditStore = defineStore('edit', () => {
   const viewport = ref<Viewport>('desktop')
@@ -11,9 +12,48 @@ export const useEditStore = defineStore('edit', () => {
   const pageConfig = ref<PageSchemaFormData>({})
   const isPreview = ref(false)
   const pageCover = ref<any>()
+  const shouldSyncToLocalCollab = ref(true)
   const isMobileViewport = computed(() => {
     return viewport.value === 'mobile'
   })
+  const collabStore = useCollaborationStore()
+
+  watch(
+    blockConfig,
+    (newVal) => {
+      if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
+        collabStore.sendBlockConfigUpdate(newVal)
+      }
+    },
+    { deep: true },
+  )
+
+  watch(
+    pageConfig,
+    (newVal) => {
+      if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
+        collabStore.sendPageConfigUpdate(newVal as any)
+      }
+    },
+    { deep: true },
+  )
+
+  function applyRemoteBlockConfig(config: BaseBlock[]) {
+    shouldSyncToLocalCollab.value = false
+    blockConfig.value = config
+    nextTick(() => {
+      shouldSyncToLocalCollab.value = true
+    })
+  }
+
+  function applyRemotePageConfig(config: PageSchemaFormData) {
+    shouldSyncToLocalCollab.value = false
+    pageConfig.value = config
+    nextTick(() => {
+      shouldSyncToLocalCollab.value = true
+    })
+  }
+
   function setViewport(value: Viewport) {
     viewport.value = value
   }
@@ -37,6 +77,12 @@ export const useEditStore = defineStore('edit', () => {
   function setPageCover(value: any) {
     pageCover.value = value
   }
+  function initCollaboration(roomId: string) {
+    collabStore.connect(roomId)
+  }
+  function stopCollaboration() {
+    collabStore.disconnect()
+  }
   return {
     viewport,
     currentSelect,
@@ -46,6 +92,10 @@ export const useEditStore = defineStore('edit', () => {
     pageConfig,
     isPreview,
     pageCover,
+    applyRemoteBlockConfig,
+    applyRemotePageConfig,
+    stopCollaboration,
+    initCollaboration,
     setPageCover,
     setPreview,
     setPageConfig,

@@ -212,6 +212,9 @@ importers:
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
+      ws:
+        specifier: ^8.18.3
+        version: 8.18.3
 
   packages/moten-ui:
     dependencies:
