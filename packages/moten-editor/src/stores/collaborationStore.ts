@@ -18,6 +18,9 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   const lastReceivedMessageId = ref<string | null>(null)
   const lastSentMessageId = ref<string | null>(null)
 
+  // 新增状态，短线重连什么的
+  
+
   // 本地状态版本号（用于简单冲突检测）
   const localVersion = ref(0)
   const remoteVersion = ref(0)
