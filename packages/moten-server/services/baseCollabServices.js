@@ -1,5 +1,6 @@
-// services/baseCollabServices.js
 import { WebSocketServer } from "ws";
+import pkg from "fast-json-patch";
+const { applyPatch } = pkg;
 
 export class BasicCollabService {
   constructor() {
@@ -113,12 +114,34 @@ export class BasicCollabService {
           break;
         case "user_selection":
           this._handleUserSelection(docId, ws, parsedMessage.payload);
+          break;
+        case "update_block_delta":
+          this._handleBlockDeltaUpdate(docId, parsedMessage.payload, ws);
+          break;
         default:
           console.warn("Unknown message type:", parsedMessage.type);
+          break;
       }
     } catch (error) {
       console.warn("Error handling client message", error);
     }
+  }
+
+  /**
+   * 实现后端应用增量
+   * @param {string} docId
+   * @param {Object} patches
+   * @param {string} senderWs
+   */
+  _handleBlockDeltaUpdate(docId, patches, senderWs) {
+    const currentData = this.docData.get(docId);
+    const updateData = applyPatch(currentData, patches, true).newDocument;
+    this.docData.set(docId, updateData);
+    this._broadcastUpdate(
+      docId,
+      { type: "block_delta_applied", payload: patches },
+      senderWs
+    );
   }
 
   /**

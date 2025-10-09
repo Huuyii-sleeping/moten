@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { BaseBlock } from '@/types/edit'
 import type { PageSchemaFormData } from '@/config/schema'
 import { useEditStore } from './edit'
+import { applyPatch } from 'fast-json-patch'
 
 interface CollaborativeState {
   blockConfig: BaseBlock[]
@@ -188,10 +189,22 @@ export const useCollaborationStore = defineStore('collaboration', () => {
               delete remoteSelections.value[message.payload.wsId]
             }
           }, 5000)
+          break
+        case 'block_delta_applied':
+          const currentBlocks = editStore.blockConfig
+          let doc = currentBlocks as any
+          try {
+            const patched = applyPatch(doc, message.payload, true).newDocument
+            const newBlocks = Array.isArray(patched) ? patched : patched.blocks || []
+            editStore.applyRemoteBlockConfig(newBlocks)
+          } catch (error) {
+            console.error('Patch 应用失败', error)
+          }
+
+          break
         case 'user_joined':
           onlineUsers.value = message.payload.userCount || onlineUsers.value + 1
           break
-
         case 'user_left':
           onlineUsers.value = Math.max(1, message.payload.userCount || onlineUsers.value - 1)
           break
@@ -242,6 +255,21 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     send(updateMessage)
   }
 
+  function sendBlockConfigDelta(patched: any[]) {
+    if (!isConnected.value) return
+    console.log(patched)
+    const messageId = generateMessageId()
+    lastSentMessageId.value = messageId
+    send({ id: messageId, type: 'update_block_delta', payload: patched })
+  }
+
+  function generateMessageId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID()
+    }
+    return Date.now().toString(36) + Math.random().toString(36).slice(2)
+  }
+
   return {
     ws,
     isConnected,
@@ -260,5 +288,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     sendPageConfigUpdate,
     applyRemoteState,
     sendUserSelection,
+    sendBlockConfigDelta,
   }
 })
