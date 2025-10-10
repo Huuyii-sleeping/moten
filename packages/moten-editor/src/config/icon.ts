@@ -44,6 +44,7 @@ const icon = {
   breadcrumb: 'fluent-mdl2:breadcrumb',
   dialog: 'solar:dialog-2-broken',
   notification: 'mingcute:notification-line',
+  refresh: 'material-symbols:refresh',
 }
 
 export default icon

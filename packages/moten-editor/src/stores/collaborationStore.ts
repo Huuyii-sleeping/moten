@@ -49,6 +49,10 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
   let currentDocId = ''
 
+  // 收集历史记录和评论系统
+  const historyRecords = ref<any[]>([])
+  const comments = ref<any[]>([])
+
   function generateBrightColor(userId: string): string {
     let hash = 0
     for (let i = 0; i < userId.length; i++) {
@@ -173,6 +177,19 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         case 'page_config_updated':
           editStore.applyRemotePageConfig(message.payload.pageConfig)
           break
+        case 'history_records':
+          historyRecords.value = message.payload
+          break
+        case 'comment_added':
+          comments.value.push(message.payload)
+          break
+        case 'comment_resolved':
+          const comment = comments.value.find((c) => c.id === message.payload.id)
+          if (comment) comment.resolved = true
+          break
+        case 'comment_list':
+          comments.value = message.payload
+          break
         case 'block_operation':
           applyBlockOperation(message.payload)
           break
@@ -227,6 +244,27 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     } finally {
       isApplyingRemoteUpdate.value = false
     }
+  }
+
+  function fetchHistory() {
+    if (!isConnected.value) return
+    send({ type: 'get_history' })
+  }
+
+  function addCommment(commentData: any) {
+    if (!isConnected.value) return
+    console.log(commentData)
+    send({ type: 'add_comment', payload: commentData })
+  }
+
+  function resolveComment(commentId: string) {
+    if (!isConnected.value) return
+    send({ type: 'resolve_comment', payload: { id: commentId } })
+  }
+
+  function fetchComments() {
+    if (!isConnected.value) return
+    send({ type: 'get_comments' })
   }
 
   function applyBlockOperation(operation: BlockOperation) {
@@ -337,6 +375,8 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     isApplyingRemoteUpdate,
     onlineUsers,
     remoteSelections,
+    historyRecords,
+    comments,
     connect,
     disconnect,
     send,
@@ -347,5 +387,9 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     sendBlockConfigDelta,
     sendBlockOperation,
     applyBlockOperation,
+    fetchHistory,
+    fetchComments,
+    addCommment,
+    resolveComment,
   }
 })

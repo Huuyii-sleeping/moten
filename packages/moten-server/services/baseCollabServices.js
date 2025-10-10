@@ -9,6 +9,8 @@ export class BasicCollabService {
     this.userCount = new Map();
     this.userSelections = new Map();
     this.userRole = new Map();
+    this.historyRecords = new Map(); // docId -> Array<History>
+    this.comments = new Map();
   }
 
   init(server) {
@@ -73,7 +75,7 @@ export class BasicCollabService {
     if (!this.docData.has(docId)) {
       this.docData.set(docId, {
         // 匹配 useEditStore 的状态结构
-        blocks: [],
+        blockConfig: [],
         pageConfig: {},
         version: 0,
         // 可以添加其他需要协同的状态
@@ -137,6 +139,18 @@ export class BasicCollabService {
             ws
           );
           break;
+        case "add_comment":
+          this._handleAddComment(docId, parsedMessage.payload, ws);
+          break;
+        case "resolve_comment":
+          this._handleResolveComment(docId, parsedMessage.payload.id);
+          break;
+        case "get_comments":
+          this._sendComments(docId, ws);
+          break;
+        case "get_history":
+          this._sendHistory(docId, ws);
+          break;
         default:
           console.warn("Unknown message type:", parsedMessage.type);
           break;
@@ -146,37 +160,88 @@ export class BasicCollabService {
     }
   }
 
+  _sendHistory(docId, ws) {
+    const records = this.historyRecords.get(docId) || [];
+    ws.send(
+      JSON.stringify({
+        type: "history_records",
+        payload: records,
+      })
+    );
+  }
+
+  _handleAddComment(docId, commentData, ws) {
+    const comment = {
+      id: this._generateId(),
+      ...commentData,
+      authorId: ws.id,
+      createdAt: Date.now(),
+      resolved: false,
+    };
+
+    if (!this.comments.has(docId)) {
+      this.comments.set(docId, []);
+    }
+    this.comments.get(docId).push(comment);
+    this._broadcastUpdate(docId, {
+      type: "comment_added",
+      payload: comment,
+    });
+  }
+
+  _handleResolveComment(docId, commentDataId) {
+    const comments = this.comments.get(docId);
+    const comment = comments.find((c) => c.id === commentDataId);
+    if (comment) {
+      comment.resolved = true;
+      this._broadcastUpdate(docId, {
+        type: "comment_resolved",
+        payload: { id: commentDataId },
+      });
+    }
+  }
+
+  _sendComments(docId, ws) {
+    const comments = this.comments.get(docId) || [];
+    ws.send(
+      JSON.stringify({
+        type: "comment-list",
+        payload: comments,
+      })
+    );
+  }
+
   _handleBlockOperation(docId, operation, senderWs) {
     const doc = this.docData.get(docId);
-    const blocks = doc.blocks;
+    const blockConfig = doc.blockConfig;
 
     switch (operation.op) {
       case "add":
-        blocks.push(operation.block);
+        blockConfig.push(operation.block);
         break;
       case "update":
-        const index = blocks.findIndex((b) => b.id === operation.id);
+        const index = blockConfig.findIndex((b) => b.id === operation.id);
         if (index !== -1) {
-          blocks[index].formData = {
-            ...blocks[index].formData,
+          blockConfig[index].formData = {
+            ...blockConfig[index].formData,
             ...operation.forData,
           };
         }
         break;
       case "delete":
-        const deleteIndex = blocks.findIndex((b) => b.id === operation.id);
+        const deleteIndex = blockConfig.findIndex((b) => b.id === operation.id);
         if (deleteIndex !== -1) {
-          blocks.splice(deleteIndex, 1);
+          blockConfig.splice(deleteIndex, 1);
         }
         break;
       case "move":
         if (
           operation.fromIndex >= 0 &&
           operation.toIndex >= 0 &&
-          operation.fromIndex < blocks.length
+          operation.fromIndex < blockConfig.length
         ) {
-          const [moveBlock] = blocks.splice(operation.fromIndex, 1);
-          blocks.splice(operation.toIndex, 0, moveBlock);
+          const [moveBlock] = blockConfig.splice(operation.fromIndex, 1);
+          blockConfig.splice(operation.toIndex, 0, moveBlock);
         }
         break;
     }
@@ -200,7 +265,7 @@ export class BasicCollabService {
         JSON.stringify({
           type: "conflict_detected",
           expectedVersion: currentData.version,
-          currentBlocks: currentData.blocks, // 可选：发送最新数据
+          currentBlocks: currentData.blockConfig, // 可选：发送最新数据
         })
       );
       return;
@@ -250,6 +315,18 @@ export class BasicCollabService {
       version: currentData.version + 1,
     };
     this.docData.set(docId, updatedData);
+    const historyRecord = {
+      id: this._generateId(),
+      timestamp: Date.now(),
+      userId: "user-" + Date.now(),
+      operation: "block_config_update",
+      blockConfig: payload || updatedData,
+      version: updatedData.version,
+    };
+    if (!this.historyRecords.has(docId)) {
+      this.historyRecords.set(docId, []);
+    }
+    this.historyRecords.get(docId).push(historyRecord);
     this._broadcastUpdate(
       docId,
       {
@@ -273,6 +350,18 @@ export class BasicCollabService {
       version: currentData.version + 1,
     };
     this.docData.set(docId, updatedData);
+    const historyRecord = {
+      id: this._generateId(),
+      timestamp: Date.now(),
+      userId: "user-" + Date.now(),
+      operation: "page_config_update",
+      pageConfig: payload || updatedData,
+      version: updatedData.version,
+    };
+    if (!this.historyRecords.has(docId)) {
+      this.historyRecords.set(docId, []);
+    }
+    this.historyRecords.get(docId).push(historyRecord);
     this._broadcastUpdate(
       docId,
       {
@@ -296,6 +385,19 @@ export class BasicCollabService {
       version: currentData.version + 1,
     };
     this.docData.set(docId, updatedData);
+    const historyRecord = {
+      id: this._generateId(),
+      timestamp: Date.now(),
+      userId: "user-" + Date.now(),
+      operation: "full_state_update",
+      blockConfig: payload.blockConfig || updatedData.blockConfig,
+      pageConfig: payload.pageConfig || updatedData.pageConfig,
+      version: updatedData.version,
+    };
+    if (!this.historyRecords.has(docId)) {
+      this.historyRecords.set(docId, []);
+    }
+    this.historyRecords.get(docId).push(historyRecord);
     this._broadcastUpdate(docId, {
       type: "full_state_updated",
       payload: updatedData,
@@ -336,5 +438,8 @@ export class BasicCollabService {
         ws.send(message);
       }
     });
+  }
+  _generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2);
   }
 }
