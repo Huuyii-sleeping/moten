@@ -148,6 +148,7 @@ const submit = async () => {
         message: '发布成功',
         type: 'success',
       })
+      collabStore.dismissRoom()
       router.push('/')
     } else {
       ElMessage({

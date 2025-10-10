@@ -6,6 +6,7 @@ import { useEditStore } from './edit'
 import { applyPatch, compare } from 'fast-json-patch'
 import type { BlockOperation } from '@/types/collab'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 
 interface CollaborativeState {
   blockConfig: BaseBlock[]
@@ -45,6 +46,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   const onlineUsers = ref(1)
   const remoteSelections = ref<Record<string, any>>({})
   const userList = ref<any[]>([])
+  const router = useRouter()
 
   let currentDocId = ''
 
@@ -164,7 +166,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
           historyRecords.value = message.payload.history || []
           comments.value = message.payload.comments || []
           onlineUsers.value = message.payload.userCount || 1
-          
+
           break
 
         case 'block_config_updated':
@@ -244,10 +246,19 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         case 'all_users':
           userList.value = message.payload
           break
+        case 'room_dismissed':
+          ElMessage.warning(message.payload.reason)
+          disconnect()
+          router.push('/')
+          break
       }
     } finally {
       isApplyingRemoteUpdate.value = false
     }
+  }
+
+  function dismissRoom() {
+    send({ type: 'dismiss_room' })
   }
 
   function getAllUsers() {
@@ -401,5 +412,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     addCommment,
     resolveComment,
     getAllUsers,
+    dismissRoom,
   }
 })

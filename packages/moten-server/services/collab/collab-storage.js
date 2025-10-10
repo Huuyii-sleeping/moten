@@ -100,6 +100,8 @@ export class CollabStorage {
     this.userRole.delete(docId);
     this.historyRecords.delete(docId);
     this.comments.delete(docId);
+    this.users.delete(docId);
+    this.hasUsers.delete(docId);
   }
 
   addUser(docId, ws, username) {

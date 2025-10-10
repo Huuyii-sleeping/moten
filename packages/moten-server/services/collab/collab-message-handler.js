@@ -53,6 +53,8 @@ export class CollabMessageHandler {
         case "get_userlist":
           this._sendUserList(docId);
           break;
+        case "dismiss_room":
+          this._dismissRoom(docId);
         default:
           console.warn(`[Unknown Type] Message type not supported: ${type}`);
           this._sendUnknownTypeError(ws, type);
@@ -64,12 +66,28 @@ export class CollabMessageHandler {
     }
   }
 
-  _sendUserList(docId){
-    const userList = this.storage.getAllUser(docId)
+  _dismissRoom(docId) {
+    const connections = this.storage.connections.get(docId);
+    if (!connections) return;
     this.broadcaster.broadcast(docId, {
-      type: 'all_users',
-      payload: userList
-    })
+      type: "room_dismissed",
+      payload: {
+        reason: "房间已经解散",
+      },
+    });
+    connections.forEach((ws) => {
+      ws.close(1000, "Room dismissed by host");
+    });
+
+    this.storage.clearDocStorage(docId);
+  }
+
+  _sendUserList(docId) {
+    const userList = this.storage.getAllUser(docId);
+    this.broadcaster.broadcast(docId, {
+      type: "all_users",
+      payload: userList,
+    });
   }
 
   _handleBlockConfigUpdate(docId, blockConfig, ws) {
