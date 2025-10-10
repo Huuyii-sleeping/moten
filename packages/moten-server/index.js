@@ -14,7 +14,7 @@ import { authFailedHandler } from "./middleware/auth.js";
 import { permissionHandler } from "./middleware/permission.js";
 import path from "path";
 import { createServer } from "http";
-import { BasicCollabService } from "./services/baseCollabServices.js";
+import { BasicCollabService } from "./services/collab/collab-basic-service.js";
 
 const app = express();
 app.use(cors());
