@@ -108,10 +108,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         console.log('协同编辑连接断开')
         isConnected.value = false
         connectionStatus.value = 'disconnected'
-        // 自动重连
-        if (reconnectAttempts.value < maxReconnectAttempts) {
-          attempReconnect(docId, isEditor)
-        }
       }
 
       ws.value.onerror = (error) => {
@@ -165,9 +161,10 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         case 'initial_data':
           editStore.applyRemoteBlockConfig(message.payload.blockConfig || [])
           editStore.applyRemotePageConfig(message.payload.pageConfig || {})
-          if (message.payload.onlineUsers !== undefined) {
-            onlineUsers.value = message.payload.onlineUsers
-          }
+          historyRecords.value = message.payload.history || []
+          comments.value = message.payload.comments || []
+          onlineUsers.value = message.payload.userCount || 1
+          
           break
 
         case 'block_config_updated':

@@ -112,9 +112,7 @@ const handleInput = (e: Event) => {
 
   const mentionMatch = textBeforeCursor.match(/@\w*$/)
   if (mentionMatch) {
-    console.log(mentionMatch)
     mentionQuery.value = mentionMatch[0].slice(1)
-    console.log(mentionQuery.value)
     showMetionList(el, cursorPos)
   } else {
     mentionVisible.value = false

@@ -104,7 +104,7 @@ export class BasicCollabService {
   _sendInitialData(ws, docId) {
     if (!ws.readyState === 1) return;
     const initialData = {
-      docState: this.storage.getDocState(docId),
+      ...this.storage.getDocState(docId),
       userCount: this.storage.getUserCount(docId),
       comments: this.storage.getComments(docId),
       history: this.storage.getHistoryRecords(docId).slice(-20),
