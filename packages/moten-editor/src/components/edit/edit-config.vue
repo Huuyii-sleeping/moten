@@ -26,7 +26,7 @@
             title="刷新评论"
           ></v-icon>
         </div>
-        <div class="comment-list">
+        <div class="comment-list" ref="commentListRef">
           <div
             v-for="comment in currentComments"
             :key="comment.id"
@@ -70,11 +70,23 @@
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import { useEditStore } from '@/stores/edit'
 import { computed, onMounted, ref, watch } from 'vue'
+import { nextTick } from 'vue'
+
 const edit = useEditStore()
 const collab = useCollaborationStore()
 
 const newComment = ref('')
 const targetId = computed(() => edit.currentSelect!.id || 'PAGE_ROOT')
+
+const commentListRef = ref<HTMLElement | null>(null)
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (commentListRef.value) {
+      commentListRef.value.scrollTop = commentListRef.value.scrollHeight
+    }
+  })
+}
 
 const currentComments = computed(() => {
   return collab.comments
@@ -95,6 +107,7 @@ const addNewComment = () => {
     position: { x: 0, y: 0 },
   })
   newComment.value = ''
+  scrollToBottom()
 }
 
 const resolveComment = (id: string) => {
@@ -126,6 +139,13 @@ watch(
   (value) => {
     if (!value) edit.setCurrentSelect({} as any)
   },
+)
+watch(
+  () => collab.comments,
+  () => {
+    scrollToBottom()
+  },
+  { deep: true },
 )
 onMounted(() => {
   if (collab.isConnected) {
