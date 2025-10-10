@@ -65,7 +65,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`
   }
 
-  function attempReconnect(docId: string, isEditor: boolean) {
+  function attempReconnect(docId: string, isEditor: boolean, username: string = '匿名登录') {
     if (reconnectAttempts.value >= maxReconnectAttempts) {
       console.error('重连失败，已经达到最大次数')
       return
@@ -76,12 +76,12 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     const delay = Math.min(reconnectDelay.value * reconnectAttempts.value, 10000)
     setTimeout(() => {
       console.log(`尝试第${reconnectAttempts}次重连...`)
-      connect(docId, isEditor)
+      connect(docId, isEditor, username)
     }, delay)
   }
 
   // 连接 WebSocket
-  async function connect(docId: string, isEditor: boolean = false) {
+  async function connect(docId: string, isEditor: boolean = false, username: string = '匿名登录') {
     if (isConnected.value) return
     currentDocId = docId
     connectionStatus.value = 'connecting'
@@ -89,7 +89,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     try {
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const wsHost = 'localhost:8081'
-      const wsUrl = `${wsProtocol}//${wsHost}?docId=${docId}&isEditor=${isEditor}`
+      const wsUrl = `${wsProtocol}//${wsHost}?docId=${docId}&isEditor=${isEditor}&username=${username}`
 
       ws.value = new WebSocket(wsUrl)
 

@@ -27,7 +27,7 @@
       </div>
       <div class="online-indicator" v-if="collabStore.isConnected">
         <span class="user-count">{{ collabStore.onlineUsers }}</span>
-        <span class="label">人在线编辑</span>
+        <span class="label" style="margin-right: 10px">人在线编辑</span>
       </div>
       <el-button @click="togglePreview">
         <v-icon icon="preview" />
@@ -39,38 +39,30 @@
       </el-button>
     </div>
   </div>
+  <collabModel v-model:visible="showCollabModal"></collabModel>
 </template>
 
 <script setup lang="ts">
 import type { Viewport } from '@/types/edit'
-import { computed, nextTick, onUnmounted, ref, toRaw, watch } from 'vue'
+import { nextTick, onUnmounted, ref, toRaw, watch } from 'vue'
 import { useEditStore } from '@/stores/edit'
 import Ajv from 'ajv'
 import AjvErrors from 'ajv-errors'
 import { blockSchema, type BlockSchemaKeys } from '@/config/schema'
 import { findNodeById } from './nested'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { submitPageAsync, uploadPageAsync } from '@/api/page'
 import { ElMessage } from 'element-plus'
 import { useCollaborationStore } from '@/stores/collaborationStore'
-
+import collabModel from '@/pages/collabModel.vue'
+const showCollabModal = ref(false)
 const collabStore = useCollaborationStore()
-const route = useRoute()
-const docId = computed(() => route.params.id || 'default-document')
-const isEditor = computed(() => {
-  if(localStorage.getItem('token')) return true
-  return false
-})
 
 const toggleCollaboration = async () => {
-  try {
-    if (collabStore.isConnected) {
-      collabStore.disconnect()
-    } else {
-      await collabStore.connect(docId.value as any, isEditor.value)
-    }
-  } catch (error) {
-    ElMessage.error('协同操作失败')
+  if (collabStore.isConnected) {
+    collabStore.disconnect()
+  } else {
+    showCollabModal.value = true
   }
 }
 
