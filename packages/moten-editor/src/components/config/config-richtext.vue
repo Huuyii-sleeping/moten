@@ -27,7 +27,6 @@ watch(() => formData, (value) => {
 }, { immediate: true })
 
 watch(input, (value) => {
-    console.log('-----',input.value)
     let data = {}
     const _value = value || ''
     // 进行赋值操作 当我们没有formData 我们需要同时对两端进行设置参数，保证数据的统一

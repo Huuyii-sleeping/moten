@@ -21,8 +21,7 @@ export class BasicCollabService {
     this.wss.on("connection", (ws, req) => {
       ws.id = generateUniqueId();
       console.log(`[Connection] New WebSocket connection (ID: ${ws.id})`);
-
-      const { docId, isEditor } = parseWsParams(req.url);
+      const { docId, isEditor, username } = parseWsParams(req.url);
       if (!docId) {
         console.warn(
           `[Connection] Rejected: Missing "docId" parameter (ID: ${ws.id})`
@@ -34,6 +33,7 @@ export class BasicCollabService {
       this.storage.initDocument(docId);
       this.storage.setUserRole(docId, ws, isEditor);
       this.storage.addConnection(docId, ws);
+      this.storage.setUsername(docId, ws, username);
 
       const newUserCount = this.storage.getUserCount(docId) + 1;
       this.storage.updateUserCount(docId, newUserCount);

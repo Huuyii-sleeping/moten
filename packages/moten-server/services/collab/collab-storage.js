@@ -14,6 +14,8 @@ export class CollabStorage {
     this.historyRecords = new Map();
     // 评论数据：docId -> Comment[]
     this.comments = new Map();
+    // 储存用户名字（这里可以推广到 储存整个用户的信息） docId -> Map<Websocket, string|(interface User)> 储存用户信息
+    this.users = new Map();
   }
 
   /**
@@ -35,6 +37,7 @@ export class CollabStorage {
     if (!this.historyRecords.has(docId)) this.historyRecords.set(docId, []);
     if (!this.comments.has(docId)) this.comments.set(docId, []);
     if (!this.userCount.has(docId)) this.userCount.set(docId, 0);
+    if (!this.users.has(docId)) this.users.set(docId, new Map());
   }
 
   /**
@@ -94,6 +97,14 @@ export class CollabStorage {
     this.userRole.delete(docId);
     this.historyRecords.delete(docId);
     this.comments.delete(docId);
+  }
+
+  setUsername(docId, ws, username) {
+    this.users.get(docId).set(ws, username);
+  }
+
+  getUsername(docId, ws) {
+    return this.users.get(docId).get(ws);
   }
 
   setUserRole(docId, ws, isEditor) {

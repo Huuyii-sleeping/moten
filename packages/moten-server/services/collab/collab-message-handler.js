@@ -324,6 +324,7 @@ export class CollabMessageHandler {
       authorId: ws.id,
       createdAt: Date.now(),
       resolved: false,
+      username: this.storage.getUsername(docId, ws),
     };
 
     // 2. 存储评论

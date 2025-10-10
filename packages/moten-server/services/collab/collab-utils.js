@@ -30,5 +30,6 @@ export function parseWsParams(url) {
   return {
     docId: params.get("docId"),
     isEditor: params.get("isEditor") === "true", // 转为布尔值（默认 false）
+    username: params.get("username"),
   };
 }

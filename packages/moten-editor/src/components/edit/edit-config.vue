@@ -37,7 +37,7 @@
               {{ comment.content }}
             </div>
             <div class="comment-meta">
-              <span class="author">{{ comment.authorName || '匿名用户' }}</span>
+              <span class="author">{{ comment.username || '匿名用户' }}</span>
               <span class="time">{{ formatTime(comment.createdAt) }}</span>
               <button
                 v-if="!comment.resolved"

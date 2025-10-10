@@ -85,10 +85,11 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     if (isConnected.value) return
     currentDocId = docId
     connectionStatus.value = 'connecting'
+    // const encodeedUsername = encodeURIComponent(username)
 
     try {
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const wsHost = 'localhost:8081'
+      const wsHost = 'localhost:8081' 
       const wsUrl = `${wsProtocol}//${wsHost}?docId=${docId}&isEditor=${isEditor}&username=${username}`
 
       ws.value = new WebSocket(wsUrl)
@@ -253,7 +254,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
   function addCommment(commentData: any) {
     if (!isConnected.value) return
-    console.log(commentData)
     send({ type: 'add_comment', payload: commentData })
   }
 

@@ -51,8 +51,6 @@ const handleImageSelect = (e: any) => {
     const previewUrl = URL.createObjectURL(file)
     imageCover.value = previewUrl
   })
-  console.log(preimage.value)
-  console.log(imageCover.value)
   e.target.value = ''
 }
 

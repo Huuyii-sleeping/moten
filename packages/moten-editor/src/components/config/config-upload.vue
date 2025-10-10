@@ -34,7 +34,6 @@ const handleImageSelect = (e: any) => {
         const previewUrl = URL.createObjectURL(file)
         items.value.push(previewUrl)
     })
-    console.log(items.value)
     e.target.value = ''
 }
 
@@ -43,7 +42,6 @@ watch(() => formData, (value) => {
 }, { immediate: true })
 
 watch(items, (value) => {
-    console.log(items.value)
     let data = {}
     const _value = value || []
     if (Object.values(formData || {}).length < 2) data = { desktop: _value, mobile: _value }
