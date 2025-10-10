@@ -53,13 +53,31 @@
         <div class="comment-input">
           <textarea
             v-model="newComment"
-            placeholder="请输入评论"
+            placeholder="请输入评论（支持@提及）"
             @keypress.enter.exact.prevent="addNewComment"
+            ref="commentTextRef"
+            @input="handleInput"
+            @keydown="handleKeydown"
+            @click="handleClick"
           >
           </textarea>
           <button :disabled="!newComment.trim()" @click="addNewComment" class="send-btn">
             发送
           </button>
+        </div>
+        <div
+          class="mention-list"
+          v-if="mentionVisible"
+          :style="{ top: mentionPosition.top + 'px', left: mentionPosition.left + 'px' }"
+        >
+          <div
+            class="mention-item"
+            v-for="user in filteredUsers"
+            :key="user.id"
+            @click="selectMention(user)"
+          >
+            {{ user.name }}
+          </div>
         </div>
       </div>
     </div>
@@ -75,10 +93,89 @@ import { nextTick } from 'vue'
 const edit = useEditStore()
 const collab = useCollaborationStore()
 
+const commentTextRef = ref<HTMLTextAreaElement | null>(null)
+
+const mentionVisible = ref(false)
+const mentionPosition = ref({ top: 0, left: 0 })
+const mentionQuery = ref('')
+const mockUsers = [
+  { id: '1', name: '张三' },
+  { id: '2', name: '里斯' },
+  { id: '3', name: '王五' },
+]
+
 const newComment = ref('')
 const targetId = computed(() => edit.currentSelect!.id || 'PAGE_ROOT')
 
 const commentListRef = ref<HTMLElement | null>(null)
+
+const handleInput = (e: Event) => {
+  const el = e.target as HTMLTextAreaElement
+  const cursorPos = el.selectionStart
+  const textBeforeCursor = newComment.value.slice(0, cursorPos)
+
+  const mentionMatch = textBeforeCursor.match(/@\w*$/)
+  console.log(mentionMatch)
+  if (mentionMatch) {
+    mentionQuery.value = mentionMatch[0].slice(1)
+    showMetionList(el, cursorPos)
+  } else {
+    mentionVisible.value = false
+  }
+}
+
+const showMetionList = (el: HTMLTextAreaElement, cursorPos: number) => {
+  const rect = el.getBoundingClientRect()
+  mentionPosition.value = {
+    top: rect.top + rect.height + window.screenY,
+    left: rect.left + window.screenX,
+  }
+  mentionVisible.value = true
+}
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if (!mentionVisible.value) return
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    // TODO
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    // TODO
+  } else if (e.key === 'Enter') {
+    e.preventDefault()
+    selectMention(mockUsers[0])
+  } else if (e.key === 'Escape') {
+    mentionVisible.value = false
+  }
+}
+
+const handleClick = () => {
+  mentionVisible.value = false
+}
+
+const selectMention = (user: { name: string }) => {
+  const current = newComment.value
+  const cursorPos = commentTextRef.value?.selectionStart || 0
+  const textBefore = current.slice(0, cursorPos)
+  const textAfter = current.slice(cursorPos)
+
+  const atIndex = textBefore.lastIndexOf('@')
+  const newText = textBefore.slice(0, atIndex) + `@${user.name}` + textAfter
+  newComment.value = newText
+  mentionVisible.value = false
+  nextTick(() => {
+    const newCursorPos = atIndex + user.name.length + 2
+    commentTextRef.value?.setSelectionRange(newCursorPos, newCursorPos)
+  })
+}
+
+const filteredUsers = computed(() => {
+  // return mockUsers.filter((user) => {
+  //   user.name.toLowerCase().includes(mentionQuery.value.toLowerCase())
+  // })
+  return mockUsers
+})
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -100,11 +197,13 @@ const fetchComments = () => {
 
 const addNewComment = () => {
   if (!newComment.value.trim() || !collab.isConnected) return
+  const mentions = [...newComment.value.matchAll(/@(\w+)/g)].map((m) => m[1])
   collab.addCommment({
     componentId: targetId.value,
     content: newComment.value.trim(),
     authorName: '当前用户',
     position: { x: 0, y: 0 },
+    mentions
   })
   newComment.value = ''
   scrollToBottom()
@@ -240,6 +339,25 @@ onMounted(() => {
         font-size: 13px;
         text-align: center;
         padding: 10px 0;
+      }
+    }
+
+    .mention-list {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1001;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 200px;
+    }
+
+    .mention-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      &:hover {
+        background: #f0f9ff;
       }
     }
 

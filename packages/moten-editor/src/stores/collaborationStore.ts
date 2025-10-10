@@ -5,6 +5,7 @@ import type { PageSchemaFormData } from '@/config/schema'
 import { useEditStore } from './edit'
 import { applyPatch, compare } from 'fast-json-patch'
 import type { BlockOperation } from '@/types/collab'
+import { ElMessage } from 'element-plus'
 
 interface CollaborativeState {
   blockConfig: BaseBlock[]
@@ -89,7 +90,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
     try {
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const wsHost = 'localhost:8081' 
+      const wsHost = 'localhost:8081'
       const wsUrl = `${wsProtocol}//${wsHost}?docId=${docId}&isEditor=${isEditor}&username=${username}`
 
       ws.value = new WebSocket(wsUrl)
@@ -102,7 +103,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
       ws.value.onmessage = (event) => {
         const message = JSON.parse(event.data)
-        handleIncomingMessage(message)
+        handleIncomingMessage(message, username)
       }
 
       ws.value.onclose = () => {
@@ -150,7 +151,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   }
 
   // 处理接收到的消息
-  function handleIncomingMessage(message: any) {
+  function handleIncomingMessage(message: any, username: string) {
     const editStore = useEditStore()
     if (message.id && message.id === lastSentMessageId.value) {
       return
@@ -183,6 +184,10 @@ export const useCollaborationStore = defineStore('collaboration', () => {
           break
         case 'comment_added':
           comments.value.push(message.payload)
+          const currentUser = username
+          if (message.payload.mentions?.includes(currentUser)) {
+            ElMessage.warning(`你被${message.payload.username}提及了`)
+          }
           break
         case 'comment_resolved':
           const comment = comments.value.find((c) => c.id === message.payload.id)
