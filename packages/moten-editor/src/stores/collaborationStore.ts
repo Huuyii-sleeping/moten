@@ -4,6 +4,7 @@ import type { BaseBlock } from '@/types/edit'
 import type { PageSchemaFormData } from '@/config/schema'
 import { useEditStore } from './edit'
 import { applyPatch, compare } from 'fast-json-patch'
+import type { BlockOperation } from '@/types/collab'
 
 interface CollaborativeState {
   blockConfig: BaseBlock[]
@@ -172,7 +173,9 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         case 'page_config_updated':
           editStore.applyRemotePageConfig(message.payload.pageConfig)
           break
-
+        case 'block_operation':
+          applyBlockOperation(message.payload)
+          break
         case 'remote_selection':
           const { wsId, userId, blockId } = message.payload
           if (!userColors.value[userId]) {
@@ -224,6 +227,43 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     } finally {
       isApplyingRemoteUpdate.value = false
     }
+  }
+
+  function applyBlockOperation(operation: BlockOperation) {
+    const editStore = useEditStore()
+    isApplyingRemoteUpdate.value = true
+    try {
+      switch (operation.op) {
+        case 'add':
+          editStore.blockConfig.push(operation.block)
+          break
+        case 'update':
+          const blockToUpdate = editStore.blockConfig.find((b) => b.id === operation.id)
+          if (blockToUpdate) {
+            blockToUpdate.formData = { ...blockToUpdate.formData, ...operation.formData }
+          }
+          break
+        case 'delete':
+          const index = editStore.blockConfig.findIndex((b) => b.id === operation.id)
+          if (index !== -1) {
+            editStore.blockConfig.splice(index, 1)
+          }
+          break
+        case 'move':
+          const blockToMove = editStore.blockConfig.splice(operation.fromIndex, 1)[0]
+          editStore.blockConfig.splice(operation.toIndex, 0, blockToMove)
+          break
+      }
+    } finally {
+      isApplyingRemoteUpdate.value = false
+    }
+  }
+
+  function sendBlockOperation(operation: BlockOperation) {
+    if (!isConnected) return
+    const messageId = generateMessageId()
+    lastSentMessageId.value = messageId
+    send({ id: messageId, type: 'block_operation', payload: operation })
   }
 
   function applyRemoteState(state: CollaborativeState, isInit: boolean) {
@@ -305,5 +345,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     applyRemoteState,
     sendUserSelection,
     sendBlockConfigDelta,
+    sendBlockOperation,
+    applyBlockOperation,
   }
 })

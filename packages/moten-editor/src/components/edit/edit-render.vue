@@ -1,6 +1,10 @@
 <template>
   <div class="edit-render" :class="pageClass">
-    <edit-render-drag :list="list" :group="dragGroup" class="render"></edit-render-drag>
+    <edit-render-drag
+      :list="list"
+      :group="dragGroup"
+      class="render"
+    ></edit-render-drag>
     <el-empty class="empty" v-if="!list?.length" description="请将左侧的组件拖入到此处">
       <template #image>
         <v-icon icon="dragBlank" class="icon"></v-icon>
@@ -24,7 +28,6 @@ const allPages = useUser.list
 // 及时添加和更新
 getPageList(route, list, allPages)
 edit.setBlockConfig(list.value)
-
 watch(
   () => list.value,
   (val) => {

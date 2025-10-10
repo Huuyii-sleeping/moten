@@ -73,7 +73,7 @@ export class BasicCollabService {
     if (!this.docData.has(docId)) {
       this.docData.set(docId, {
         // 匹配 useEditStore 的状态结构
-        blockConfig: [],
+        blocks: [],
         pageConfig: {},
         version: 0,
         // 可以添加其他需要协同的状态
@@ -126,6 +126,9 @@ export class BasicCollabService {
         case "user_selection":
           this._handleUserSelection(docId, ws, parsedMessage.payload);
           break;
+        case "block_operation":
+          this._handleBlockOperation(docId, parsedMessage.payload, ws);
+          break;
         case "update_block_delta":
           this._handleBlockDeltaUpdate(
             docId,
@@ -141,6 +144,47 @@ export class BasicCollabService {
     } catch (error) {
       console.warn("Error handling client message", error);
     }
+  }
+
+  _handleBlockOperation(docId, operation, senderWs) {
+    const doc = this.docData.get(docId);
+    const blocks = doc.blocks;
+
+    switch (operation.op) {
+      case "add":
+        blocks.push(operation.block);
+        break;
+      case "update":
+        const index = blocks.findIndex((b) => b.id === operation.id);
+        if (index !== -1) {
+          blocks[index].formData = {
+            ...blocks[index].formData,
+            ...operation.forData,
+          };
+        }
+        break;
+      case "delete":
+        const deleteIndex = blocks.findIndex((b) => b.id === operation.id);
+        if (deleteIndex !== -1) {
+          blocks.splice(deleteIndex, 1);
+        }
+        break;
+      case "move":
+        if (
+          operation.fromIndex >= 0 &&
+          operation.toIndex >= 0 &&
+          operation.fromIndex < blocks.length
+        ) {
+          const [moveBlock] = blocks.splice(operation.fromIndex, 1);
+          blocks.splice(operation.toIndex, 0, moveBlock);
+        }
+        break;
+    }
+    this._broadcastUpdate(
+      docId,
+      { type: "block_operation", payload: operation },
+      senderWs
+    );
   }
 
   /**
