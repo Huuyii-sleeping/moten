@@ -72,11 +72,11 @@
         >
           <div
             class="mention-item"
-            v-for="user in filteredUsers"
-            :key="user.id"
+            v-for="(user, index) in mockUsers"
+            :key="index"
             @click="selectMention(user)"
           >
-            {{ user.name }}
+            {{ user.username }}
           </div>
         </div>
       </div>
@@ -98,11 +98,7 @@ const commentTextRef = ref<HTMLTextAreaElement | null>(null)
 const mentionVisible = ref(false)
 const mentionPosition = ref({ top: 0, left: 0 })
 const mentionQuery = ref('')
-const mockUsers = [
-  { id: '1', name: '张三' },
-  { id: '2', name: '里斯' },
-  { id: '3', name: '王五' },
-]
+const mockUsers = ref<any[]>([])
 
 const newComment = ref('')
 const targetId = computed(() => edit.currentSelect!.id || 'PAGE_ROOT')
@@ -115,9 +111,10 @@ const handleInput = (e: Event) => {
   const textBeforeCursor = newComment.value.slice(0, cursorPos)
 
   const mentionMatch = textBeforeCursor.match(/@\w*$/)
-  console.log(mentionMatch)
   if (mentionMatch) {
+    console.log(mentionMatch)
     mentionQuery.value = mentionMatch[0].slice(1)
+    console.log(mentionQuery.value)
     showMetionList(el, cursorPos)
   } else {
     mentionVisible.value = false
@@ -144,7 +141,7 @@ const handleKeydown = (e: KeyboardEvent) => {
     // TODO
   } else if (e.key === 'Enter') {
     e.preventDefault()
-    selectMention(mockUsers[0])
+    selectMention(mockUsers.value[0])
   } else if (e.key === 'Escape') {
     mentionVisible.value = false
   }
@@ -152,30 +149,26 @@ const handleKeydown = (e: KeyboardEvent) => {
 
 const handleClick = () => {
   mentionVisible.value = false
+  fetchUsers()
+  mockUsers.value = collab.userList
+  console.log(mockUsers.value)
 }
 
-const selectMention = (user: { name: string }) => {
+const selectMention = (user: { username: String; id: String }) => {
   const current = newComment.value
   const cursorPos = commentTextRef.value?.selectionStart || 0
   const textBefore = current.slice(0, cursorPos)
   const textAfter = current.slice(cursorPos)
 
   const atIndex = textBefore.lastIndexOf('@')
-  const newText = textBefore.slice(0, atIndex) + `@${user.name}` + textAfter
+  const newText = textBefore.slice(0, atIndex) + `@${user.username}` + textAfter
   newComment.value = newText
   mentionVisible.value = false
   nextTick(() => {
-    const newCursorPos = atIndex + user.name.length + 2
+    const newCursorPos = atIndex + user.username.length + 2
     commentTextRef.value?.setSelectionRange(newCursorPos, newCursorPos)
   })
 }
-
-const filteredUsers = computed(() => {
-  // return mockUsers.filter((user) => {
-  //   user.name.toLowerCase().includes(mentionQuery.value.toLowerCase())
-  // })
-  return mockUsers
-})
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -189,12 +182,6 @@ const currentComments = computed(() => {
   return collab.comments
 })
 
-const fetchComments = () => {
-  if (collab.isConnected) {
-    collab.fetchComments()
-  }
-}
-
 const addNewComment = () => {
   if (!newComment.value.trim() || !collab.isConnected) return
   const mentions = [...newComment.value.matchAll(/@(\w+)/g)].map((m) => m[1])
@@ -203,7 +190,7 @@ const addNewComment = () => {
     content: newComment.value.trim(),
     authorName: '当前用户',
     position: { x: 0, y: 0 },
-    mentions
+    mentions,
   })
   newComment.value = ''
   scrollToBottom()
@@ -223,13 +210,28 @@ const formatTime = (timestamp: number): string => {
   })
 }
 
+const fetchComments = () => {
+  if (collab.isConnected) {
+    collab.fetchComments()
+  }
+}
+
+const fetchUsers = () => {
+  if (collab.isConnected) {
+    collab.getAllUsers()
+  }
+}
+
 const panelSwitch = () => {
   edit.setConfigPanelShow(!edit.configPanelShow)
 }
+
 watch(
   () => edit.currentSelect,
   (value) => {
     if (value?.id) edit.setConfigPanelShow(true)
+    fetchUsers()
+    fetchComments()
   },
   { deep: true },
 )

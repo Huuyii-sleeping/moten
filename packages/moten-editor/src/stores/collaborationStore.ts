@@ -41,12 +41,10 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
   // 计算属性
   const isCollaborating = computed(() => isConnected.value)
-
   const isApplyingRemoteUpdate = ref(false)
-
   const onlineUsers = ref(1)
-
   const remoteSelections = ref<Record<string, any>>({})
+  const userList = ref<any[]>([])
 
   let currentDocId = ''
 
@@ -246,10 +244,18 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         case 'user_left':
           onlineUsers.value = Math.max(1, message.payload.userCount || onlineUsers.value - 1)
           break
+        case 'all_users':
+          userList.value = message.payload
+          break
       }
     } finally {
       isApplyingRemoteUpdate.value = false
     }
+  }
+
+  function getAllUsers() {
+    if (!isConnected.value) return
+    send({ type: 'get_userlist' })
   }
 
   function fetchHistory() {
@@ -382,6 +388,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     remoteSelections,
     historyRecords,
     comments,
+    userList,
     connect,
     disconnect,
     send,
@@ -396,5 +403,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     fetchComments,
     addCommment,
     resolveComment,
+    getAllUsers,
   }
 })

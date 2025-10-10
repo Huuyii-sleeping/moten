@@ -16,6 +16,8 @@ export class CollabStorage {
     this.comments = new Map();
     // 储存用户名字（这里可以推广到 储存整个用户的信息） docId -> Map<Websocket, string|(interface User)> 储存用户信息
     this.users = new Map();
+    // 储存docId当中的user的数量以及名字 docId -> name[]
+    this.hasUsers = new Map();
   }
 
   /**
@@ -38,6 +40,7 @@ export class CollabStorage {
     if (!this.comments.has(docId)) this.comments.set(docId, []);
     if (!this.userCount.has(docId)) this.userCount.set(docId, 0);
     if (!this.users.has(docId)) this.users.set(docId, new Map());
+    if (!this.hasUsers.has(docId)) this.hasUsers.set(docId, []);
   }
 
   /**
@@ -97,6 +100,26 @@ export class CollabStorage {
     this.userRole.delete(docId);
     this.historyRecords.delete(docId);
     this.comments.delete(docId);
+  }
+
+  addUser(docId, ws, username) {
+    this.hasUsers.get(docId).push({
+      id: ws.id,
+      username: username,
+    });
+  }
+
+  removeUser(docId, wsId) {
+    const removeIndex = this.hasUsers
+      .get(docId)
+      .findIndex((user) => user.id === wsId);
+    if (removeIndex >= 0) {
+      this.hasUsers.get(docId).splice(removeIndex, 1);
+    }
+  }
+
+  getAllUser(docId) {
+    return this.hasUsers.get(docId);
   }
 
   setUsername(docId, ws, username) {

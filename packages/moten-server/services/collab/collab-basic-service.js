@@ -34,6 +34,7 @@ export class BasicCollabService {
       this.storage.setUserRole(docId, ws, isEditor);
       this.storage.addConnection(docId, ws);
       this.storage.setUsername(docId, ws, username);
+      this.storage.addUser(docId, ws, username);
 
       const newUserCount = this.storage.getUserCount(docId) + 1;
       this.storage.updateUserCount(docId, newUserCount);
@@ -63,6 +64,7 @@ export class BasicCollabService {
         const currentCount = this.storage.getUserCount(docId);
         const newUserCount = Math.max(0, currentCount - 1);
         this.storage.updateUserCount(docId, newUserCount);
+        this.storage.removeUser(docId, ws.id);
 
         this.broadcaster.broadcastUserUpdate(docId, "user_left");
         console.log(

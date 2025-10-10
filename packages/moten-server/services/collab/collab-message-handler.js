@@ -50,6 +50,9 @@ export class CollabMessageHandler {
         case "get_history":
           this._sendHistory(docId, ws);
           break;
+        case "get_userlist":
+          this._sendUserList(docId);
+          break;
         default:
           console.warn(`[Unknown Type] Message type not supported: ${type}`);
           this._sendUnknownTypeError(ws, type);
@@ -59,6 +62,14 @@ export class CollabMessageHandler {
       console.error(`[Message Error] Failed to handle message:`, error);
       this._sendMessageParseError(ws);
     }
+  }
+
+  _sendUserList(docId){
+    const userList = this.storage.getAllUser(docId)
+    this.broadcaster.broadcast(docId, {
+      type: 'all_users',
+      payload: userList
+    })
   }
 
   _handleBlockConfigUpdate(docId, blockConfig, ws) {
