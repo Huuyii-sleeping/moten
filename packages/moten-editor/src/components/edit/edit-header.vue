@@ -138,6 +138,8 @@ const exportProject = async () => {
     document.body.removeChild(a)
     window.URL.revokeObjectURL(url)
     ElMessage.success('导出成功！')
+    collabStore.dismissRoom()
+    router.push('/')
   } catch (error: any) {
     ElMessage.error('导出失败！', error.message)
   } finally {
