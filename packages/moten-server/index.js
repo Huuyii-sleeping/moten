@@ -15,6 +15,7 @@ import { permissionHandler } from "./middleware/permission.js";
 import path from "path";
 import { createServer } from "http";
 import { BasicCollabService } from "./services/collab/collab-basic-service.js";
+import { exportRoute } from "./routes/export.js";
 
 const app = express();
 app.use(cors());
@@ -32,13 +33,17 @@ app.use(
   expressjwt({
     secret: SECRET_KEY,
     algorithms: ["HS256"],
-  }).unless({ path: ["/rest/v1/user/register", "/rest/v1/user/login", "/"] })
+  }).unless({
+    path: ["/rest/v1/user/register", "/rest/v1/user/login", "/", "/api/export"],
+  })
 );
 
 server.listen(port, () => {
   console.log(`listening on port ${port}`);
   console.log(`Collaboration service avaliable at ws://localhost:${port}`);
 });
+
+app.post("/api/export", exportRoute);
 
 // user
 app.post("/rest/v1/user/register", userController.register());

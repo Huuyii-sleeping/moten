@@ -15,8 +15,10 @@
       </div>
     </div>
     <div class="header-right">
-      <div>
-        <button class="collab-button" @click="exportProject">导出</button>
+      <div style="margin-right: 20px">
+        <el-button @click="exportProject" :loading="exporting">
+          {{ exporting ? '导出中...' : '导出项目' }}
+        </el-button>
       </div>
       <div class="collaboration-controls">
         <button
@@ -58,9 +60,6 @@ import { submitPageAsync, uploadPageAsync } from '@/api/page'
 import { ElMessage } from 'element-plus'
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import collabModel from '@/pages/collabModel.vue'
-// @ts-ignore
-import { exportProject as exportProjectFn } from '@/cli/export'
-import path from 'path'
 const showCollabModal = ref(false)
 const collabStore = useCollaborationStore()
 
@@ -73,6 +72,7 @@ const toggleCollaboration = async () => {
 }
 
 const router = useRouter()
+const exporting = ref(false)
 // 在发布区域进行检验
 const ajv = new Ajv({ allErrors: true })
 ajv.addKeyword({
@@ -111,16 +111,34 @@ const validateAll = async (item: any) => {
 }
 
 const exportProject = async () => {
+  exporting.value = true
+
   try {
-    const projectData = {
-      name: '我的项目',
-      blocks: edit.blockConfig,
+    const response = await fetch('http://localhost:8081/api/export', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ projectId: 'my-project' }),
+    })
+    if (!response.ok) {
+      throw new Error('请求失败')
     }
-    const outputDir = path.resolve(process.cwd(), 'exported-project')
-    await exportProjectFn(projectData, outputDir)
+
+    const bolb = await response.blob()
+    const url = window.URL.createObjectURL(bolb)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'my-project.zip'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
     ElMessage.success('导出成功！')
   } catch (error: any) {
     ElMessage.error('导出失败！', error.message)
+  } finally {
+    exporting.value = false
   }
 }
 
