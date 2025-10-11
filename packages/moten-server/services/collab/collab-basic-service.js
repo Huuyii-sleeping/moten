@@ -2,13 +2,16 @@ import { CollabBroadcaster } from "./collab-boardcaster.js";
 import { CollabMessageHandler } from "./collab-message-handler.js";
 import { CollabStorage } from "./collab-storage.js";
 import { generateUniqueId, parseWsParams } from "./collab-utils.js";
+import { PrivateStorage } from "../private/private-storage.js";
 import { WebSocketServer } from "ws";
 export class BasicCollabService {
   constructor() {
     this.storage = new CollabStorage();
-    this.broadcaster = new CollabBroadcaster(this.storage);
+    this.privateStorage = new PrivateStorage();
+    this.broadcaster = new CollabBroadcaster(this.storage, this.privateStorage);
     this.messageHandler = new CollabMessageHandler(
       this.storage,
+      this.privateStorage,
       this.broadcaster
     );
   }
@@ -16,7 +19,9 @@ export class BasicCollabService {
   init(server, options = {}) {
     const { closeDelay = 0 } = options;
     this.wss = new WebSocketServer({ server });
-    console.log("[Collab Service] WebSocket server initialized");
+    console.log(
+      "[Collab Service & Private Service] WebSocket server initialized"
+    );
 
     this.wss.on("connection", (ws, req) => {
       ws.id = generateUniqueId();
@@ -31,6 +36,7 @@ export class BasicCollabService {
       }
       this._sendInitialData(ws, docId);
       this.storage.initDocument(docId);
+      this.privateStorage.initDocument(docId);
       this.storage.setUserRole(docId, ws, isEditor);
       this.storage.addConnection(docId, ws);
       this.storage.setUsername(docId, ws, username);
@@ -89,7 +95,7 @@ export class BasicCollabService {
     });
 
     this.wss.on("close", () => {
-      console.log("[Collab Service] WebSocket server closed");
+      console.log("[Collab & Private Service] WebSocket server closed");
     });
   }
 
@@ -97,7 +103,7 @@ export class BasicCollabService {
     if (this.wss) {
       this.wss.close(code, reason);
       this.wss = null;
-      console.log(`[Collab Service] Closed (Code: ${code}, Reason: ${reason})`);
+      console.log(`[Collab & Private Service] Closed (Code: ${code}, Reason: ${reason})`);
     }
   }
 

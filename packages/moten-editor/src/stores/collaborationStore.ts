@@ -339,12 +339,12 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     }
   }
 
-  function sendBlockConfigUpdate(blockConfig: BaseBlock[]) {
+  function sendBlockConfigUpdate(blockConfig: BaseBlock[], isPrivate = false) {
     if (!isConnected.value) return
     const messageId = crypto.randomUUID()
     const updateMessage = {
       id: messageId,
-      type: 'update_block_config',
+      type: isPrivate ? 'private_update_block_config' : 'update_block_config',
       payload: blockConfig,
     }
     lastSentMessageId.value = messageId
@@ -352,12 +352,12 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   }
 
   // 发送 pageConfig 更新 - 修改为匹配你的后端期望的消息格式
-  function sendPageConfigUpdate(pageConfig: PageSchemaFormData) {
+  function sendPageConfigUpdate(pageConfig: PageSchemaFormData, isPrivate = false) {
     if (!isConnected.value) return
     const pageId = crypto.randomUUID()
     const updateMessage = {
       id: pageId,
-      type: 'update_page_config',
+      type: isPrivate ? 'private_update_page_config' : 'update_page_config',
       payload: pageConfig,
     }
     lastSentMessageId.value = pageId

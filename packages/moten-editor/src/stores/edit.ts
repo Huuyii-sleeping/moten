@@ -33,6 +33,8 @@ export const useEditStore = defineStore('edit', () => {
       if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
         collabStore.sendBlockConfigUpdate(newVal)
       }
+      collabStore.sendBlockConfigUpdate(newVal, true)
+      console.log('blockConfig update', newVal)
     },
     { deep: true },
   )
@@ -84,6 +86,7 @@ export const useEditStore = defineStore('edit', () => {
       if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
         collabStore.sendPageConfigUpdate(newVal as any)
       }
+      collabStore.sendPageConfigUpdate(newVal as any, true)
     },
     { deep: true },
   )

@@ -3,8 +3,9 @@ import { generateUniqueId } from "./collab-utils.js";
 
 const { applyPatch } = pkg;
 export class CollabMessageHandler {
-  constructor(storage, broadcaster) {
+  constructor(storage, privateStorage, broadcaster) {
     this.storage = storage;
+    this.privateStorage = privateStorage;
     this.broadcaster = broadcaster;
   }
 
@@ -20,12 +21,21 @@ export class CollabMessageHandler {
         return;
       }
       switch (type) {
+        case "private_update_block_config":
+          console.log('private_update_block_config')
+          this._handleBlockConfigUpdate(docId, payload, ws, true);
+          break;
         case "update_block_config":
           this._handleBlockConfigUpdate(docId, payload, ws);
+          break;
+        case "private_update_page_config":
+          this._handlePageConfigUpdate(docId, payload, ws, true);
           break;
         case "update_page_config":
           this._handlePageConfigUpdate(docId, payload, ws);
           break;
+        case "private_update_page_config":
+          this._handleFullStateUpdate(docId, payload, ws, true);
         case "update_full_state":
           this._handleFullStateUpdate(docId, payload, ws);
           break;
@@ -90,7 +100,7 @@ export class CollabMessageHandler {
     });
   }
 
-  _handleBlockConfigUpdate(docId, blockConfig, ws) {
+  _handleBlockConfigUpdate(docId, blockConfig, ws, isPrivate = false) {
     const currentState = this.storage.getDocState(docId);
     if (!currentState) return;
 
@@ -101,95 +111,94 @@ export class CollabMessageHandler {
       version: currentState.version + 1,
     };
 
-    // 2. 更新存储
-    this.storage.updateDocState(docId, newState);
+    if (isPrivate) {
+      this.privateStorage.updateDocDate(docId, newState);
+    } else {
+      this.storage.updateDocState(docId, newState);
+      const historyRecord = this._createHistoryRecord(
+        ws.id,
+        "block_config_update",
+        { blockConfig },
+        newState.version
+      );
+      this.storage.addHistoryRecord(docId, historyRecord);
 
-    // 3. 记录操作历史
-    const historyRecord = this._createHistoryRecord(
-      ws.id,
-      "block_config_update",
-      { blockConfig },
-      newState.version
-    );
-    this.storage.addHistoryRecord(docId, historyRecord);
-
-    // 4. 广播更新（排除发送者）
-    this.broadcaster.broadcast(
-      docId,
-      {
-        type: "block_config_updated",
-        payload: newState,
-      },
-      ws
-    );
+      this.broadcaster.broadcast(
+        docId,
+        {
+          type: "block_config_updated",
+          payload: newState,
+        },
+        ws
+      );
+    }
   }
 
-  _handlePageConfigUpdate(docId, pageConfig, ws) {
+  _handlePageConfigUpdate(docId, pageConfig, ws, isPrivate = false) {
     const currentState = this.storage.getDocState(docId);
     if (!currentState) return;
 
-    // 1. 生成新文档状态（合并配置，版本号+1）
     const newState = {
       ...currentState,
       pageConfig: { ...currentState.pageConfig, ...pageConfig }, // 增量合并
       version: currentState.version + 1,
     };
 
-    // 2. 更新存储
-    this.storage.updateDocState(docId, newState);
+    if (isPrivate) {
+      this.privateStorage.updateDocDate(docId, newState);
+    } else {
+      this.storage.updateDocState(docId, newState);
+      const historyRecord = this._createHistoryRecord(
+        ws.id,
+        "page_config_update",
+        { pageConfig },
+        newState.version
+      );
+      this.storage.addHistoryRecord(docId, historyRecord);
 
-    // 3. 记录操作历史
-    const historyRecord = this._createHistoryRecord(
-      ws.id,
-      "page_config_update",
-      { pageConfig },
-      newState.version
-    );
-    this.storage.addHistoryRecord(docId, historyRecord);
-
-    // 4. 广播更新（排除发送者）
-    this.broadcaster.broadcast(
-      docId,
-      {
-        type: "page_config_updated",
-        payload: newState,
-      },
-      ws
-    );
+      this.broadcaster.broadcast(
+        docId,
+        {
+          type: "page_config_updated",
+          payload: newState,
+        },
+        ws
+      );
+    }
   }
 
-  _handleFullStateUpdate(docId, fullState, ws) {
+  _handleFullStateUpdate(docId, fullState, ws, isPrivate = false) {
     const currentState = this.storage.getDocState(docId);
     if (!currentState) return;
 
-    // 1. 生成新文档状态（覆盖传入字段，版本号+1）
     const newState = {
       ...currentState,
       ...fullState,
       version: currentState.version + 1,
     };
 
-    // 2. 更新存储
-    this.storage.updateDocState(docId, newState);
+    if (isPrivate) {
+      this.privateStorage.updateDocData(docId, newState);
+    } else {
+      this.storage.updateDocState(docId, newState);
 
-    // 3. 记录操作历史
-    const historyRecord = this._createHistoryRecord(
-      ws.id,
-      "full_state_update",
-      { blockConfig: newState.blockConfig, pageConfig: newState.pageConfig },
-      newState.version
-    );
-    this.storage.addHistoryRecord(docId, historyRecord);
+      const historyRecord = this._createHistoryRecord(
+        ws.id,
+        "full_state_update",
+        { blockConfig: newState.blockConfig, pageConfig: newState.pageConfig },
+        newState.version
+      );
+      this.storage.addHistoryRecord(docId, historyRecord);
 
-    // 4. 广播更新（排除发送者）
-    this.broadcaster.broadcast(
-      docId,
-      {
-        type: "full_state_updated",
-        payload: newState,
-      },
-      ws
-    );
+      this.broadcaster.broadcast(
+        docId,
+        {
+          type: "full_state_updated",
+          payload: newState,
+        },
+        ws
+      );
+    }
   }
 
   _handleUserSelection(docId, ws, selection) {

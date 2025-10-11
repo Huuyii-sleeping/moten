@@ -59,6 +59,7 @@ export class CollabStorage {
    */
   updateDocState(docId, newState) {
     this.docData.set(docId, newState);
+    console.log(newState)
   }
 
   /**
