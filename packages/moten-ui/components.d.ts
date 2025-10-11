@@ -12,6 +12,7 @@ declare module 'vue' {
     Canvas: typeof import('./src/components/canvas/index.vue')['default']
     Carousel: typeof import('./src/components/carousel/index.vue')['default']
     Column: typeof import('./src/components/column/index.vue')['default']
+    Customcode: typeof import('./src/components/customcode/index.vue')['default']
     Elblock: typeof import('./src/components/elblock/index.vue')['default']
     Elbreadcrumb: typeof import('./src/components/elbreadcrumb/index.vue')['default']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']

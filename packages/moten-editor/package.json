@@ -23,6 +23,7 @@
     "crypto-js": "^4.2.0",
     "element-plus": "^2.11.3",
     "fast-json-patch": "^3.1.1",
+    "monaco-editor": "^0.54.0",
     "pinia": "^3.0.3",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1",

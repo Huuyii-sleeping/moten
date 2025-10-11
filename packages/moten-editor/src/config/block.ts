@@ -67,6 +67,13 @@ export const seniorBlocks: BaseBlock[] = [
     children: [[]],
     formData: {},
   },
+  {
+    id: '',
+    name: '代码块',
+    code: 'customcode',
+    icon: 'custom',
+    formData: {},
+  },
 ]
 
 export const canvasBlocks: ElementBlock[] = [

@@ -1,0 +1,33 @@
+@include b("customcode") {
+  .result-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  // 代码为空时的占位提示
+  .custom-code-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  // 错误提示（固定在组件底部）
+  .error-message {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 16px;
+    background: #ffebee;
+    color: #b71c1c;
+    font-size: 12px;
+    border-top: 1px solid #f44336;
+    box-sizing: border-box;
+    z-index: 10;
+  }
+}

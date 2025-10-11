@@ -14,7 +14,8 @@ import MoElMenu from "@/components/elmenu";
 import MoElTabs from "@/components/eltabs";
 import MoElBreadcrumb from "@/components/elbreadcrumb";
 import MoElDialog from "@/components/eldialog";
-import MoElNotification from '@/components/elnotification'
+import MoElNotification from "@/components/elnotification";
+import MoCustomCode from "@/components/customcode";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -30,7 +31,8 @@ import elmenuSchema from "@/components/elmenu/schema";
 import eltabsSchema from "@/components/eltabs/schema";
 import elbreadcrumb from "@/components/elbreadcrumb/schema";
 import eldialogSchema from "@/components/eldialog/schema";
-import elnotificationSchema from '@/components/elnotification/schema'
+import elnotificationSchema from "@/components/elnotification/schema";
+import customcodeSchema from "@/components/customcode/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
@@ -52,6 +54,7 @@ const components = [
   MoElBreadcrumb,
   MoElDialog,
   MoElNotification,
+  MoCustomCode,
 ];
 
 const install = (
@@ -83,6 +86,7 @@ export const schema = {
   elbreadcrumb: elbreadcrumb,
   eldialog: eldialogSchema,
   elnotification: elnotificationSchema,
+  customcode: customcodeSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -105,4 +109,5 @@ export default {
   MoElBreadcrumb,
   MoElDialog,
   MoElNotification,
+  MoCustomCode,
 };

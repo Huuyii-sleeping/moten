@@ -45,6 +45,7 @@ const icon = {
   dialog: 'solar:dialog-2-broken',
   notification: 'mingcute:notification-line',
   refresh: 'material-symbols:refresh',
+  custom: 'dashicons:admin-customizer',
 }
 
 export default icon
