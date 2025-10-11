@@ -119,7 +119,10 @@ const exportProject = async () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ projectId: 'my-project' }),
+      body: JSON.stringify({
+        projectId: 'my-project',
+        id: localStorage.getItem('collab_user_name'),
+      }),
     })
     if (!response.ok) {
       throw new Error('请求失败')

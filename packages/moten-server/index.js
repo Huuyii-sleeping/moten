@@ -43,7 +43,7 @@ server.listen(port, () => {
   console.log(`Collaboration service avaliable at ws://localhost:${port}`);
 });
 
-app.post("/api/export", exportRoute);
+app.post("/api/export", exportRoute(basiccollabService));
 
 // user
 app.post("/rest/v1/user/register", userController.register());

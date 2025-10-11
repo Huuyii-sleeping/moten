@@ -12,7 +12,6 @@ export const useRoomStore = defineStore('room', () => {
   }
 
   function joinRoom(userName: string, roomId: string) {
-    localStorage.setItem('collab_user_name', userName)
     collab.connect(roomId, true, userName)
   }
   return {

@@ -147,4 +147,8 @@ export class BasicCollabService {
   getDocUserCount(docId) {
     return this.storage.getUserCount(docId);
   }
+
+  getPrivatedocData(docId){
+    return this.privateStorage.getDocDate(docId)
+  }
 }
