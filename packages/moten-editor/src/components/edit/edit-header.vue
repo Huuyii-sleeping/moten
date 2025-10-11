@@ -15,6 +15,9 @@
       </div>
     </div>
     <div class="header-right">
+      <div>
+        <button class="collab-button" @click="exportProject">导出</button>
+      </div>
       <div class="collaboration-controls">
         <button
           class="collab-button"
@@ -55,6 +58,9 @@ import { submitPageAsync, uploadPageAsync } from '@/api/page'
 import { ElMessage } from 'element-plus'
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import collabModel from '@/pages/collabModel.vue'
+// @ts-ignore
+import { exportProject as exportProjectFn } from '@/cli/export'
+import path from 'path'
 const showCollabModal = ref(false)
 const collabStore = useCollaborationStore()
 
@@ -102,6 +108,20 @@ const validateAll = async (item: any) => {
     return
   }
   console.warn('ajv submit!')
+}
+
+const exportProject = async () => {
+  try {
+    const projectData = {
+      name: '我的项目',
+      blocks: edit.blockConfig,
+    }
+    const outputDir = path.resolve(process.cwd(), 'exported-project')
+    await exportProjectFn(projectData, outputDir)
+    ElMessage.success('导出成功！')
+  } catch (error: any) {
+    ElMessage.error('导出失败！', error.message)
+  }
 }
 
 const submit = async () => {
