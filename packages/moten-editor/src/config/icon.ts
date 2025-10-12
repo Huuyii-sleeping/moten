@@ -49,8 +49,10 @@ const icon = {
   table: 'tabler:table',
   progress: 'vaadin:progressbar',
   pagination: 'fluent:dual-screen-pagination-20-regular',
-  list: 'line-md:list-3-filled'
-  
+  list: 'line-md:list-3-filled',
+  card: 'solar:card-broken',
+  collapse: 'rivet-icons:collapse',
+  drawer: 'fluent:drawer-24-regular',
 }
 
 export default icon

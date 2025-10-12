@@ -19,6 +19,7 @@ import MoElNotification from "@/components/elnotification";
 import MoCustomCode from "@/components/customcode";
 import MoElPagination from "@/components/elpagination";
 import MoElProgress from "@/components/elprogress";
+import MoElCard from "@/components/elcard";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -39,6 +40,7 @@ import eltableSchema from "@/components/eltable/schema";
 import customcodeSchema from "@/components/customcode/schema";
 import elpaginationSchema from "@/components/elpagination/schema";
 import elprogressSchema from "@/components/elprogress/schema";
+import elcardSchema from "@/components/elcard/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
@@ -64,6 +66,7 @@ const components = [
   MoElTable,
   MoElPagination,
   MoElProgress,
+  MoElCard,
 ];
 
 const install = (
@@ -99,6 +102,7 @@ export const schema = {
   eltable: eltableSchema,
   elpagination: elpaginationSchema,
   elprogress: elprogressSchema,
+  elcard: elcardSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -125,4 +129,5 @@ export default {
   MoElTable,
   MoElPagination,
   MoElProgress,
+  MoElCard,
 };

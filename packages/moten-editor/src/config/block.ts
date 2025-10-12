@@ -217,3 +217,27 @@ export const showDataBlock: ElementBlock[] = [
     formData: {},
   },
 ]
+
+export const containerBlock: ElementBlock[] = [
+  {
+    id: '',
+    code: 'elcard',
+    name: '卡片',
+    icon: 'card',
+    formData: {},
+  },
+  {
+    id: '',
+    code: 'elcollapse',
+    name: '折叠',
+    icon: 'collapse',
+    formData: {},
+  },
+  {
+    id: '',
+    code: 'eldrawer',
+    name: '抽屉',
+    icon: 'drawer',
+    formData: {},
+  },
+]
