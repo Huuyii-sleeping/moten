@@ -36,8 +36,10 @@ const propsData = defineProps(props);
 const { data, viewport } = toRefs(propsData);
 
 const classes = computed(() => [n()]);
-const title = computed(() => data.value?.title?.[viewport.value] || "");
-const content = computed(() => data.value?.content?.[viewport.value] || "");
+const title = computed(() => data.value?.title?.[viewport.value] || "卡片标题");
+const content = computed(
+  () => data.value?.content?.[viewport.value] || "卡片内容描述..."
+);
 const link = computed(() => data.value?.link?.[viewport.value] || "");
 const width = computed(() => data.value?.width?.[viewport.value] || "");
 const height = computed(() => data.value?.height?.[viewport.value] || "");
