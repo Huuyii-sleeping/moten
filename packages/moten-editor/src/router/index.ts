@@ -38,6 +38,21 @@ const router = createRouter({
       name: 'register',
       component: () => import('../pages/register.vue'),
     },
+    {
+      path: '/plugins',
+      name: 'plugins',
+      component: () => import('../pages/pluginMarket.vue'),
+    },
+    {
+      path: '/plugins/upload',
+      name: 'uploadPlugin',
+      component: () => import('../pages/pluginUpload.vue'),
+    },
+    {
+      path: '/plugins/review',
+      name: 'reviewPlugin',
+      component: () => import('../pages/pluginReview.vue'),
+    },
   ],
 })
 

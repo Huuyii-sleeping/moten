@@ -9,6 +9,8 @@ import {
   userController,
   logController,
   mediaController,
+  pluginController,
+  pluginUploadController,
 } from "./controller/index.js";
 import { expressjwt } from "express-jwt";
 import { SECRET_KEY } from "./config/index.js";
@@ -29,7 +31,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(
-  // JWT的设置
   expressjwt({
     secret: SECRET_KEY,
     algorithms: ["HS256"],
@@ -78,6 +79,15 @@ app.get("/rest/v1/log", logController.findAll());
 
 // 媒体上传
 app.post("/rest/v1/media/upload", mediaController.upload());
+
+// 插件市场的相关路由
+app.get("/rest/v1/plugin", pluginController.findAll());
+app.get("/rest/v1/plugin/installed", pluginController.getInstalled());
+app.post("/rest/v1/plugin/install", pluginController.install());
+app.post("/rest/v1/plugin/upload", pluginUploadController.uploadPlugin());
+app.post("/rest/v1/plugin/approve", pluginController.approvePlugin());
+app.post("/rest/v1/plugin/reject", pluginController.rejectPlugin());
+app.get("/rest/v1/plugin/:id", pluginController.findOne());
 
 app.use(authFailedHandler);
 app.use(errorHandler);

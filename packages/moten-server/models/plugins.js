@@ -1,0 +1,31 @@
+// models/plugin.js
+export const plugins = [
+  {
+    id: 1,
+    name: "图表插件",
+    description: "提供丰富的图表组件，支持折线图、柱状图等",
+    version: "1.0.0",
+    author: "官方团队",
+    downloadCount: 1234,
+    rating: 4.8,
+    tags: ["chart", "data"],
+    icon: "/uploads/plugins/chart.png",
+    createdAt: "2025-01-01",
+    status: "published",
+    filePath: "/uploads/plugins/chart-plugin.zip",
+  },
+  {
+    id: 2,
+    name: "地图插件",
+    description: "集成高德/百度地图，支持标记、路线规划",
+    version: "2.1.0",
+    author: "社区贡献者",
+    downloadCount: 890,
+    rating: 4.5,
+    tags: ["map", "geo"],
+    icon: "/uploads/plugins/map.png",
+    createdAt: "2025-02-15",
+    status: "pending",
+    filePath: "/uploads/plugins/map-plugin.zip",
+  },
+];

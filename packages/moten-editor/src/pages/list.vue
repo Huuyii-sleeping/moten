@@ -2,9 +2,10 @@
   <div class="page-list-container">
     <div class="page-list-header">
       <h1>低代码展示页面</h1>
-      <el-button type="primary" @click="handleCreateNew" icon="Plus">
-        新建页面
-      </el-button>
+      <div>
+        <el-button type="primary" @click="hanleMarket" icon="Shop">插件市场</el-button>
+        <el-button type="primary" @click="handleCreateNew" icon="Plus"> 新建页面 </el-button>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -61,8 +62,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Plus, Picture } from '@element-plus/icons-vue'
-import icon from '@/config/icon'
+import { Picture } from '@element-plus/icons-vue'
 import { deletePageAcync, getPageAsync } from '@/api/page'
 import { useUserStore } from '@/stores/user'
 
@@ -101,19 +101,21 @@ const loadPages = () => {
 const handleCreateNew = () => {
   router.push('/edit')
 }
-
+const hanleMarket = () => {
+  router.push('/plugins')
+}
 // 编辑页面
 const handleEdit = (pageId: string) => {
   router.push(`/edit/${pageId}`)
 }
 
-const handlePreview = (pageId :string) => {
+const handlePreview = (pageId: string) => {
   router.push(`/preview/${pageId}`)
 }
 
 // 删除页面
 const handleDelete = async (pageId: string) => {
-  const params = { id: (pageId) }
+  const params = { id: pageId }
   try {
     const { code, data, message } = await deletePageAcync(params)
     if (code === 200) {

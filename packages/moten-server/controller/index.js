@@ -3,8 +3,12 @@ import { UserController } from "./user.js";
 import { PackageController } from "./package.js";
 import { LogController } from "./log.js";
 import { MediaController } from "./media.controller.js";
+import { PluginController } from "./plugin.controller.js";
+import { PluginUploadController } from "./pluginUpload.controller.js";
 export const pageController = new PageController();
 export const userController = new UserController();
 export const packageController = new PackageController();
 export const logController = new LogController();
-export const mediaController = new MediaController()
+export const mediaController = new MediaController();
+export const pluginController = new PluginController();
+export const pluginUploadController = new PluginUploadController();

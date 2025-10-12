@@ -28,6 +28,7 @@
     "element-plus": "^2.11.3",
     "fast-json-patch": "^3.1.1",
     "fs": "0.0.1-security",
+    "jszip": "^3.10.1",
     "monaco-editor": "^0.54.0",
     "path": "^0.12.7",
     "pinia": "^3.0.3",
