@@ -17,6 +17,7 @@ import MoElTable from "@/components/eltable";
 import MoElDialog from "@/components/eldialog";
 import MoElNotification from "@/components/elnotification";
 import MoCustomCode from "@/components/customcode";
+import MoElPagination from "@/components/elpagination";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -35,6 +36,7 @@ import eldialogSchema from "@/components/eldialog/schema";
 import elnotificationSchema from "@/components/elnotification/schema";
 import eltableSchema from "@/components/eltable/schema";
 import customcodeSchema from "@/components/customcode/schema";
+import elpaginationSchema from "@/components/elpagination/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
@@ -58,6 +60,7 @@ const components = [
   MoElNotification,
   MoCustomCode,
   MoElTable,
+  MoElPagination
 ];
 
 const install = (
@@ -91,6 +94,7 @@ export const schema = {
   elnotification: elnotificationSchema,
   customcode: customcodeSchema,
   eltable: eltableSchema,
+  elpagination: elpaginationSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -115,4 +119,5 @@ export default {
   MoElNotification,
   MoCustomCode,
   MoElTable,
+  MoElPagination,
 };

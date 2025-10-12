@@ -30,6 +30,8 @@ declare module 'vue' {
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     Elnotification: typeof import('./src/components/elnotification/index.vue')['default']
+    Elpagination: typeof import('./src/components/elpagination/index.vue')['default']
+    ElPagination: typeof import('element-plus/es')['ElPagination']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     Eltable: typeof import('./src/components/eltable/index.vue')['default']
     ElTable: typeof import('element-plus/es')['ElTable']
