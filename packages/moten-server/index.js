@@ -18,6 +18,7 @@ import { authFailedHandler } from "./middleware/auth.js";
 import { permissionHandler } from "./middleware/permission.js";
 import { BasicCollabService } from "./services/collab/collab-basic-service.js";
 import { exportRoute } from "./routes/export.js";
+import monitorRouter from "./routes/monitor.js";
 
 const app = express();
 app.use(cors());
@@ -88,6 +89,9 @@ app.post("/rest/v1/plugin/upload", pluginUploadController.uploadPlugin());
 app.post("/rest/v1/plugin/approve", pluginController.approvePlugin());
 app.post("/rest/v1/plugin/reject", pluginController.rejectPlugin());
 app.get("/rest/v1/plugin/:id", pluginController.findOne());
+
+// 监控路由
+app.use("/api/monitor", monitorRouter);
 
 app.use(authFailedHandler);
 app.use(errorHandler);

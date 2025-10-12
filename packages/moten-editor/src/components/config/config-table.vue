@@ -109,7 +109,6 @@ const emit = defineEmits(['callback', 'update'])
 const { data } = toRefs(props)
 const { formData, key, id } = data.value
 const { title, default: defaultValue } = data.value.properties[props.viewport]
-console.log('defaultValue:', defaultValue)
 const tData = ref<{
   columns: Array<any>
   tableData: Array<any>
