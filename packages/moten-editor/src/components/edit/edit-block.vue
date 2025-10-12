@@ -99,8 +99,8 @@ const menuList = ref([
     name: '套件',
   },
   {
-    icon: '',
-    iconActive: '',
+    icon: 'plugin',
+    iconActive: 'pluginActive',
     name: '插件',
   },
 ])

@@ -54,6 +54,8 @@ const icon = {
   collapse: 'rivet-icons:collapse',
   drawer: 'fluent:drawer-24-regular',
   echarts: 'ix:piechart',
+  plugin: 'clarity:plugin-line',
+  pluginActive: 'clarity:plugin-solid',
 }
 
 export default icon
