@@ -22,12 +22,17 @@
         </div>
         <div class="right" v-else-if="activeMenu === 1">
             <el-collapse v-model="activeNames">
-                <el-collapse-item title="基础组件" name="1">
+                <el-collapse-item title="基础交互组件" name="1">
                     <edit-block-drag :list="canvasBlockList" :sort="false"
                         :group="{ name: dragGroup, pull: 'clone', put: false }"></edit-block-drag>
                 </el-collapse-item>
             </el-collapse>
-
+            <el-collapse v-model="activeNames">
+                <el-collapse-item title="数据展示类组件" name="2">
+                    <edit-block-drag :list="showDataBlockList" :sort="false"
+                        :group="{ name: dragGroup, pull: 'clone', put: false }"></edit-block-drag>
+                </el-collapse-item>
+            </el-collapse>
         </div>
     </div>
 </template>
@@ -35,7 +40,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 // import { dragGroup } from './nested'
-import { baseBlock as baseBlocks, seniorBlocks, canvasBlocks } from '@/config/block'
+import { baseBlock as baseBlocks, seniorBlocks, basicBlock, showDataBlock } from '@/config/block'
 import { dragGroup } from './nested'
 
 const menuList = ref([
@@ -55,7 +60,8 @@ const activeNames = ref(['1', '2'])
 
 const baseBlockList = ref(baseBlocks)
 const seniorBlockList = ref(seniorBlocks)
-const canvasBlockList = ref(canvasBlocks)
+const canvasBlockList = ref(basicBlock)
+const showDataBlockList = ref(showDataBlock)
 </script>
 
 <style scoped lang="scss">

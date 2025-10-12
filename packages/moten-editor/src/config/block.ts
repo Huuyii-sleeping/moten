@@ -76,7 +76,7 @@ export const seniorBlocks: BaseBlock[] = [
   },
 ]
 
-export const canvasBlocks: ElementBlock[] = [
+export const basicBlock: ElementBlock[] = [
   {
     id: '',
     code: 'ElButton',
@@ -183,6 +183,37 @@ export const canvasBlocks: ElementBlock[] = [
     code: 'elnotification',
     name: '通知',
     icon: 'notification',
+    formData: {},
+  },
+]
+
+export const showDataBlock: ElementBlock[] = [
+  {
+    id: '',
+    code: 'eltable',
+    name: '表格',
+    icon: 'table',
+    formData: {},
+  },
+  {
+    id: '',
+    code: 'elpagination',
+    name: '分页',
+    icon: 'pagination',
+    formData: {},
+  },
+  {
+    id: '',
+    code: 'ellist',
+    name: '列表',
+    icon: 'list',
+    formData: {},
+  },
+  {
+    id: '',
+    code: 'elprogress',
+    name: '进度条',
+    icon: 'progress',
     formData: {},
   },
 ]

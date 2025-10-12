@@ -46,6 +46,11 @@ const icon = {
   notification: 'mingcute:notification-line',
   refresh: 'material-symbols:refresh',
   custom: 'material-symbols:dashboard-customize-outline',
+  table: 'tabler:table',
+  progress: 'vaadin:progressbar',
+  pagination: 'fluent:dual-screen-pagination-20-regular',
+  list: 'line-md:list-3-filled'
+  
 }
 
 export default icon
