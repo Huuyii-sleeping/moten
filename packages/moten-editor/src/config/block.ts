@@ -216,6 +216,13 @@ export const showDataBlock: ElementBlock[] = [
     icon: 'progress',
     formData: {},
   },
+  {
+    id: '',
+    code: 'echarts',
+    name: '图表',
+    icon: 'echarts',
+    formData: {},
+  },
 ]
 
 export const containerBlock: ElementBlock[] = [

@@ -22,6 +22,7 @@ import MoElProgress from "@/components/elprogress";
 import MoElCard from "@/components/elcard";
 import MoElCollapse from "@/components/elcollapse";
 import MoElDrawer from "@/components/eldarwer";
+import MoEcharts from "@/components/echarts";
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -45,6 +46,7 @@ import elprogressSchema from "@/components/elprogress/schema";
 import elcardSchema from "@/components/elcard/schema";
 import elcollapseSchema from "@/components/elcollapse/schema";
 import eldrawerSchema from "@/components/eldarwer/schema";
+import echartsSchema from "@/components/echarts/schema";
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
@@ -73,6 +75,7 @@ const components = [
   MoElCard,
   MoElCollapse,
   MoElDrawer,
+  MoEcharts,
 ];
 
 const install = (
@@ -111,6 +114,7 @@ export const schema = {
   elcard: elcardSchema,
   elcollapse: elcollapseSchema,
   eldrawer: eldrawerSchema,
+  echarts: echartsSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -140,4 +144,5 @@ export default {
   MoElCard,
   MoElCollapse,
   MoElDrawer,
+  MoEcharts,
 };
