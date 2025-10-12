@@ -20,6 +20,7 @@ import MoCustomCode from "@/components/customcode";
 import MoElPagination from "@/components/elpagination";
 import MoElProgress from "@/components/elprogress";
 import MoElCard from "@/components/elcard";
+import MoElCollapse from '@/components/elcollapse'
 
 import imageSchema from "@/components/image/schema";
 import columnSchema from "@/components/column/schema";
@@ -41,6 +42,7 @@ import customcodeSchema from "@/components/customcode/schema";
 import elpaginationSchema from "@/components/elpagination/schema";
 import elprogressSchema from "@/components/elprogress/schema";
 import elcardSchema from "@/components/elcard/schema";
+import elcollapseSchema from '@/components/elcollapse/schema'
 
 import { schemaAllViewport as _schemaAllViewport } from "./utils/components";
 import { COMPONENT_PREFIX as _COMPONENT_PREFIX } from "./config";
@@ -67,6 +69,7 @@ const components = [
   MoElPagination,
   MoElProgress,
   MoElCard,
+  MoElCollapse,
 ];
 
 const install = (
@@ -103,6 +106,7 @@ export const schema = {
   elpagination: elpaginationSchema,
   elprogress: elprogressSchema,
   elcard: elcardSchema,
+  elcollapse: elcollapseSchema,
 };
 
 export const schemaAllViewport = _schemaAllViewport;
@@ -130,4 +134,5 @@ export default {
   MoElPagination,
   MoElProgress,
   MoElCard,
+  MoElCollapse,
 };
