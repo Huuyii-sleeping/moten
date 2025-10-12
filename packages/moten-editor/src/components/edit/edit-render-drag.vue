@@ -33,13 +33,21 @@
               </component>
             </div>
             <div v-else-if="element.type">
-              <component
-                :is="renderComponentCode(element)"
-                v-bind="getComponentValues(element.formData)"
-                v-model="getComponentValues(element.formData)['content']"
-              >
-                {{ getComponentValues(element.formData)['content'] }}
-              </component>
+              <div v-if="element.type === 'el'">
+                <component
+                  :is="renderComponentCode(element)"
+                  v-bind="getComponentValues(element.formData)"
+                  v-model="getComponentValues(element.formData)['content']"
+                >
+                  {{ getComponentValues(element.formData)['content'] }}
+                </component>
+              </div>
+              <div v-else>
+                <component
+                  :is="getPluginComponent(element.code)"
+                  v-bind="getComponentValues(element.formData)"
+                />
+              </div>
             </div>
             <div v-else>
               <component
@@ -97,13 +105,21 @@
               @mouseenter="hoverId = element.id"
               @mouseleave="hoverId = ''"
             >
-              <component
-                :is="renderComponentCode(element)"
-                v-bind="getComponentValues(element.formData)"
-                v-model="getComponentValues(element.formData)['content']"
-              >
-                {{ getComponentValues(element.formData)['content'] }}
-              </component>
+              <div v-if="element.type === 'el'">
+                <component
+                  :is="renderComponentCode(element)"
+                  v-bind="getComponentValues(element.formData)"
+                  v-model="getComponentValues(element.formData)['content']"
+                >
+                  {{ getComponentValues(element.formData)['content'] }}
+                </component>
+              </div>
+              <div v-else>
+                <component
+                  :is="getPluginComponent(element.code)"
+                  v-bind="getComponentValues(element.formData)"
+                />
+              </div>
             </div>
             <div
               v-else
@@ -138,12 +154,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { findNodeById, move, nestedClass, replaceNodeId } from './nested'
 import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
 import { COMPONENT_PREFIX } from '@/config'
 import { useCollaborationStore } from '@/stores/collaborationStore'
+import pluginManager from '@/utils/pluginManager'
 const edit = useEditStore()
 defineOptions({
   name: 'edit-render-drag',
@@ -168,11 +185,43 @@ const props = defineProps({
   },
 })
 const hoverId = ref('')
-// 返回名字直接进行组件的渲染
+const getPluginComponent = (pluginId: string) => {
+  console.log(pluginId)
+  const component = pluginManager.getComponent(pluginId)
+  if (component) return component
+  console.warn(`插件未加载：${pluginId}`)
+  return {
+    name: 'PluginPlaceholder',
+    setup() {
+      return () =>
+        h(
+          'div',
+          {
+            class: 'plugin-placeholder',
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '60px',
+              background: '#fff3cd',
+              border: '1px dashed #ffeaa7',
+              color: '#856404',
+              fontSize: '14px',
+              borderRadius: '4px',
+            },
+          },
+          `插件 "${pluginId}" 未加载`,
+        )
+    },
+  }
+}
 const renderComponentCode = computed(() => {
   return (element: { code: string; type: string }) => {
     if (element.type) {
-      return element.code
+      if (element.type === 'el') {
+        return element.code
+      } else if (element.type === 'plugin') {
+      }
     }
     return COMPONENT_PREFIX + '-' + element.code
   }

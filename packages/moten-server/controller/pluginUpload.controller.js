@@ -30,7 +30,7 @@ export class PluginUploadController {
         tags: tags ? tags.split(",") : [],
         icon: "/uploads/plugins/default.png",
         status: "pending",
-        filePath: finalPath,
+        filePath: `/uploads/plugins/${fileName}`,
         createdAt: new Date().toISOString(),
         submittedBy: userId,
       };

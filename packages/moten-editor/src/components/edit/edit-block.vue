@@ -52,7 +52,18 @@
       <el-collapse v-model="activeNames">
         <el-collapse-item title="布局与容器组件" name="3">
           <edit-block-drag
-            :list="containerBlock"
+            :list="containerBlockList"
+            :sort="false"
+            :group="{ name: dragGroup, pull: 'clone', put: false }"
+          ></edit-block-drag>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
+    <div class="right" v-else>
+      <el-collapse v-model="activeNames">
+        <el-collapse-item title="自定义插件" name="1">
+          <edit-block-drag
+            :list="componentPalette"
             :sort="false"
             :group="{ name: dragGroup, pull: 'clone', put: false }"
           ></edit-block-drag>
@@ -63,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 // import { dragGroup } from './nested'
 import {
   baseBlock as baseBlocks,
@@ -73,6 +84,8 @@ import {
   containerBlock,
 } from '@/config/block'
 import { dragGroup } from './nested'
+import { getInstalledPluginsAsync } from '@/api/plugins'
+import pluginManager from '@/utils/pluginManager'
 
 const menuList = ref([
   {
@@ -85,6 +98,11 @@ const menuList = ref([
     iconActive: 'kitActive',
     name: '套件',
   },
+  {
+    icon: '',
+    iconActive: '',
+    name: '插件',
+  },
 ])
 const activeMenu = ref(0)
 const activeNames = ref(['1', '2', '3'])
@@ -94,6 +112,49 @@ const seniorBlockList = ref(seniorBlocks)
 const canvasBlockList = ref(basicBlock)
 const showDataBlockList = ref(showDataBlock)
 const containerBlockList = ref(containerBlock)
+
+const componentPalette = ref<any[]>([])
+async function loadInstallPlugins() {
+  try {
+    const res = await getInstalledPluginsAsync()
+    const _list = res.data
+    const loadPromises = _list.map(async (plugin: any) => {
+      const zipFilename = plugin.filePath.split('/').pop()
+      const zipUrl = `http://localhost:8081/uploads/plugins/${zipFilename}`
+      await pluginManager.loadPlugin(plugin.id.toString(), zipUrl)
+    })
+    await Promise.all(loadPromises)
+    updateComponentPalette()
+  } catch (error) {
+    console.error('加载插件失败', error)
+  }
+}
+
+function updateComponentPalette() {
+  const pluginMetas = pluginManager.getPluginMetas()
+  componentPalette.value = pluginMetas.map((meta) => {
+    const formData: Record<string, any> = {}
+    meta.props.forEach((prop: any) => {
+      formData[prop.name] = {
+        desktop: prop.default,
+        mobile: prop.default,
+      }
+    })
+    return {
+      id: meta.id,
+      name: meta.name,
+      icon: meta.icon || '📦',
+      code: meta.id,
+      type: meta.id,
+      formData,
+    }
+  })
+  console.log(componentPalette.value)
+}
+
+onMounted(() => {
+  loadInstallPlugins()
+})
 </script>
 
 <style scoped lang="scss">
