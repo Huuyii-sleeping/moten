@@ -53,6 +53,7 @@ const icon = {
   card: 'solar:card-broken',
   collapse: 'rivet-icons:collapse',
   drawer: 'fluent:drawer-24-regular',
+  echarts: 'ix:piechart',
 }
 
 export default icon
