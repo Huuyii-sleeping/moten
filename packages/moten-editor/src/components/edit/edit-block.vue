@@ -149,7 +149,6 @@ function updateComponentPalette() {
       formData,
     }
   })
-  console.log(componentPalette.value)
 }
 
 onMounted(() => {

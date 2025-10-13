@@ -74,6 +74,7 @@
             class="mention-item"
             v-for="(user, index) in mockUsers"
             :key="index"
+            :class="{ 'mention-item--active': index === selectedIndex }"
             @click="selectMention(user)"
           >
             {{ user.username }}
@@ -103,6 +104,8 @@ const mockUsers = ref<any[]>([])
 const newComment = ref('')
 const targetId = computed(() => edit.currentSelect!.id || 'PAGE_ROOT')
 
+const selectedIndex = ref(-1)
+
 const commentListRef = ref<HTMLElement | null>(null)
 
 const handleInput = (e: Event) => {
@@ -113,7 +116,11 @@ const handleInput = (e: Event) => {
   const mentionMatch = textBeforeCursor.match(/@\w*$/)
   if (mentionMatch) {
     mentionQuery.value = mentionMatch[0].slice(1)
-    showMetionList(el, cursorPos)
+    if (mockUsers.value.length > 0) {
+      showMetionList(el, cursorPos)
+    } else {
+      mentionVisible.value = false
+    }
   } else {
     mentionVisible.value = false
   }
@@ -122,10 +129,11 @@ const handleInput = (e: Event) => {
 const showMetionList = (el: HTMLTextAreaElement, cursorPos: number) => {
   const rect = el.getBoundingClientRect()
   mentionPosition.value = {
-    top: rect.top + rect.height + window.screenY,
-    left: rect.left + window.screenX,
+    top: rect.bottom + window.screenY,
+    left: rect.left + window.screenY,
   }
   mentionVisible.value = true
+  selectedIndex.value = -1
 }
 
 const handleKeydown = (e: KeyboardEvent) => {
@@ -134,14 +142,17 @@ const handleKeydown = (e: KeyboardEvent) => {
   if (e.key === 'ArrowDown') {
     e.preventDefault()
     // TODO
+    selectedIndex.value = Math.min(selectedIndex.value + 1, mockUsers.value.length - 1)
   } else if (e.key === 'ArrowUp') {
     e.preventDefault()
     // TODO
+    selectedIndex.value = Math.max(selectedIndex.value - 1, -1)
   } else if (e.key === 'Enter') {
     e.preventDefault()
     selectMention(mockUsers.value[0])
   } else if (e.key === 'Escape') {
     mentionVisible.value = false
+    selectedIndex.value = -1
   }
 }
 
@@ -162,6 +173,7 @@ const selectMention = (user: { username: String; id: String }) => {
   const newText = textBefore.slice(0, atIndex) + `@${user.username}` + textAfter
   newComment.value = newText
   mentionVisible.value = false
+  selectedIndex.value = -1
   nextTick(() => {
     const newCursorPos = atIndex + user.username.length + 2
     commentTextRef.value?.setSelectionRange(newCursorPos, newCursorPos)
@@ -358,6 +370,10 @@ onMounted(() => {
       cursor: pointer;
       &:hover {
         background: #f0f9ff;
+      }
+      &--active {
+        background: #e6f7ff;
+        color: #1890ff;
       }
     }
 

@@ -34,7 +34,6 @@ export const useEditStore = defineStore('edit', () => {
         collabStore.sendBlockConfigUpdate(newVal)
       }
       collabStore.sendBlockConfigUpdate(newVal, true)
-      console.log('blockConfig update', newVal)
     },
     { deep: true },
   )
