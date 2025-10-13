@@ -90,9 +90,6 @@ app.post("/rest/v1/plugin/approve", pluginController.approvePlugin());
 app.post("/rest/v1/plugin/reject", pluginController.rejectPlugin());
 app.get("/rest/v1/plugin/:id", pluginController.findOne());
 
-// 监控路由
-app.use("/api/monitor", monitorRouter);
-
 app.use(authFailedHandler);
 app.use(errorHandler);
 app.use(error404Handler);
