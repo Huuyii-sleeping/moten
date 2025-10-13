@@ -53,6 +53,16 @@ const router = createRouter({
       name: 'reviewPlugin',
       component: () => import('../pages/pluginReview.vue'),
     },
+    {
+      path: '/performance/report',
+      name: 'PerformanceReport',
+      component: () => import('../components/performance/PerformanceReport.vue'),
+    },
+    {
+      path: '/performance/comparsion',
+      name: 'PerformanceComparsion',
+      component: () => import('../components/performance/PerformanceComparison.vue'),
+    },
   ],
 })
 

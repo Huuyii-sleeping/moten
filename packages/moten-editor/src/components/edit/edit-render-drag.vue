@@ -106,19 +106,23 @@
               @mouseleave="hoverId = ''"
             >
               <div v-if="element.type === 'el'">
-                <component
-                  :is="renderComponentCode(element)"
-                  v-bind="getComponentValues(element.formData)"
-                  v-model="getComponentValues(element.formData)['content']"
-                >
-                  {{ getComponentValues(element.formData)['content'] }}
-                </component>
+                <performance-monitor-wrapper :component-id="element.id">
+                  <component
+                    :is="renderComponentCode(element)"
+                    v-bind="getComponentValues(element.formData)"
+                    v-model="getComponentValues(element.formData)['content']"
+                  >
+                    {{ getComponentValues(element.formData)['content'] }}
+                  </component>
+                </performance-monitor-wrapper>
               </div>
               <div v-else>
-                <component
-                  :is="getPluginComponent(element.code)"
-                  v-bind="getComponentValues(element.formData)"
-                />
+                <performance-monitor-wrapper :component-id="element.id">
+                  <component
+                    :is="getPluginComponent(element.code)"
+                    v-bind="getComponentValues(element.formData)"
+                  />
+                </performance-monitor-wrapper>
               </div>
             </div>
             <div
@@ -138,13 +142,15 @@
                   @clear="clear"
                 />
               </transition>
-              <component
-                :is="renderComponentCode(element)"
-                :key="element.id"
-                :data="element.formData"
-                :viewport="edit.viewport"
-              >
-              </component>
+              <performance-monitor-wrapper :component-id="element.id">
+                <component
+                  :is="renderComponentCode(element)"
+                  :key="element.id"
+                  :data="element.formData"
+                  :viewport="edit.viewport"
+                >
+                </component>
+              </performance-monitor-wrapper>
             </div>
           </div>
         </div>
@@ -161,6 +167,7 @@ import type { BaseBlock } from '@/types/edit'
 import { COMPONENT_PREFIX } from '@/config'
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import pluginManager from '@/utils/pluginManager'
+import performanceMonitorWrapper from '../performance/performanceMonitorWrapper.vue'
 const edit = useEditStore()
 defineOptions({
   name: 'edit-render-drag',

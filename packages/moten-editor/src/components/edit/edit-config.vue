@@ -15,6 +15,13 @@
         <div class="title" v-else>页面</div>
         <edit-config-block v-if="edit.currentSelect?.id" />
         <edit-config-page v-else />
+        <div class="config-panel">
+          <div class="panel-header">
+            <el-button size="small" @click="runPerformaceDiagbosis" icon="InfoFilled">
+              性能诊断
+            </el-button>
+          </div>
+        </div>
       </transition-group>
       <div class="comment" v-if="collab.isConnected">
         <div class="comment-header">
@@ -86,8 +93,10 @@
 </template>
 
 <script setup lang="ts">
+import { PerformanceMonitor } from '@/modules/performance/PerformanceMonitor'
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import { useEditStore } from '@/stores/edit'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { computed, onMounted, ref, watch } from 'vue'
 import { nextTick } from 'vue'
 
@@ -100,12 +109,9 @@ const mentionVisible = ref(false)
 const mentionPosition = ref({ top: 0, left: 0 })
 const mentionQuery = ref('')
 const mockUsers = ref<any[]>([])
-
 const newComment = ref('')
 const targetId = computed(() => edit.currentSelect!.id || 'PAGE_ROOT')
-
 const selectedIndex = ref(-1)
-
 const commentListRef = ref<HTMLElement | null>(null)
 
 const handleInput = (e: Event) => {
@@ -124,6 +130,51 @@ const handleInput = (e: Event) => {
   } else {
     mentionVisible.value = false
   }
+}
+
+const runPerformaceDiagbosis = async () => {
+  if (!edit.currentSelect?.id) {
+    ElMessage.warning('请选择一个组件进行诊断')
+    return
+  }
+  try {
+    const monitor = PerformanceMonitor.getInstance()
+    // 开始监听
+    monitor.startMonitoringComponent(edit.currentSelect.id)
+    forceRerenderCurrentComponent()
+    // 等待渲染完成
+    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    // 结束监控并获取报告
+    monitor.endMonitoringComponent(edit.currentSelect.id)
+    const report = monitor.getReportForComponent(edit.currentSelect.id)
+    if (report) {
+      showPerformanceReport(report)
+    } else {
+      ElMessage.warning('没有收集到性能数据,请重试')
+    }
+  } catch (error) {
+    console.error('性能诊断失败', error)
+    ElMessage.error('性能诊断失败,请重试')
+  }
+}
+
+const forceRerenderCurrentComponent = () => {
+  const currentKey = (edit.currentSelect as any).key || 0
+  edit.currentSelect = {
+    ...edit.currentSelect!,
+    key: currentKey + 1,
+  } as any
+}
+
+const showPerformanceReport = (report: any) => {
+  ElMessageBox({
+    title: '组件性能诊断报告',
+    message: `<pre>${JSON.stringify(report, null, 2)}</pre>`,
+    dangerouslyUseHTMLString: true,
+    showCancelButton: false,
+    confirmButtonText: '关闭',
+  })
 }
 
 const showMetionList = (el: HTMLTextAreaElement, cursorPos: number) => {
@@ -447,6 +498,21 @@ onMounted(() => {
     overflow-y: auto;
     width: 100%;
     height: 100%;
+    .config-panel {
+      padding: 0 14px 14px 14px;
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 0 12px 0;
+        border-bottom: 1px solid var(--color-border);
+
+        span {
+          font-weight: 600;
+        }
+      }
+    }
 
     .title {
       padding: 14px;
