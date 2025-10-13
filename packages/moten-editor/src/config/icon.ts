@@ -56,6 +56,7 @@ const icon = {
   echarts: 'ix:piechart',
   plugin: 'clarity:plugin-line',
   pluginActive: 'clarity:plugin-solid',
+  history: 'material-symbols:history-rounded',
 }
 
 export default icon

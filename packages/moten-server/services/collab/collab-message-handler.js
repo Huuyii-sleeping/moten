@@ -7,11 +7,13 @@ export class CollabMessageHandler {
     this.storage = storage;
     this.privateStorage = privateStorage;
     this.broadcaster = broadcaster;
+    this.lastHistory = null;
   }
 
   handleMessage(docId, ws, messageStr) {
     try {
-      const { type, payload, version } = JSON.parse(messageStr);
+      const { id, type, payload, version, userId, introduction } =
+        JSON.parse(messageStr);
       const isEditor = this.storage.getUserRole(docId, ws);
       if (!isEditor && type.startsWith("update_")) {
         console.warn(
@@ -22,7 +24,6 @@ export class CollabMessageHandler {
       }
       switch (type) {
         case "private_update_block_config":
-          console.log('private_update_block_config')
           this._handleBlockConfigUpdate(docId, payload, ws, true);
           break;
         case "update_block_config":
@@ -38,6 +39,12 @@ export class CollabMessageHandler {
           this._handleFullStateUpdate(docId, payload, ws, true);
         case "update_full_state":
           this._handleFullStateUpdate(docId, payload, ws);
+          break;
+        case "fetch_history":
+          this._handleFetchHistory(docId, payload, id);
+          break;
+        case "update_history":
+          this._handleUpdateHistory(docId, payload, id, userId, introduction);
           break;
         case "user_selection":
           this._handleUserSelection(docId, ws, payload);
@@ -74,6 +81,53 @@ export class CollabMessageHandler {
       console.error(`[Message Error] Failed to handle message:`, error);
       this._sendMessageParseError(ws);
     }
+  }
+
+  _checkOperation(payload) {
+    console.log(payload);
+    if (!this.lastHistory) {
+      this.lastHistory = payload;
+      return "block_config_update";
+    }
+    if (this.lastHistory.length === payload.length) {
+      return "block_config_update";
+    } else {
+      if (this.lastHistory.length < payload.length) {
+        this.lastHistory = payload;
+        return "create";
+      } else {
+        this.lastHistory = payload;
+        return "delete";
+      }
+    }
+  }
+
+  _handleUpdateHistory(docId, payload, id, userId, introduction) {
+    if (this.lastHistory === payload) {
+      return;
+    }
+    const record = {
+      timestamp: Date.now(),
+      operation: this._checkOperation(payload),
+      payload: payload,
+      version: (this.storage.historyRecords.get(docId).length || 0) + 1,
+      userId: userId,
+      introduction,
+    };
+    this.storage.addHistoryRecord(docId, record);
+    this.broadcaster.broadcast(docId, {
+      type: "history_updated",
+      id: id,
+    });
+  }
+
+  _handleFetchHistory(docId, payload, id) {
+    const records = this.storage.getHistoryRecords(docId);
+    this.broadcaster.broadcast(docId, {
+      type: "history_fetched",
+      payload: records,
+      id: id,
+    });
   }
 
   _dismissRoom(docId) {
@@ -115,14 +169,6 @@ export class CollabMessageHandler {
       this.privateStorage.updateDocDate(docId, newState);
     } else {
       this.storage.updateDocState(docId, newState);
-      const historyRecord = this._createHistoryRecord(
-        ws.id,
-        "block_config_update",
-        { blockConfig },
-        newState.version
-      );
-      this.storage.addHistoryRecord(docId, historyRecord);
-
       this.broadcaster.broadcast(
         docId,
         {
@@ -148,14 +194,6 @@ export class CollabMessageHandler {
       this.privateStorage.updateDocDate(docId, newState);
     } else {
       this.storage.updateDocState(docId, newState);
-      const historyRecord = this._createHistoryRecord(
-        ws.id,
-        "page_config_update",
-        { pageConfig },
-        newState.version
-      );
-      this.storage.addHistoryRecord(docId, historyRecord);
-
       this.broadcaster.broadcast(
         docId,
         {
@@ -181,15 +219,6 @@ export class CollabMessageHandler {
       this.privateStorage.updateDocData(docId, newState);
     } else {
       this.storage.updateDocState(docId, newState);
-
-      const historyRecord = this._createHistoryRecord(
-        ws.id,
-        "full_state_update",
-        { blockConfig: newState.blockConfig, pageConfig: newState.pageConfig },
-        newState.version
-      );
-      this.storage.addHistoryRecord(docId, historyRecord);
-
       this.broadcaster.broadcast(
         docId,
         {
@@ -267,20 +296,7 @@ export class CollabMessageHandler {
       blockConfig: updatedBlockConfig,
       version: currentState.version + 1,
     };
-
-    // 2. 更新存储
     this.storage.updateDocState(docId, newState);
-
-    // 3. 记录操作历史
-    const historyRecord = this._createHistoryRecord(
-      ws.id,
-      `block_${op}`,
-      { operation },
-      newState.version
-    );
-    this.storage.addHistoryRecord(docId, historyRecord);
-
-    // 4. 广播操作结果（排除发送者）
     this.broadcaster.broadcast(
       docId,
       {
@@ -326,20 +342,7 @@ export class CollabMessageHandler {
         ...newDocument,
         version: currentState.version + 1,
       };
-
-      // 4. 更新存储
       this.storage.updateDocState(docId, newState);
-
-      // 5. 记录操作历史
-      const historyRecord = this._createHistoryRecord(
-        ws.id,
-        "block_delta_update",
-        { patches },
-        newState.version
-      );
-      this.storage.addHistoryRecord(docId, historyRecord);
-
-      // 6. 广播增量更新结果（所有用户需应用该增量，排除发送者）
       this.broadcaster.broadcast(
         docId,
         {

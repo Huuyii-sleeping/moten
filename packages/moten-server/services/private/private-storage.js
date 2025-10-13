@@ -28,7 +28,6 @@ export class PrivateStorage {
       oldVersion: this.docData.get(docId).version - 1,
       newVersion: finalState.version,
     });
-    console.log('???:', this.docData.get(docId))
   }
   deleteDocument(docId) {
     const isDeleted = this.docData.delete(docId);

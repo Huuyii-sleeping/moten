@@ -14,45 +14,43 @@ interface CollaborativeState {
 }
 
 export const useCollaborationStore = defineStore('collaboration', () => {
-  // WebSocket 连接
   const ws = ref<WebSocket | null>(null)
   const isConnected = ref(false)
   const connectionStatus = ref<'disconnected' | 'connecting' | 'connected'>('disconnected')
 
   const lastReceivedMessageId = ref<string | null>(null)
   const lastSentMessageId = ref<string | null>(null)
-
-  // 用来对user的颜色进行区分
   const userColors = ref<Record<string, string>>({})
-
-  // 新增状态，短线重连什么的
   const reconnectAttempts = ref(0)
   const maxReconnectAttempts = 5
   const reconnectDelay = ref(1000)
-
-  // 本地状态版本号（用于简单冲突检测）
   const localVersion = ref(0)
   const remoteVersion = ref(0)
-
-  // 协同状态
   const collaborativeState = ref<CollaborativeState>({
     blockConfig: [],
     pageConfig: {},
   })
-
-  // 计算属性
   const isCollaborating = computed(() => isConnected.value)
   const isApplyingRemoteUpdate = ref(false)
   const onlineUsers = ref(1)
   const remoteSelections = ref<Record<string, any>>({})
   const userList = ref<any[]>([])
   const router = useRouter()
-
   let currentDocId = ''
-
   // 收集历史记录和评论系统
   const historyRecords = ref<any[]>([])
   const comments = ref<any[]>([])
+
+  const pendingHistoryRequests = ref<
+    Record<
+      string,
+      {
+        resolve: (value?: unknown) => void
+        reject: (error: Error) => void
+        timeoutTimer: NodeJS.Timeout
+      }
+    >
+  >({})
 
   function generateBrightColor(userId: string): string {
     let hash = 0
@@ -166,9 +164,10 @@ export const useCollaborationStore = defineStore('collaboration', () => {
           historyRecords.value = message.payload.history || []
           comments.value = message.payload.comments || []
           onlineUsers.value = message.payload.userCount || 1
-
           break
-
+        case 'new_history_record':
+          historyRecords.value.unshift(message.payload.record)
+          break
         case 'block_config_updated':
           editStore.applyRemoteBlockConfig(message.payload.blockConfig)
           break
@@ -233,7 +232,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
             editStore.applyRemoteBlockConfig(message.payload.currentBlocks)
           }
           break
-
         case 'block_delta_applied':
           localVersion.value = message.version
           break
@@ -245,6 +243,26 @@ export const useCollaborationStore = defineStore('collaboration', () => {
           break
         case 'all_users':
           userList.value = message.payload
+          break
+        case 'history_updated':
+          const pendingReq = pendingHistoryRequests.value[message.id]
+          if (pendingReq) {
+            clearTimeout(pendingReq.timeoutTimer)
+            pendingReq.resolve()
+          }
+          console.log('更新已经完成')
+          delete pendingHistoryRequests.value[message.id]
+          break
+        case 'history_fetched':
+          const pendingFetched = pendingHistoryRequests.value[message.id]
+          if (pendingFetched) {
+            clearTimeout(pendingFetched.timeoutTimer)
+            pendingFetched.resolve()
+          }
+          console.log('fetch拿到数据')
+          delete pendingHistoryRequests.value[message.id]
+          historyRecords.value = message.payload || []
+          console.log('history_records:', historyRecords.value)
           break
         case 'room_dismissed':
           ElMessage.warning(message.payload.reason)
@@ -264,11 +282,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   function getAllUsers() {
     if (!isConnected.value) return
     send({ type: 'get_userlist' })
-  }
-
-  function fetchHistory() {
-    if (!isConnected.value) return
-    send({ type: 'get_history' })
   }
 
   function addCommment(commentData: any) {
@@ -337,6 +350,52 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         pageConfig: state.pageConfig,
       } as any)
     }
+  }
+
+  function fetchHistory() {
+    return new Promise((resolve, reject) => {
+      if (!isConnected.value) {
+        reject(new Error('ws未连接'))
+      }
+      const timeoutTimer = setTimeout(() => {
+        delete pendingHistoryRequests.value[messageId]
+      }, 5000)
+      const messageId = generateMessageId()
+      pendingHistoryRequests.value[messageId] = {
+        resolve,
+        reject,
+        timeoutTimer,
+      }
+      send({ type: 'fetch_history', id: messageId })
+    })
+  }
+
+  function sendHistoryUpdata(blockConfig: BaseBlock[], introduction: string = '') {
+    return new Promise((resolve, reject) => {
+      if (!isConnected.value) {
+        const error = new Error('ws未连接')
+        reject(error)
+        return
+      }
+      const messageId = generateMessageId()
+      const timeoutTimer = setTimeout(() => {
+        delete pendingHistoryRequests.value[messageId]
+        reject(new Error('历史更新没有响应'))
+      }, 5000)
+      pendingHistoryRequests.value[messageId] = {
+        resolve,
+        reject,
+        timeoutTimer,
+      }
+      const updateHistory = {
+        id: messageId,
+        type: 'update_history',
+        payload: blockConfig,
+        userId: localStorage.getItem('collab_user_name'),
+        introduction,
+      }
+      send(updateHistory)
+    })
   }
 
   function sendBlockConfigUpdate(blockConfig: BaseBlock[], isPrivate = false) {
@@ -413,5 +472,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     resolveComment,
     getAllUsers,
     dismissRoom,
+    sendHistoryUpdata,
   }
 })

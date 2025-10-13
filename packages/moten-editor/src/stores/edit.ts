@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import type { BaseBlock, BaseBlockNull, BasePage, Viewport } from '@/types/edit'
 import type { PageSchemaFormData } from '@/config/schema'
 import { useCollaborationStore } from './collaborationStore'
-import { compare } from 'fast-json-patch'
+import { debounce } from 'lodash-es'
 
 export const useEditStore = defineStore('edit', () => {
   const viewport = ref<Viewport>('desktop')
@@ -18,22 +18,31 @@ export const useEditStore = defineStore('edit', () => {
     return viewport.value === 'mobile'
   })
   const collabStore = useCollaborationStore()
-  let lastSentBlockConfig: BaseBlock[] = []
+  const debouncedBlockUpdate = debounce((newVal: BaseBlock[]) => {
+    if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
+      collabStore.sendBlockConfigUpdate(newVal)
+    }
+    collabStore.sendBlockConfigUpdate(newVal, true)
+  }, 300)
+  const debouncePageConfig = debounce((newVal: BaseBlock[]) => {
+    if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
+      collabStore.sendPageConfigUpdate(newVal as any)
+    }
+    collabStore.sendPageConfigUpdate(newVal as any, true)
+  }, 300)
+
   watch(
     blockConfig,
     (newVal) => {
-      // if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-      //   const patches = compare(lastSentBlockConfig, newVal)
-      //   console.log(patches)
-      //   if (patches.length > 0) {
-      //     collabStore.sendBlockConfigDelta(patches)
-      //     lastSentBlockConfig = [...newVal] // 保存快照
-      //   }
-      // }
-      if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-        collabStore.sendBlockConfigUpdate(newVal)
-      }
-      collabStore.sendBlockConfigUpdate(newVal, true)
+      debouncedBlockUpdate(newVal)
+    },
+    { deep: true },
+  )
+
+  watch(
+    pageConfig,
+    (newVal) => {
+      debouncePageConfig(newVal as any)
     },
     { deep: true },
   )
@@ -78,17 +87,6 @@ export const useEditStore = defineStore('edit', () => {
       })
     }
   }
-
-  watch(
-    pageConfig,
-    (newVal) => {
-      if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-        collabStore.sendPageConfigUpdate(newVal as any)
-      }
-      collabStore.sendPageConfigUpdate(newVal as any, true)
-    },
-    { deep: true },
-  )
 
   watch(
     currentSelect,

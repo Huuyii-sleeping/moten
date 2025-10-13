@@ -28,4 +28,18 @@ export const plugins = [
     status: "pending",
     filePath: "/uploads/plugins/map-plugin.zip",
   },
+  {
+    id: 3,
+    name: "欢迎卡片",
+    description: "一个简单的test欢迎卡片",
+    version: "2.1.0",
+    author: "社区贡献者",
+    downloadCount: 890,
+    rating: 4.5,
+    tags: ["map", "geo"],
+    icon: "/uploads/plugins/map.png",
+    createdAt: "2025-02-15",
+    status: "published",
+    filePath: "/uploads/plugins/component.zip",
+  },
 ];
