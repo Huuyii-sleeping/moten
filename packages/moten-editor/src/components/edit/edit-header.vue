@@ -60,6 +60,7 @@ import { submitPageAsync, uploadPageAsync } from '@/api/page'
 import { ElMessage } from 'element-plus'
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import collabModel from '@/pages/collabModel.vue'
+import { uploadImage } from '@/utils'
 const showCollabModal = ref(false)
 const collabStore = useCollaborationStore()
 
@@ -150,17 +151,8 @@ const exportProject = async () => {
 const submit = async () => {
   const { title, description, keywords } = edit.pageConfig as any
   const pageCover = edit.pageCover
-  const formData = new FormData()
-  formData.append('file', pageCover)
-  let imageUrl
-  try {
-    const response = await uploadPageAsync(formData)
-    const { data } = response
-    const { url } = data
-    imageUrl = url
-  } catch (error) {
-    console.warn('图片上传失败' + error)
-  }
+  uploadImage(pageCover)
+  let imageUrl = await uploadImage(pageCover)
 
   const list = edit.blockConfig.map((item) => {
     return {
@@ -184,7 +176,7 @@ const submit = async () => {
       name: list[0].name,
       content: JSONList,
       description: description[edit.viewport],
-      coverImage: imageUrl,
+      coverImage: imageUrl as any,
     })
     if (status) {
       ElMessage({

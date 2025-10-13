@@ -1,6 +1,7 @@
 import { customAlphabet } from 'nanoid'
 import { defineAsyncComponent, markRaw, type Component } from 'vue'
 import CryptoJS from 'crypto-js'
+import { uploadPageAsync } from '@/api/page'
 
 /**
  * 随机id生成
@@ -57,4 +58,22 @@ export const setFormData = (defaultValue: any) => {
     desktop: defaultValue,
     mobile: defaultValue,
   }
+}
+
+export const uploadImage = async (page: any) => {
+  const formData = new FormData()
+  formData.append('file', page)
+  try {
+    const response = await uploadPageAsync(formData)
+    const { data } = response
+    const { url } = data
+    return url
+  } catch (error) {
+    console.warn('图片上传失败' + error)
+  }
+}
+
+export const getBlobFromUrl = async (blobUrl: any) => {
+  const response = await fetch(blobUrl)
+  return await response.blob()
 }
