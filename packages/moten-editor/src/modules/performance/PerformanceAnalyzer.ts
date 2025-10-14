@@ -3,7 +3,7 @@ export class PerformanceAnalyzer {
     const issues = []
 
     for (const report of reports) {
-      if (report.avgDuration > 100) {
+      if (report.avgDuration > 1000) {
         issues.push({
           type: 'slow-render',
           componentName: report.componentName,

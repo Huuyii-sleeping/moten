@@ -84,6 +84,8 @@ export class PerformanceMonitor {
 
     this.activeComponents.add(componentId)
     const startTime = performance.now()
+    // 组件全局挂载的基准值
+    const memoryBaseline = this.getCurrentHeapMemory()
 
     this.componentMetrics.set(componentId, {
       count: 0,
@@ -92,7 +94,26 @@ export class PerformanceMonitor {
       minDuration: Infinity,
       renderCount: 0,
       startTime,
+
+      memoryBaseline,
+      memoryPeak: memoryBaseline || 0,
+      memoryLeak: false,
+      memorySamples: memoryBaseline ? [memoryBaseline] : [],
     })
+
+    if (memoryBaseline) {
+      const sampleInterval = setInterval(() => {
+        const currentMemory = this.getCurrentHeapMemory()
+        if (currentMemory && this.activeComponents.has(componentId)) {
+          const metrics = this.getComponentMetrics(componentId)
+          metrics.memorySamples?.push(currentMemory)
+
+          const memoryUsage = currentMemory - metrics.memoryBaseline!
+          metrics.memoryPeak = Math.max(metrics.memoryPeak || 0, memoryUsage)
+          this.componentMetrics.set(componentId, metrics)
+        } else clearInterval(sampleInterval)
+      }, 500)
+    }
   }
 
   /**
@@ -114,14 +135,37 @@ export class PerformanceMonitor {
       metrics.renderCount++
       metrics.lastDuration = duration
 
+      // 关键:检测内存是否泄漏
+      if (metrics.memoryBaseline) {
+        setTimeout(() => {
+          const finalMemory = this.getCurrentHeapMemory()
+          if (finalMemory) {
+            const memoryRemaining = finalMemory - metrics.memoryBaseline!
+            metrics.memoryLeak = memoryRemaining > 5
+            this.componentMetrics.set(componentId, metrics)
+
+            if (metrics.memoryLeak) {
+              this.reportToServer({
+                componentId,
+                duration,
+                timestamp: Date.now(),
+                memoryLeak: true,
+                memoryRemaining: Number(memoryRemaining.toFixed(2)),
+              })
+            }
+          }
+        }, 1000)
+      }
+
+      this.componentMetrics.set(componentId, metrics)
       // 上报到服务器
       this.reportToServer({
         componentId,
         duration,
         timestamp: Date.now(),
+        currentMemoryUsage: this.getMemoryUsage(componentId),
       })
     }
-
     this.activeComponents.delete(componentId)
   }
 
@@ -141,6 +185,9 @@ export class PerformanceMonitor {
           renderCount: metrics.renderCount,
           lastDuration: metrics.lastDuration || 0,
           memoryUsage: this.getMemoryUsage(componentName),
+          memoryPeak: metrics.memoryPeak || 0,
+          memoryLeak: metrics.memoryLeak || false,
+          memorySampleCount: metrics.memorySamples?.length,
         })
       }
     }
@@ -183,13 +230,44 @@ export class PerformanceMonitor {
     }
   }
 
+  private getCurrentHeapMemory(): number | undefined {
+    if (typeof window !== 'undefined' && 'performance' in window && 'memory' in performance) {
+      try {
+        // @ts-ignore
+        const memoryInfo: MemoryInfo = performance.memory
+        return Number((memoryInfo.usedJSHeapSize / (1024 * 1024)).toFixed(2))
+      } catch (error) {
+        console.warn('获取内存数据失败', error)
+        return void 0
+      }
+    }
+    console.warn('当前浏览器不支持内存监控 API（需 Chrome/Edge 等 Chromium 内核浏览器）')
+    return void 0
+  }
+
   /**
    * 获取内存使用情况（模拟实现）
    */
   private getMemoryUsage(componentName: string): number {
     // TODO: 实际项目中应使用更精确的内存监控方法
-    // 这里返回模拟值用于演示
-    return Math.floor(Math.random() * 100)
+    const metrics = this.componentMetrics.get(componentName)
+    if (!metrics || metrics.memoryBaseline === null || metrics.memoryBaseline === undefined) {
+      return 0
+    }
+    const currentMemory = this.getCurrentHeapMemory()
+    if (!currentMemory) {
+      const validSamples = metrics.memorySamples?.filter(
+        (sample) => sample > metrics.memoryBaseline!,
+      )
+      if (validSamples?.length === 0) return 0
+      const avgMemory =
+        validSamples!.reduce((sum, sample) => sum + sample, 0) / validSamples?.length!
+
+      return Number((avgMemory - metrics.memoryBaseline).toFixed(2))
+    }
+
+    const componentMemoryUsage = currentMemory - metrics.memoryBaseline
+    return Math.max(0, Number(componentMemoryUsage.toFixed(2)))
   }
 
   /**
@@ -217,6 +295,11 @@ interface ComponentMetrics {
   renderCount: number
   startTime?: number
   lastDuration?: number
+
+  memoryBaseline?: number
+  memoryPeak?: number
+  memoryLeak?: boolean
+  memorySamples?: number[]
 }
 
 interface PerformanceReport {
@@ -227,11 +310,17 @@ interface PerformanceReport {
   renderCount: number
   lastDuration: number
   memoryUsage: number
+  memoryPeak?: number
+  memoryLeak?: boolean
+  memorySampleCount?: number
 }
 
 interface PerformanceData {
   componentName?: string
   componentId?: string
-  duration: number
-  timestamp: number
+  duration?: number
+  timestamp?: number
+  memoryLeak?: boolean
+  memoryRemaining?: number
+  currentMemoryUsage?: number
 }

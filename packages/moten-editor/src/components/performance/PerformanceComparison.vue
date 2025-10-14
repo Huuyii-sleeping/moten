@@ -1,4 +1,3 @@
-<!-- src/components/Performance/PerformanceComparison.vue -->
 <template>
   <div class="performance-comparison">
     <h3>📊 性能对比</h3>
@@ -28,19 +27,17 @@ import { PerformanceComparison } from '@/modules/performance/PerformanceComparis
 import { PerformanceAnalyzer } from '@/modules/performance/PerformanceAnalyzer'
 import { OptimizationSuggestions } from '@/modules/performance/OptimizationSuggestions'
 import { ElMessageBox } from 'element-plus'
+import { useEditStore } from '@/stores/edit'
 
 const comparisonResults = ref([])
 const renderTimeOptions = ref({})
 
-onMounted(async () => {
-  const components = [
-    { name: 'Moten-UI Button', component: {} },
-    { name: 'Element Plus Button', component: {} },
-  ]
+const edit = useEditStore()
 
+onMounted(async () => {
+  const components = edit.blockConfig.map((b) => ({ name: b.id, component: [] }))
   const results = await PerformanceComparison.compare(components)
   comparisonResults.value = results as any
-
   generateCharts(results)
 })
 
