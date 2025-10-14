@@ -18,6 +18,7 @@ import { authFailedHandler } from "./middleware/auth.js";
 import { permissionHandler } from "./middleware/permission.js";
 import { BasicCollabService } from "./services/collab/collab-basic-service.js";
 import { exportRoute } from "./routes/export.js";
+import performanceRouter from "./routes/performance.js";
 
 const app = express();
 app.use(cors());
@@ -35,8 +36,15 @@ app.use(
     secret: SECRET_KEY,
     algorithms: ["HS256"],
   }).unless({
-    path: ["/rest/v1/user/register", "/rest/v1/user/login", "/", "/api/export"],
-  })
+    path: [
+      "/rest/v1/user/register",
+      "/rest/v1/user/login",
+      "/",
+      "/api/export",
+      "/api/performance/component",
+    ],
+  }),
+  performanceRouter
 );
 
 server.listen(port, () => {

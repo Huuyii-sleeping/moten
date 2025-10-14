@@ -1,6 +1,6 @@
 export const performanceApi = {
   reportComponent: async (data: any) => {
-    const response = await fetch('/api/performance/component', {
+    const response = await fetch('http://localhost:8081/api/performance/component', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -9,7 +9,7 @@ export const performanceApi = {
   },
 
   getPerformancReport: async () => {
-    const response = await fetch('/api/performance/report')
+    const response = await fetch('http://localhost:8081/api/performance/report')
     return await response.json()
   },
 }

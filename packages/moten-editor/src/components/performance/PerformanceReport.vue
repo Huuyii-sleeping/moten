@@ -36,8 +36,7 @@ onMounted(async () => {
   const monitor = PerformanceMonitor.getInstance()
   const reports = monitor.getReport()
 
-  const analyzer = new PerformanceAnalyzer()
-  issues.value = analyzer.analyze(reports)
+  issues.value = PerformanceAnalyzer.analyze(reports)
 
   loading.value = false
 })

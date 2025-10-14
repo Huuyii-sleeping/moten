@@ -22,11 +22,12 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { PerformanceComparison } from '@/modules/performance/PerformanceComparison'
 import { PerformanceAnalyzer } from '@/modules/performance/PerformanceAnalyzer'
 import { OptimizationSuggestions } from '@/modules/performance/OptimizationSuggestions'
+import { ElMessageBox } from 'element-plus'
 
 const comparisonResults = ref([])
 const renderTimeOptions = ref({})
@@ -38,30 +39,29 @@ onMounted(async () => {
   ]
 
   const results = await PerformanceComparison.compare(components)
-  comparisonResults.value = results
+  comparisonResults.value = results as any
 
   generateCharts(results)
 })
 
-function generateCharts(results) {
+function generateCharts(results: any) {
   renderTimeOptions.value = {
     tooltip: { trigger: 'axis' },
-    xAxis: { type: 'category', data: results.map((r) => r.componentName) },
+    xAxis: { type: 'category', data: results.map((r: any) => r.componentName) },
     yAxis: { type: 'value' },
     series: [
       {
         name: '渲染时间',
         type: 'bar',
-        data: results.map((r) => r.duration),
+        data: results.map((r: any) => r.duration),
         itemStyle: { color: '#5470C6' },
       },
     ],
   }
 }
 
-function showDetails(row) {
-  const analyzer = new PerformanceAnalyzer()
-  const issues = analyzer.analyze([row])
+function showDetails(row: any) {
+  const issues = PerformanceAnalyzer.analyze([row])
   const suggestions = OptimizationSuggestions.getSuggestions(issues)
 
   ElMessageBox.alert(

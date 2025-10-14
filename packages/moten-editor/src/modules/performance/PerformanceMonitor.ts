@@ -173,7 +173,7 @@ export class PerformanceMonitor {
    */
   private async reportToServer(data: PerformanceData): Promise<void> {
     try {
-      await fetch('/api/performance/component', {
+      await fetch('http://localhost:8081/api/performance/component', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
