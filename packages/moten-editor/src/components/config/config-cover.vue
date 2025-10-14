@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import { useEditStore } from '@/stores/edit'
+import { getBlobFromUrl } from '@/utils'
 import { onUnmounted, ref, toRefs, watch } from 'vue'
 
 const edit = useEditStore()
@@ -37,7 +38,7 @@ const props = defineProps({
 const emit = defineEmits(['callback'])
 const { data } = toRefs(props)
 const { formData, key, id } = data.value
-const { title, default: defaultValue, placeholder } = data.value.properties[props.viewport]
+const { title, default: defaultValue } = data.value.properties[props.viewport]
 const imageCover = ref('')
 const preimage = ref()
 const fileInput = ref()
@@ -46,10 +47,11 @@ const handleImageSelect = (e: any) => {
   const selectedFiles = e.target.files
   if (!selectedFiles) return
   Array.from(selectedFiles).forEach((file: any) => {
-    // if (!file.type.startsdWith('image/')) return
     preimage.value = file
     const previewUrl = URL.createObjectURL(file)
     imageCover.value = previewUrl
+    const truthUrl = getBlobFromUrl(previewUrl)
+    edit.setPageCover(truthUrl)
   })
   e.target.value = ''
 }

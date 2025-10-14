@@ -12,6 +12,7 @@ export const useEditStore = defineStore('edit', () => {
   const blockConfig = ref<BaseBlock[]>([])
   const pageConfig = ref<PageSchemaFormData>({})
   const isPreview = ref(false)
+  const isEdit = ref(false)
   const pageCover = ref<any>()
   const shouldSyncToLocalCollab = ref(true)
   const isMobileViewport = computed(() => {
@@ -148,6 +149,9 @@ export const useEditStore = defineStore('edit', () => {
   function stopCollaboration() {
     collabStore.disconnect()
   }
+  function setEdit() {
+    isEdit.value = !isEdit.value
+  }
   return {
     viewport,
     currentSelect,
@@ -157,6 +161,8 @@ export const useEditStore = defineStore('edit', () => {
     pageConfig,
     isPreview,
     pageCover,
+    isEdit,
+    setEdit,
     applyRemoteBlockConfig,
     applyRemotePageConfig,
     stopCollaboration,

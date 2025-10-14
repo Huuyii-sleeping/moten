@@ -83,12 +83,14 @@ import { ElMessage } from 'element-plus'
 import { Picture, Clock, EditPen, Edit, Delete } from '@element-plus/icons-vue'
 import { deletePageAcync, getPageAsync } from '@/api/page'
 import { useUserStore } from '@/stores/user'
+import { useEditStore } from '@/stores/edit'
 
 // 路由
 const router = useRouter()
 const userStore = useUserStore()
 const pages = ref<any>([])
 const loading = ref(true)
+const edit = useEditStore()
 
 // 格式化日期
 const formatDate = (dateString: any) => {
@@ -124,6 +126,22 @@ const hanleMarket = () => {
 }
 // 编辑页面
 const handleEdit = (pageId: string) => {
+  const selectedPage = userStore.list.find((l: any) => l.page_id === pageId) as any
+  edit.setEdit()
+  edit.setPageConfig({
+    title: {
+      desktop: selectedPage.name,
+      mobile: selectedPage.name,
+    },
+    cover: {
+      desktop: selectedPage.coverImage,
+      mobile: selectedPage.coverImage,
+    },
+    description: {
+      desktop: selectedPage.description,
+      mobile: selectedPage.description,
+    },
+  } as any)
   router.push(`/edit/${pageId}`)
 }
 

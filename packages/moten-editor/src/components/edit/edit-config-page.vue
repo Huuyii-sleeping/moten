@@ -11,19 +11,16 @@ import { pageSchema } from '@/config/schema'
 import deepmerge from 'deepmerge'
 
 const edit = useEditStore()
-
 const properties = pageSchema.properties
-
 const list = ref<(typeof properties)[keyof typeof properties][]>([])
-
 const listResult = Object.fromEntries(
   Object.entries(properties).map((itemChild) => {
     const [key, value] = itemChild
     return [key, { ...value, key, formData: edit.pageConfig || {} }]
   }),
 )
-
 list.value = [...Object.values(listResult)]
+list.value.forEach(l => l.formData = l.formData[l.key])
 const callback = (params: { data: Object }) => {
   const { data } = params
   const key = Object.keys(data)[0]

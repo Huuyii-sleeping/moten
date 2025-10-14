@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="header-left">
-      <div class="back" @click="goHome()">
+      <div class="back" @click="goHome">
         <v-icon content="返回" icon="back" />
         <div class="header-title">页面</div>
       </div>
@@ -34,14 +34,19 @@
         <span class="user-count">{{ collabStore.onlineUsers }}</span>
         <span class="label" style="margin-right: 10px">人在线编辑</span>
       </div>
-      <el-button @click="togglePreview">
-        <v-icon icon="preview" />
-        预览
-      </el-button>
-      <el-button type="primary" @click="submit">
-        <v-icon icon="publish" />
-        发布
-      </el-button>
+      <div v-if="!edit.isEdit">
+        <el-button @click="togglePreview">
+          <v-icon icon="preview" />
+          预览
+        </el-button>
+        <el-button type="primary" @click="submit">
+          <v-icon icon="publish" />
+          发布
+        </el-button>
+      </div>
+      <div v-else>
+        <el-button icon="Edit" @click="uploadEdite"> 发布编辑 </el-button>
+      </div>
     </div>
   </div>
   <collabModel v-model:visible="showCollabModal"></collabModel>
@@ -55,15 +60,17 @@ import Ajv from 'ajv'
 import AjvErrors from 'ajv-errors'
 import { blockSchema, type BlockSchemaKeys } from '@/config/schema'
 import { findNodeById } from './nested'
-import { useRouter } from 'vue-router'
-import { submitPageAsync, uploadPageAsync } from '@/api/page'
+import { useRouter, useRoute } from 'vue-router'
+import { editPageAsync, submitPageAsync } from '@/api/page'
 import { ElMessage } from 'element-plus'
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import collabModel from '@/pages/collabModel.vue'
 import { uploadImage } from '@/utils'
 const showCollabModal = ref(false)
 const collabStore = useCollaborationStore()
-
+const route = useRoute()
+const router = useRouter()
+const exporting = ref(false)
 const toggleCollaboration = async () => {
   if (collabStore.isConnected) {
     collabStore.disconnect()
@@ -72,9 +79,6 @@ const toggleCollaboration = async () => {
   }
 }
 
-const router = useRouter()
-const exporting = ref(false)
-// 在发布区域进行检验
 const ajv = new Ajv({ allErrors: true })
 ajv.addKeyword({
   keyword: ['placeholder', 'rules', 'code'],
@@ -148,12 +152,53 @@ const exportProject = async () => {
   }
 }
 
+const uploadEdite = async () => {
+  const { title, description, keywords } = edit.pageConfig as any
+  const pageCover = edit.pageCover
+  let imageUrl = await uploadImage(pageCover)
+  const list = edit.blockConfig.map((item) => {
+    return {
+      id: item.id,
+      name: title[edit.viewport] || '',
+      description: description[edit.viewport] || '',
+      keywords: keywords[edit.viewport],
+      value: item.formData || '',
+      schema: blockSchema[item.code as BlockSchemaKeys] || '',
+      code: item.code || '',
+      children: item.children || [],
+      nested: item.nested || false,
+    }
+  })
+  list.forEach((item) => {
+    validateAll(item)
+  })
+  const JSONList = convertToJSON(list)
+  try {
+    const { status, message } = await editPageAsync({
+      id: Number(route.params.id),
+      name: list[0].name || '',
+      content: JSONList || '',
+      description: description[edit.viewport] || '',
+      coverImage: imageUrl as any || '',
+    })
+    if (status) {
+      ElMessage.success('发布编辑成功')
+      edit.setEdit()
+      edit.setPageConfig({} as any)
+      router.push('/')
+    } else {
+      ElMessage.error('发布编辑失败', message)
+    }
+  } catch (error: any) {
+    ElMessage.error('发布编辑失败')
+    console.error('发布编辑失败', error)
+  }
+}
+
 const submit = async () => {
   const { title, description, keywords } = edit.pageConfig as any
   const pageCover = edit.pageCover
-  uploadImage(pageCover)
   let imageUrl = await uploadImage(pageCover)
-
   const list = edit.blockConfig.map((item) => {
     return {
       id: item.id,
@@ -185,6 +230,8 @@ const submit = async () => {
       })
       collabStore.dismissRoom()
       router.push('/')
+      edit.setPageConfig({} as any)
+      edit.setBlockConfig({} as any)
     } else {
       ElMessage({
         message: '发布失败: ' + message,

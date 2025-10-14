@@ -51,9 +51,11 @@ export class PageController {
   }
   update() {
     const rules = Joi.object({
-      id: Joi.number().optional(),
+      id: Joi.number().required(),
       name: Joi.string().optional(),
       content: Joi.string().optional(),
+      description: Joi.string().optional(),
+      coverImage: Joi.string().optional(),
     });
     const handler = async (req, res, next) => {
       const pickBody = omit(req.body, ["id"]);

@@ -1,7 +1,22 @@
 import { get, post } from '@/composable/use-request'
 
-export const submitPageAsync = (params: { name: string; content: string; description: string, coverImage: string }) => {
+export const submitPageAsync = (params: {
+  name: string
+  content: string
+  description: string
+  coverImage: string
+}) => {
   return post('/rest/v1/page/create', params)
+}
+
+export const editPageAsync = (params: {
+  id: number
+  name: string
+  content: string
+  description: string
+  coverImage: string
+}) => {
+  return post('/rest/v1/page/update', params)
 }
 
 export const getPageAsync = (params: { page: number; size: number } = { page: 1, size: 100 }) => {
