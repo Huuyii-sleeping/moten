@@ -20,6 +20,12 @@
             <el-button size="small" @click="runPerformaceDiagbosis" icon="InfoFilled">
               性能诊断
             </el-button>
+            <el-button size="small" @click="goComponentReport" icon="PieChart">
+              性能报告
+            </el-button>
+            <el-button size="small" @click="goComponentComparison" icon="Compass">
+              性能对比
+            </el-button>
           </div>
         </div>
       </transition-group>
@@ -99,10 +105,11 @@ import { useEditStore } from '@/stores/edit'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { computed, onMounted, ref, watch } from 'vue'
 import { nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 
 const edit = useEditStore()
 const collab = useCollaborationStore()
-
+const router = useRouter()
 const commentTextRef = ref<HTMLTextAreaElement | null>(null)
 
 const mentionVisible = ref(false)
@@ -158,7 +165,12 @@ const runPerformaceDiagbosis = async () => {
     ElMessage.error('性能诊断失败,请重试')
   }
 }
-
+const goComponentReport = () => {
+  router.push('/performance/report')
+}
+const goComponentComparison = () => {
+  router.push('/performance/comparsion')
+}
 const forceRerenderCurrentComponent = () => {
   const currentKey = (edit.currentSelect as any).key || 0
   edit.currentSelect = {
@@ -499,7 +511,7 @@ onMounted(() => {
     width: 100%;
     height: 100%;
     .config-panel {
-      padding: 0 14px 14px 14px;
+      padding: 0 14px 10px 10px;
 
       .panel-header {
         display: flex;
