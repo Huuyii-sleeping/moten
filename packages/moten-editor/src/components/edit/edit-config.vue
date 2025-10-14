@@ -20,10 +20,10 @@
             <el-button size="small" @click="runPerformaceDiagbosis" icon="InfoFilled">
               性能诊断
             </el-button>
-            <el-button size="small" @click="goComponentReport" icon="PieChart">
+            <el-button size="small" @click="showReportDialog = true" icon="PieChart">
               性能报告
             </el-button>
-            <el-button size="small" @click="goComponentComparison" icon="Compass">
+            <el-button size="small" @click="showComparisonDialog = true" icon="Compass">
               性能对比
             </el-button>
           </div>
@@ -96,6 +96,24 @@
       </div>
     </div>
   </div>
+  <el-dialog
+    v-model="showReportDialog"
+    title="组件性能报告"
+    width="800px"
+    :before-close="handleReportDialogClose"
+    destroy-on-close
+  >
+    <PerformanceReport />
+  </el-dialog>
+  <el-dialog
+    v-model="showComparisonDialog"
+    title="组件性能对比"
+    width="900px"
+    :before-close="handleComparisonDialogClose"
+    destroy-on-close
+  >
+    <PerformanceComparison />
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -105,13 +123,12 @@ import { useEditStore } from '@/stores/edit'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { computed, onMounted, ref, watch } from 'vue'
 import { nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import PerformanceReport from '../performance/PerformanceReport.vue'
+import PerformanceComparison from '../performance/PerformanceComparison.vue'
 
 const edit = useEditStore()
 const collab = useCollaborationStore()
-const router = useRouter()
 const commentTextRef = ref<HTMLTextAreaElement | null>(null)
-
 const mentionVisible = ref(false)
 const mentionPosition = ref({ top: 0, left: 0 })
 const mentionQuery = ref('')
@@ -120,12 +137,19 @@ const newComment = ref('')
 const targetId = computed(() => edit.currentSelect!.id || 'PAGE_ROOT')
 const selectedIndex = ref(-1)
 const commentListRef = ref<HTMLElement | null>(null)
+const showReportDialog = ref(false)
+const showComparisonDialog = ref(false)
+const handleReportDialogClose = () => {
+  showReportDialog.value = false
+}
+const handleComparisonDialogClose = () => {
+  showComparisonDialog.value = false
+}
 
 const handleInput = (e: Event) => {
   const el = e.target as HTMLTextAreaElement
   const cursorPos = el.selectionStart
   const textBeforeCursor = newComment.value.slice(0, cursorPos)
-
   const mentionMatch = textBeforeCursor.match(/@\w*$/)
   if (mentionMatch) {
     mentionQuery.value = mentionMatch[0].slice(1)
@@ -146,13 +170,10 @@ const runPerformaceDiagbosis = async () => {
   }
   try {
     const monitor = PerformanceMonitor.getInstance()
-    // 开始监听
     monitor.startMonitoringComponent(edit.currentSelect.id)
     forceRerenderCurrentComponent()
-    // 等待渲染完成
     await nextTick()
     await new Promise((resolve) => setTimeout(resolve, 50))
-    // 结束监控并获取报告
     monitor.endMonitoringComponent(edit.currentSelect.id)
     const report = monitor.getReportForComponent(edit.currentSelect.id)
     if (report) {
@@ -165,17 +186,11 @@ const runPerformaceDiagbosis = async () => {
     ElMessage.error('性能诊断失败,请重试')
   }
 }
-const goComponentReport = () => {
-  router.push('/performance/report')
-}
-const goComponentComparison = () => {
-  router.push('/performance/comparsion')
-}
 const forceRerenderCurrentComponent = () => {
-  const currentKey = (edit.currentSelect as any).key || 0
+  if (!edit.currentSelect) return
   edit.currentSelect = {
-    ...edit.currentSelect!,
-    key: currentKey + 1,
+    ...edit.currentSelect,
+    key: ((edit.currentSelect as any).key || 1) + 1,
   } as any
 }
 

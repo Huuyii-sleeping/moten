@@ -15,6 +15,7 @@ export const useEditStore = defineStore('edit', () => {
   const isEdit = ref(false)
   const pageCover = ref<any>()
   const shouldSyncToLocalCollab = ref(true)
+  const tempCotent = ref<any>({})
   const isMobileViewport = computed(() => {
     return viewport.value === 'mobile'
   })
@@ -151,6 +152,9 @@ export const useEditStore = defineStore('edit', () => {
   }
   function setEdit() {
     isEdit.value = !isEdit.value
+  }
+  function saveTempContent(){
+    
   }
   return {
     viewport,
