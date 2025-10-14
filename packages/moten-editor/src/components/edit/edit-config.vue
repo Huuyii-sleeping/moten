@@ -169,8 +169,11 @@ const runPerformaceDiagbosis = async () => {
     return
   }
   try {
+    const preBlockConfig = edit.blockConfig
+    const prePageConfig = edit.pageConfig
     const monitor = PerformanceMonitor.getInstance()
-    monitor.startMonitoringComponent(edit.currentSelect.id)
+    const targetComponentId = edit.currentSelect.id
+    monitor.startMonitoringComponent(targetComponentId)
     forceRerenderCurrentComponent()
     await nextTick()
     await new Promise((resolve) => setTimeout(resolve, 50))
@@ -181,6 +184,9 @@ const runPerformaceDiagbosis = async () => {
     } else {
       ElMessage.warning('没有收集到性能数据,请重试')
     }
+    edit.setBlockConfig(preBlockConfig)
+    edit.setPageConfig(prePageConfig as any)
+    edit.setCurrentSelect(preBlockConfig[0])
   } catch (error) {
     console.error('性能诊断失败', error)
     ElMessage.error('性能诊断失败,请重试')
