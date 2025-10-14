@@ -141,6 +141,9 @@
         </div>
       </div>
     </div>
+    <div class="right" v-else-if="activeMenu === 4">
+      <mo-canvas></mo-canvas>
+    </div>
   </div>
   <el-dialog
     v-model="jsonDialogVisible"
@@ -178,6 +181,7 @@ import { useRouter } from 'vue-router'
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import { useEditStore } from '@/stores/edit'
 import { ElMessage } from 'element-plus'
+import MoCanvas from '../canvas/index.vue'
 
 const menuList = ref([
   {
@@ -199,6 +203,11 @@ const menuList = ref([
     icon: 'history',
     iconActive: 'history',
     name: '历史',
+  },
+  {
+    icon: 'canvas',
+    iconActive: 'canvas',
+    name: '画板',
   },
 ])
 const activeMenu = ref(0)
@@ -617,5 +626,28 @@ onMounted(() => {
     padding-right: 14px;
     padding-bottom: 14px;
   }
+}
+:deep(.canvas-wrapper) {
+  position: static !important; // 取消绝对定位，跟随父容器
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0; // 与父容器圆角统一
+  box-shadow: none; // 消除多余阴影
+}
+
+:deep(.drawing-canvas) {
+  border: none; // 取消画布自身边框
+}
+
+:deep(.toolbar) {
+  position: static !important; // 工具栏改为静态定位
+  width: 100%;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 8px 16px;
+  margin: 0;
+  gap: 16px;
 }
 </style>

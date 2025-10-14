@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Canvas: typeof import('./src/components/canvas/index.vue')['default']
     ConfigBaseTab: typeof import('./src/components/config/base/config-base-tab.vue')['default']
     ConfigCode: typeof import('./src/components/config/config-code.vue')['default']
     ConfigColor: typeof import('./src/components/config/config-color.vue')['default']
