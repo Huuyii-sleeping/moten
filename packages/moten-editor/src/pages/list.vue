@@ -59,6 +59,9 @@
         </div>
 
         <div class="card-actions">
+          <el-button size="small" @click="handleExport" class="edit-btn">
+            <el-icon :size="14"><Document /></el-icon>PDF
+          </el-button>
           <el-button size="small" @click="handleEdit(page.page_id)" class="edit-btn">
             <el-icon :size="14"><Edit /></el-icon> 编辑
           </el-button>
@@ -84,6 +87,7 @@ import { Picture, Clock, EditPen, Edit, Delete } from '@element-plus/icons-vue'
 import { deletePageAcync, getPageAsync } from '@/api/page'
 import { useUserStore } from '@/stores/user'
 import { useEditStore } from '@/stores/edit'
+import { exportToPdf } from '@/utils/exportPdf'
 
 // 路由
 const router = useRouter()
@@ -115,6 +119,14 @@ const loadPages = () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleExport = () => {
+  exportToPdf('.export_render', {
+    filename: 'test.pdf',
+    margin: 15,
+    jsPDF: { orientation: 'landscape' },
+  })
 }
 
 // 创建新页面

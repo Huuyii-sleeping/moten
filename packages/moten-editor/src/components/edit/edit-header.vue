@@ -19,6 +19,7 @@
         <el-button @click="exportProject" :loading="exporting">
           {{ exporting ? '导出中...' : '导出项目' }}
         </el-button>
+        <el-button @click="exportPDF">导出为PDF</el-button>
       </div>
       <div class="collaboration-controls">
         <button
@@ -66,10 +67,14 @@ import { ElMessage } from 'element-plus'
 import { useCollaborationStore } from '@/stores/collaborationStore'
 import collabModel from '@/pages/collabModel.vue'
 import { uploadImage } from '@/utils'
+import { exportToPdf } from '@/utils/exportPdf'
 const showCollabModal = ref(false)
 const collabStore = useCollaborationStore()
 const route = useRoute()
 const router = useRouter()
+const edit = useEditStore()
+const viewport = ref<Viewport>('desktop')
+const isDesktop = ref(false)
 const exporting = ref(false)
 const toggleCollaboration = async () => {
   if (collabStore.isConnected) {
@@ -152,6 +157,26 @@ const exportProject = async () => {
   }
 }
 
+const waitImageReady = (imgSelector: string) => {
+  return new Promise<void>((resolve) => {
+    const img = document.querySelector<HTMLImageElement>(imgSelector)
+    console.log(img)
+    if(!img) return resolve()
+    if(img.complete) return resolve()
+    img.onload = resolve as any
+    img.onerror = resolve as any
+  })
+}
+
+
+const exportPDF = async () => {
+  await waitImageReady('#image')
+  exportToPdf('.edit-render-drag', {
+    filename: 'test.pdf',
+    margin: 15,
+    jsPDF: { orientation: 'landscape' },
+  })
+}
 const uploadEdite = async () => {
   const { title, description, keywords } = edit.pageConfig as any
   const pageCover = edit.pageCover
@@ -179,7 +204,7 @@ const uploadEdite = async () => {
       name: list[0].name || '',
       content: JSONList || '',
       description: description[edit.viewport] || '',
-      coverImage: imageUrl as any || '',
+      coverImage: (imageUrl as any) || '',
     })
     if (status) {
       ElMessage.success('发布编辑成功')
@@ -194,7 +219,6 @@ const uploadEdite = async () => {
     console.error('发布编辑失败', error)
   }
 }
-
 const submit = async () => {
   const { title, description, keywords } = edit.pageConfig as any
   const pageCover = edit.pageCover
@@ -254,15 +278,11 @@ const convertToJSON = (data: any) => {
 const goHome = () => {
   router.push('/')
 }
-
 // 预览模式的替换
 const togglePreview = () => {
   edit.setPreview(!edit.isPreview)
 }
 
-const edit = useEditStore()
-const viewport = ref<Viewport>('desktop')
-const isDesktop = ref(false)
 watch(isDesktop, (val) => {
   val === true ? (viewport.value = 'mobile') : (viewport.value = 'desktop')
 })

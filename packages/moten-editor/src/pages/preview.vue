@@ -4,7 +4,7 @@
     <div class="container" :class="pageClass">
         
       <div class="overlay"></div>
-        <edit-render-drag :list="newList"></edit-render-drag>
+        <edit-render-drag :list="newList" class="export_render"></edit-render-drag>
     </div>
   </div>
 </template>

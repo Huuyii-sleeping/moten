@@ -1,7 +1,7 @@
 <template>
   <div class="config-files">
     <el-form-item :label="title" :prop="key + '.' + viewport">
-      <img v-if="src" :src="src" class="image" @click="triggerFileInput" />
+      <img v-if="src" :src="src" class="image" id="image" @click="triggerFileInput" crossorigin="anonymous"/>
       <div v-else class="file" @click="triggerFileInput">
         <v-icon icon="upload" class="icon" />
       </div>
