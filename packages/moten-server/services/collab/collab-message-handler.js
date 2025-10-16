@@ -24,6 +24,9 @@ export class CollabMessageHandler {
       }
       console.log(type);
       switch (type) {
+        case "fetch_full_state":
+          this._handleFetchFullState(docId, ws);
+          break;
         case "canvas_operation":
           this._handleCanvasOperation(docId, ws, { id, payload });
           break;
@@ -86,6 +89,24 @@ export class CollabMessageHandler {
       console.error(`[Message Error] Failed to handle message:`, error);
       this._sendMessageParseError(ws);
     }
+  }
+
+  _handleFetchFullState(docId, ws) {
+    if (ws.readyState !== 1) return;
+    const fullState = {
+      blockConfig: this.storage.getDocState(docId)?.blockConfig || [],
+      pageConfig: this.storage.getDocState(docId)?.pageConfig || {},
+      canvasState: this.storage.getCanvasState(docId),
+      history: this.storage.getHistoryRecords(docId) || [],
+      comments: this.storage.getComments(docId) || [],
+      userCount: this.storage.getUserCount(docId) || 1,
+    };
+    ws.send(
+      JSON.stringify({
+        type: "full_state_response",
+        payload: fullState,
+      })
+    );
   }
 
   _handleFetchCanvasState(docId, ws, messageId) {

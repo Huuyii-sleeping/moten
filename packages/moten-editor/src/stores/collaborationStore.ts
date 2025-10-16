@@ -163,9 +163,14 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   // 连接 WebSocket
   async function connect(docId: string, isEditor: boolean = false, username: string = '匿名登录') {
     if (isConnected.value) return
-    currentDocId = docId
     connectionStatus.value = 'connecting'
-    // const encodeedUsername = encodeURIComponent(username)
+    localStorage.setItem('collab_docId', docId)
+    localStorage.setItem('collab_isEditor', String(isEditor))
+    localStorage.setItem('collab_username', username)
+    if (!localStorage.getItem('collab_user_id')) {
+      localStorage.setItem('collab_user_id', generateMessageId())
+    }
+    currentDocId = docId
 
     try {
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -178,6 +183,10 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         console.log('协同编辑连接成功')
         isConnected.value = true
         connectionStatus.value = 'connected'
+        send({ type: 'fetch_full_state' })
+        fetchCanvasCurrentState()
+        fetchComments()
+        fetchHistory()
       }
 
       ws.value.onmessage = (event) => {
@@ -207,9 +216,16 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   }
 
   // 断开连接
-  function disconnect() {
+  function disconnect(manual = true) {
     // 设置重连次数
     reconnectAttempts.value = 0
+    if (manual) {
+      localStorage.removeItem('collab_docId')
+      localStorage.removeItem('collab_isEditor')
+      localStorage.removeItem('collab_username')
+      localStorage.removeItem('collab_room_id')
+      localStorage.removeItem('collab_user_id')
+    }
     if (ws.value) {
       ws.value.close()
       ws.value = null
@@ -222,6 +238,16 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   function send(message: any) {
     if (ws.value && ws.value.readyState === WebSocket.OPEN) {
       ws.value.send(JSON.stringify(message))
+    }
+  }
+
+  function initCollabOnLoad() {
+    const docId = localStorage.getItem('collab_docId')
+    const isEditor = localStorage.getItem('collab_isEditor') === 'true'
+    const username = localStorage.getItem('collab_username') || '匿名登录'
+
+    if (docId) {
+      connect(docId, isEditor, username)
     }
   }
 
@@ -239,6 +265,18 @@ export const useCollaborationStore = defineStore('collaboration', () => {
 
     try {
       switch (message.type) {
+        case 'full_state_response':
+          const fullState = message.payload
+          editStore.applyRemoteBlockConfig(fullState.blockConfig)
+          editStore.applyRemotePageConfig(fullState.pageConfig)
+          collaborativeState.value.canvasState = fullState.canvasState
+          if (editStore.canvasInstance && fullState.canvasState?.canvasDataUrl) {
+            editStore.canvasInstance.loadCanvasData(fullState.canvasState.canvasDataUrl)
+          }
+          historyRecords.value = fullState.history
+          comments.value = fullState.comments
+          onlineUsers.value = fullState.userCount
+          break
         case 'initial_data':
           editStore.applyRemoteBlockConfig(message.payload.blockConfig || [])
           editStore.applyRemotePageConfig(message.payload.pageConfig || {})
@@ -366,7 +404,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
           break
         case 'room_dismissed':
           ElMessage.warning(message.payload.reason)
-          disconnect()
+          disconnect(true)
           router.push('/')
           break
       }
@@ -585,5 +623,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     sendHistoryUpdata,
     sendCanvasOperation,
     fetchCanvasCurrentState,
+    initCollabOnLoad,
   }
 })

@@ -2,6 +2,13 @@
   <div class="collab-modal-overlay" v-if="visible">
     <div class="collab-modal">
       <h3>协同编辑</h3>
+      <div v-if="showResumePrompt" class="resume-prompt">
+        检测之前已经加入房间"{{ savedRoomId }}", 是否进行重连
+        <div class="resume-buttons">
+          <button @click="handleResume">Yes</button>
+          <button @click="showResumePrompt = false">No</button>
+        </div>
+      </div>
       <div class="form-group">
         <label>name</label>
         <input v-model="userName" placeholder="请输入你的名字" />
@@ -14,20 +21,49 @@
         <button @click="handleCreate" :disabled="!isValid">创建房间</button>
         <button @click="handleJoin" :disabled="!isValid">加入房间</button>
       </div>
+      <div v-if="collabStatus" class="status-indicator">
+        {{ collabStatus }}
+      </div>
       <button class="close-btn" @click="close">✕</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useCollaborationStore } from '@/stores/collaborationStore'
 import { useRoomStore } from '@/stores/roomStore'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const visible = defineModel<boolean>('visible', { required: true })
+const showResumePrompt = ref(false)
 const userName = ref('')
 const roomName = ref('')
+const savedRoomId = ref('')
 const isValid = computed(() => userName.value.trim() && roomName.value.trim())
+const collabStore = useCollaborationStore()
+const collabStatus = computed(() => {
+  switch (collabStore.connectionStatus) {
+    case 'connecting':
+      return '正在连接中...'
+    case 'connected':
+      return '连接到房间'
+    case 'disconnected':
+      return collabStore.isConnected ? '' : '已经断开连接'
+    default:
+      return ''
+  }
+})
+onMounted(() => {
+  if (roomStore.hasSaveRoom() && !collabStore.isConnected) {
+    savedRoomId.value = localStorage.getItem('collab_room_id') || ''
+    showResumePrompt.value = true
+  }
+})
 const roomStore = useRoomStore()
+const handleResume = () => {
+  roomStore.resumeRoom()
+  visible.value = false
+}
 const handleCreate = () => {
   roomStore.createRoom(userName.value.trim(), roomName.value.trim())
   visible.value = false
@@ -63,6 +99,24 @@ const close = () => {
   position: relative;
 }
 
+.resume-prompt {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.resume-buttons {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.resume-buttons button {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
 .form-group {
   margin-bottom: 16px;
 }
@@ -95,9 +149,11 @@ const close = () => {
   cursor: pointer;
 }
 
-.button-group button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+.status-indicator {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 8px;
 }
 
 .close-btn {
