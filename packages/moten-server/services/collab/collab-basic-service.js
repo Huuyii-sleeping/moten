@@ -71,7 +71,7 @@ export class BasicCollabService {
         const newUserCount = Math.max(0, currentCount - 1);
         this.storage.updateUserCount(docId, newUserCount);
         this.storage.removeUser(docId, ws.id);
-
+        this.storage.removeUserToolState(docId, ws.id);
         this.broadcaster.broadcastUserUpdate(docId, "user_left");
         console.log(
           `[Document] User ${ws.id} left doc ${docId} (current users: ${newUserCount})`
@@ -103,7 +103,9 @@ export class BasicCollabService {
     if (this.wss) {
       this.wss.close(code, reason);
       this.wss = null;
-      console.log(`[Collab & Private Service] Closed (Code: ${code}, Reason: ${reason})`);
+      console.log(
+        `[Collab & Private Service] Closed (Code: ${code}, Reason: ${reason})`
+      );
     }
   }
 
@@ -148,7 +150,7 @@ export class BasicCollabService {
     return this.storage.getUserCount(docId);
   }
 
-  getPrivatedocData(docId){
-    return this.privateStorage.getDocDate(docId)
+  getPrivatedocData(docId) {
+    return this.privateStorage.getDocDate(docId);
   }
 }

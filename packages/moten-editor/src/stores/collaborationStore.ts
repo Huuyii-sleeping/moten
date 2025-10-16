@@ -4,13 +4,17 @@ import type { BaseBlock } from '@/types/edit'
 import type { PageSchemaFormData } from '@/config/schema'
 import { useEditStore } from './edit'
 import { applyPatch, compare } from 'fast-json-patch'
-import type { BlockOperation } from '@/types/collab'
+import type { BlockOperation, CanvasOperation } from '@/types/collab'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
 interface CollaborativeState {
   blockConfig: BaseBlock[]
   pageConfig: PageSchemaFormData
+  canvasState: {
+    canvasDataUrl?: string
+    lastOperationTime?: number
+  }
 }
 
 export const useCollaborationStore = defineStore('collaboration', () => {
@@ -29,6 +33,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   const collaborativeState = ref<CollaborativeState>({
     blockConfig: [],
     pageConfig: {},
+    canvasState: {},
   })
   const isCollaborating = computed(() => isConnected.value)
   const isApplyingRemoteUpdate = ref(false)
@@ -40,7 +45,8 @@ export const useCollaborationStore = defineStore('collaboration', () => {
   // 收集历史记录和评论系统
   const historyRecords = ref<any[]>([])
   const comments = ref<any[]>([])
-
+  const CanvasOperationQueue = ref<CanvasOperation[]>([])
+  const isProcessingCanvasOp = ref(false)
   const pendingHistoryRequests = ref<
     Record<
       string,
@@ -51,6 +57,81 @@ export const useCollaborationStore = defineStore('collaboration', () => {
       }
     >
   >({})
+
+  function sendCanvasOperation(op: Omit<CanvasOperation, 'userId' | 'timestamp'>) {
+    if (!isConnected.value) {
+      return
+    }
+    const userId = localStorage.getItem('collab_user_id') || 'unknown_user'
+    const operation: CanvasOperation = {
+      ...op,
+      userId,
+      timestamp: Date.now(),
+    }
+    const messageId = generateMessageId()
+    lastSentMessageId.value = messageId
+    send({
+      id: messageId,
+      type: 'canvas_operation',
+      payload: operation,
+    })
+    if (op.type === 'clear') {
+      collaborativeState.value.canvasState.canvasDataUrl = ''
+    } else if (op.type === 'init_canvas' && op.payload.canvasDataUrl) {
+      collaborativeState.value.canvasState.canvasDataUrl = op.payload.canvasDataUrl
+    }
+  }
+  // 请求画布当前的状态
+  function fetchCanvasCurrentState() {
+    if (!isConnected.value) return
+    const messageId = generateMessageId()
+    send({
+      id: messageId,
+      type: 'fetch_canvas_state',
+      payload: { docId: currentDocId },
+    })
+  }
+  // 处理画布之间的并发操作
+  async function processCanvasOperationQueue() {
+    if (isProcessingCanvasOp.value || CanvasOperationQueue.value.length === 0) return
+    isProcessingCanvasOp.value = true
+    try {
+      const op = CanvasOperationQueue.value.shift()
+      if (!op) {
+        isProcessingCanvasOp.value = false
+        return
+      }
+      const editStore = useEditStore()
+      if (editStore.canvasInstance) {
+        switch (op.type) {
+          case 'draw':
+          case 'tool_switch':
+            await editStore.canvasInstance.applyRemoteDraw(op.payload)
+            break
+          case 'clear':
+            await editStore.canvasInstance.clearCanvas(true)
+            break
+          case 'shape':
+            await editStore.canvasInstance.applyRemoteShape(op.payload)
+            break
+          case 'init_canvas':
+            await editStore.canvasInstance.loadCanvasData(op.payload.canvasDataUrl)
+            break
+          case 'undo':
+            await editStore.canvasInstance.undo()
+            break
+          case 'redo':
+            await editStore.canvasInstance.redo()
+            break
+        }
+      }
+    } catch (error) {
+      console.error('处理画布操作失败', error)
+    } finally {
+      isProcessingCanvasOp.value = false
+      processCanvasOperationQueue()
+    }
+  }
 
   function generateBrightColor(userId: string): string {
     let hash = 0
@@ -164,6 +245,29 @@ export const useCollaborationStore = defineStore('collaboration', () => {
           historyRecords.value = message.payload.history || []
           comments.value = message.payload.comments || []
           onlineUsers.value = message.payload.userCount || 1
+          if (message.payload.canvasState?.canvasDataUrl) {
+            collaborativeState.value.canvasState = message.payload.canvasState
+            if (editStore.canvasInstance) {
+              editStore.canvasInstance.loadCanvasData(message.payload.canvasState.canvasDataUrl)
+            }
+          }
+          break
+        // 处理画布操作消息
+        case 'canvas_operation':
+          const canvasOp = message.payload as CanvasOperation
+          const currentId = localStorage.getItem('collab_user_id') || 'unknown_user'
+          if (canvasOp.userId === currentId) return
+          CanvasOperationQueue.value.push(canvasOp)
+          processCanvasOperationQueue()
+          break
+        // 画布消息同步
+        case 'canvas_state_response':
+          if (message.payload.canvasDataUrl) {
+            collaborativeState.value.canvasState.canvasDataUrl = message.payload.canvasDataUrl
+            if (editStore.canvasInstance) {
+              editStore.canvasInstance.loadCanvasData(message.payload.canvasDataUrl)
+            }
+          }
           break
         case 'new_history_record':
           historyRecords.value.unshift(message.payload.record)
@@ -171,7 +275,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         case 'block_config_updated':
           editStore.applyRemoteBlockConfig(message.payload.blockConfig)
           break
-
         case 'page_config_updated':
           editStore.applyRemotePageConfig(message.payload.pageConfig)
           break
@@ -250,7 +353,6 @@ export const useCollaborationStore = defineStore('collaboration', () => {
             clearTimeout(pendingReq.timeoutTimer)
             pendingReq.resolve()
           }
-          console.log('更新已经完成')
           delete pendingHistoryRequests.value[message.id]
           break
         case 'history_fetched':
@@ -259,10 +361,8 @@ export const useCollaborationStore = defineStore('collaboration', () => {
             clearTimeout(pendingFetched.timeoutTimer)
             pendingFetched.resolve()
           }
-          console.log('fetch拿到数据')
           delete pendingHistoryRequests.value[message.id]
           historyRecords.value = message.payload || []
-          console.log('history_records:', historyRecords.value)
           break
         case 'room_dismissed':
           ElMessage.warning(message.payload.reason)
@@ -350,6 +450,13 @@ export const useCollaborationStore = defineStore('collaboration', () => {
         pageConfig: state.pageConfig,
       } as any)
     }
+
+    if (state.canvasState) {
+      collaborativeState.value.canvasState = state.canvasState
+      if (editStore.canvasInstance && state.canvasState.canvasDataUrl) {
+        editStore.canvasInstance.loadCanvasData(state.canvasState.canvasDataUrl)
+      }
+    }
   }
 
   function fetchHistory() {
@@ -357,10 +464,10 @@ export const useCollaborationStore = defineStore('collaboration', () => {
       if (!isConnected.value) {
         reject(new Error('ws未连接'))
       }
+      const messageId = generateMessageId()
       const timeoutTimer = setTimeout(() => {
         delete pendingHistoryRequests.value[messageId]
       }, 5000)
-      const messageId = generateMessageId()
       pendingHistoryRequests.value[messageId] = {
         resolve,
         reject,
@@ -419,6 +526,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
       type: isPrivate ? 'private_update_page_config' : 'update_page_config',
       payload: pageConfig,
     }
+    // console.log(updateMessage)
     lastSentMessageId.value = pageId
     send(updateMessage)
   }
@@ -456,6 +564,8 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     historyRecords,
     comments,
     userList,
+    CanvasOperationQueue,
+    isProcessingCanvasOp,
     connect,
     disconnect,
     send,
@@ -473,5 +583,7 @@ export const useCollaborationStore = defineStore('collaboration', () => {
     getAllUsers,
     dismissRoom,
     sendHistoryUpdata,
+    sendCanvasOperation,
+    fetchCanvasCurrentState,
   }
 })

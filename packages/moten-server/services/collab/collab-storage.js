@@ -18,6 +18,10 @@ export class CollabStorage {
     this.users = new Map();
     // 储存docId当中的user的数量以及名字 docId -> name[]
     this.hasUsers = new Map();
+    // 存储画板的状态 docId
+    this.canvasStates = new Map();
+    // 存储画板的工具
+    this.userToolState = new Map();
   }
 
   /**
@@ -41,6 +45,15 @@ export class CollabStorage {
     if (!this.userCount.has(docId)) this.userCount.set(docId, 0);
     if (!this.users.has(docId)) this.users.set(docId, new Map());
     if (!this.hasUsers.has(docId)) this.hasUsers.set(docId, []);
+    if (!this.canvasStates.has(docId)) {
+      this.canvasStates.set(docId, {
+        canvasDataUrl: "", // 画布最新的状态 base字符串
+        updatedAt: null, // 最后更新事件
+      });
+    }
+    if (!this.userToolState.has(docId)) {
+      this.userToolState.set(docId, new Map());
+    }
   }
 
   /**
@@ -59,7 +72,7 @@ export class CollabStorage {
    */
   updateDocState(docId, newState) {
     this.docData.set(docId, newState);
-    console.log(newState)
+    // console.log(newState);
   }
 
   /**
@@ -103,6 +116,23 @@ export class CollabStorage {
     this.comments.delete(docId);
     this.users.delete(docId);
     this.hasUsers.delete(docId);
+  }
+
+  removeUserToolState(docId, wsId) {
+    if (this.userToolState.get(docId)) {
+      this.userToolState.get(docId).delete(wsId);
+    }
+  }
+
+  setUserToolState(docId, wsId, toolType) {
+    if (!this.userToolState.has(docId)) {
+      this.initDocument(docId);
+    }
+    this.userToolState.get(docId).set(wsId, toolType);
+  }
+
+  getUserToolState(docId, wsId) {
+    return this.userToolState.get(docId).get(wsId) || null;
   }
 
   addUser(docId, ws, username) {
@@ -169,6 +199,26 @@ export class CollabStorage {
     return this.comments.get(docId);
   }
 
+  setCanvasState(docId, canvasDataUrl) {
+    if (!this.canvasStates.has(docId)) {
+      this.initDocument(docId);
+    }
+    this.canvasStates.set(docId, {
+      canvasDataUrl: canvasDataUrl || "",
+      updatedAt: Date.now(),
+    });
+  }
+
+  getCanvasState(docId) {
+    if (!this.canvasStates.has(docId)) {
+      return {
+        canvasDataUrl: "",
+        updatedAt: null,
+      };
+    }
+    return this.canvasStates.get(docId);
+  }
+
   clearDocStorage(docId) {
     this.docData.delete(docId);
     this.connections.delete(docId);
@@ -177,6 +227,8 @@ export class CollabStorage {
     this.userRole.delete(docId);
     this.historyRecords.delete(docId);
     this.comments.delete(docId);
+    this.canvasStates.delete(docId);
+    this.users.delete(docId);
     console.log(`[Storage] Cleared all data for doc: ${docId}`);
   }
 }

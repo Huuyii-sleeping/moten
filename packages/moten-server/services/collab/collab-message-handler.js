@@ -22,7 +22,14 @@ export class CollabMessageHandler {
         this._sendPermissionDenied(ws);
         return;
       }
+      console.log(type);
       switch (type) {
+        case "canvas_operation":
+          this._handleCanvasOperation(docId, ws, { id, payload });
+          break;
+        case "fetch_canvas_state":
+          this._handleFetchCanvasState(docId, ws, id);
+          break;
         case "private_update_block_config":
           this._handleBlockConfigUpdate(docId, payload, ws, true);
           break;
@@ -35,8 +42,6 @@ export class CollabMessageHandler {
         case "update_page_config":
           this._handlePageConfigUpdate(docId, payload, ws);
           break;
-        case "private_update_page_config":
-          this._handleFullStateUpdate(docId, payload, ws, true);
         case "update_full_state":
           this._handleFullStateUpdate(docId, payload, ws);
           break;
@@ -81,6 +86,55 @@ export class CollabMessageHandler {
       console.error(`[Message Error] Failed to handle message:`, error);
       this._sendMessageParseError(ws);
     }
+  }
+
+  _handleFetchCanvasState(docId, ws, messageId) {
+    const canvasState = this.storage.getCanvasState(docId);
+    if (ws.readyState === 1) {
+      ws.send(
+        JSON.stringify({
+          type: "canvas_state_response",
+          id: messageId,
+          payload: canvasState,
+        })
+      );
+    }
+  }
+
+  _handleCanvasOperation(docId, ws, message) {
+    const { id, payload } = message;
+    const wsId = ws.id;
+    const isEditor = this.storage.getUserRole(docId, ws);
+    if (!isEditor) {
+      console.warn(
+        `[Permission] Read-only user (${ws.id}) tried to edit canvas: ${docId}`
+      );
+      this._sendPermissionDenied(ws);
+      return;
+    }
+    const username = this.storage.getUsername(docId, ws) || "位置用户";
+    if (payload.type === "clear") {
+      this.storage.setCanvasState(docId, "");
+    } else if (payload.type === "init_canvas" && payload.canvasDataUrl) {
+      this.storage.setCanvasState(docId, payload.canvasDataUrl);
+    } else if (payload.type === "tool_switch") {
+      const { toolType, color } = payload;
+      this.storage.setUserToolState(docId, wsId, toolType);
+    }
+    const boardcastPayload = {
+      ...payload,
+      userId: wsId,
+      username,
+    };
+    this.broadcaster.broadcast(
+      docId,
+      {
+        type: "canvas_operation",
+        id: id,
+        payload: boardcastPayload,
+      },
+      ws
+    );
   }
 
   _checkOperation(payload) {

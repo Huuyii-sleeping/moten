@@ -3,7 +3,6 @@ import { defineStore } from 'pinia'
 import type { BaseBlock, BaseBlockNull, BasePage, Viewport } from '@/types/edit'
 import type { PageSchemaFormData } from '@/config/schema'
 import { useCollaborationStore } from './collaborationStore'
-import { debounce } from 'lodash-es'
 
 export const useEditStore = defineStore('edit', () => {
   const viewport = ref<Viewport>('desktop')
@@ -16,35 +15,29 @@ export const useEditStore = defineStore('edit', () => {
   const pageCover = ref<any>()
   const diagnorseKey = ref(1)
   const shouldSyncToLocalCollab = ref(true)
+  const canvasInstance = ref<any>()
   const isMobileViewport = computed(() => {
     return viewport.value === 'mobile'
   })
   const collabStore = useCollaborationStore()
-  const debouncedBlockUpdate = debounce((newVal: BaseBlock[]) => {
-    if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-      collabStore.sendBlockConfigUpdate(newVal)
-    }
-    collabStore.sendBlockConfigUpdate(newVal, true)
-  }, 300)
-  const debouncePageConfig = debounce((newVal: BaseBlock[]) => {
-    if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-      collabStore.sendPageConfigUpdate(newVal as any)
-    }
-    collabStore.sendPageConfigUpdate(newVal as any, true)
-  }, 300)
-
   watch(
     blockConfig,
     (newVal) => {
-      debouncedBlockUpdate(newVal)
+      if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
+        collabStore.sendBlockConfigUpdate(newVal)
+      }
+      collabStore.sendBlockConfigUpdate(newVal, true)
     },
     { deep: true },
   )
 
   watch(
     pageConfig,
-    (newVal) => {
-      debouncePageConfig(newVal as any)
+    (newVal, oldVal) => {
+      if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
+        collabStore.sendPageConfigUpdate(newVal as any)
+      }
+      collabStore.sendPageConfigUpdate(newVal as any, true)
     },
     { deep: true },
   )
@@ -153,6 +146,9 @@ export const useEditStore = defineStore('edit', () => {
   function setEdit() {
     isEdit.value = !isEdit.value
   }
+  function setCanvasInstance(instance: any) {
+    canvasInstance.value = instance
+  }
   return {
     viewport,
     currentSelect,
@@ -164,6 +160,8 @@ export const useEditStore = defineStore('edit', () => {
     pageCover,
     isEdit,
     diagnorseKey,
+    canvasInstance,
+    setCanvasInstance,
     setEdit,
     applyRemoteBlockConfig,
     applyRemotePageConfig,

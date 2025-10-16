@@ -29,19 +29,13 @@
       <!-- 画笔大小 -->
       <div class="toolbar-group brush-size">
         <label class="tool-label" style="margin-bottom: 20px">大小</label>
-        <input
-          type="range"
-          v-model="brushSize"
-          min="1"
-          max="50"
-          class="toolbar-slider"
-        />
+        <input type="range" v-model="brushSize" min="1" max="50" class="toolbar-slider" />
         <span class="size-value" style="margin-top: 20px">{{ brushSize }}</span>
       </div>
 
       <!-- 操作按钮组 -->
       <div class="toolbar-group actions">
-        <button class="toolbar-btn" @click="clearCanvas" title="清空画布">
+        <button class="toolbar-btn" @click="clearCanvas()" title="清空画布">
           <span>🗑️</span>
         </button>
         <button class="toolbar-btn" @click="undo" title="撤销">
@@ -75,6 +69,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useCollaborationStore } from '@/stores/collaborationStore'
+import { useEditStore } from '@/stores/edit'
 
 // 组件属性
 const props = defineProps({
@@ -95,8 +91,6 @@ const props = defineProps({
     default: '',
   },
 })
-
-// 状态管理
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const ctx = ref<CanvasRenderingContext2D | null>(null)
 const isDrawing = ref(false)
@@ -104,14 +98,15 @@ const lastX = ref(0)
 const lastY = ref(0)
 const startX = ref(0)
 const startY = ref(0)
-const currentTool = ref('brush') // brush, eraser, rect, circle, line
+const currentTool = ref('brush')
 const brushColor = ref('#000000')
 const brushSize = ref(5)
 const history = ref<string[]>([])
 const historyIndex = ref(-1)
 const redoStack = ref<string[]>([])
+const editStore = useEditStore()
+const collabStore = useCollaborationStore()
 
-// 配置项 - 增加工具标签用于tooltip
 const tools = [
   { type: 'brush', icon: '🖌️', label: '画笔' },
   { type: 'eraser', icon: '🧽', label: '橡皮擦' },
@@ -128,7 +123,6 @@ const colors = [
   { label: '黄色', value: '#ffff00' },
 ]
 
-// 初始化画布
 const initCanvas = async () => {
   await nextTick()
   if (!canvasRef.value) return
@@ -136,12 +130,10 @@ const initCanvas = async () => {
   const canvas = canvasRef.value
   const container = canvas.parentElement as HTMLElement
 
-  // 设置画布尺寸
   canvas.width = container.clientWidth
   canvas.height = container.clientHeight
   ctx.value = canvas.getContext('2d')
 
-  // 初始化上下文
   if (ctx.value) {
     ctx.value.lineJoin = 'round'
     ctx.value.lineCap = 'round'
@@ -149,13 +141,11 @@ const initCanvas = async () => {
     ctx.value.lineWidth = brushSize.value
   }
 
-  // 加载初始数据
   if (props.initialData) {
     loadImage(props.initialData)
   }
 }
 
-// 加载图片
 const loadImage = (dataUrl: string) => {
   const img = new Image()
   img.onload = () => {
@@ -165,7 +155,6 @@ const loadImage = (dataUrl: string) => {
   img.src = dataUrl
 }
 
-// 保存历史记录
 const saveHistory = () => {
   if (!canvasRef.value) return
   const dataUrl = canvasRef.value.toDataURL()
@@ -177,7 +166,35 @@ const saveHistory = () => {
   redoStack.value = []
 }
 
-// 撤销操作
+const applyRemoteDraw = (payload: any) => {
+  if (!ctx.value) return
+  if (payload.tool) {
+    const remoteTool = payload.tool
+    const remoteColor = payload.color || brushColor.value
+
+    switch (remoteTool) {
+      case 'eraser':
+        ctx.value.strokeStyle = remoteColor
+        ctx.value.globalCompositeOperation = 'destination-out'
+        ctx.value.lineWidth = brushSize.value
+        break
+      case 'brush':
+      case 'rect':
+      case 'circle':
+      case 'line':
+        ctx.value.strokeStyle
+    }
+    currentTool.value = remoteTool
+    return
+  }
+  ctx.value.strokeStyle = payload.color || brushColor.value
+  ctx.value.lineWidth = payload.size || brushSize.value
+  ctx.value.beginPath()
+  ctx.value.moveTo(payload.lastX, payload.lastY)
+  ctx.value.lineTo(payload.x, payload.y)
+  ctx.value.stroke()
+}
+
 const undo = () => {
   if (historyIndex.value > 0) {
     historyIndex.value--
@@ -187,7 +204,6 @@ const undo = () => {
   }
 }
 
-// 重做操作
 const redo = () => {
   if (redoStack.value.length > 0) {
     const dataUrl = redoStack.value.pop() as string
@@ -196,14 +212,54 @@ const redo = () => {
   }
 }
 
-// 清空画布
-const clearCanvas = () => {
+const clearCanvas = (isRemote = false) => {
   if (!ctx.value || !canvasRef.value) return
   saveHistory()
   ctx.value.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height)
+  if (!isRemote) {
+    collabStore.sendCanvasOperation({ type: 'clear', payload: {} })
+  }
 }
 
-// 导出画布
+const applyRemoteShape = (payload: any) => {
+  if (!ctx.value || isDrawing.value) return
+  ctx.value.strokeStyle = payload.color || brushColor.value
+  ctx.value.lineWidth = payload.size || brushSize.value
+  ctx.value.beginPath()
+  switch (payload.shapeType) {
+    case 'rect':
+      ctx.value.rect(
+        payload.startX,
+        payload.startY,
+        payload.endX - payload.startX,
+        payload.endY - payload.startY,
+      )
+      break
+    case 'circle':
+      const radius = Math.sqrt(
+        Math.pow(payload.endX - payload.startX, 2) + Math.pow(payload.endY - payload.startY, 2),
+      )
+      ctx.value.arc(payload.startX, payload.startY, radius, 0, Math.PI * 2)
+      break
+    case 'line':
+      ctx.value.moveTo(payload.startX, payload.startY)
+      ctx.value.lineTo(payload.endX, payload.endY)
+      break
+  }
+  ctx.value.stroke()
+}
+
+const loadCanvasData = (dataUrl: string) => {
+  if (!canvasRef.value || !ctx.value) return
+  const img = new Image()
+  img.onload = () => {
+    ctx.value?.clearRect(0, 0, canvasRef.value?.width as number, canvasRef.value?.height as number)
+    ctx.value?.drawImage(img, 0, 0)
+    saveHistory()
+  }
+  img.src = dataUrl
+}
+
 const exportCanvas = () => {
   if (!canvasRef.value) return
   const dataUrl = canvasRef.value.toDataURL()
@@ -213,7 +269,6 @@ const exportCanvas = () => {
   link.click()
 }
 
-// 获取相对坐标
 const getRelativeCoords = (e: MouseEvent | Touch) => {
   if (!canvasRef.value) return { x: 0, y: 0 }
   const rect = canvasRef.value.getBoundingClientRect()
@@ -233,7 +288,6 @@ const getRelativeCoords = (e: MouseEvent | Touch) => {
   }
 }
 
-// 绘制函数
 const draw = (x: number, y: number) => {
   if (!ctx.value || !isDrawing.value) return
 
@@ -241,16 +295,26 @@ const draw = (x: number, y: number) => {
   ctx.value.moveTo(lastX.value, lastY.value)
   ctx.value.lineTo(x, y)
   ctx.value.stroke()
-
+  collabStore.sendCanvasOperation({
+    type: 'draw',
+    payload: {
+      x,
+      y,
+      lastX: lastX.value,
+      lastY: lastY.value,
+      color: brushColor.value,
+      size: brushSize.value,
+    },
+  })
   lastX.value = x
   lastY.value = y
 }
 
-// 绘制形状
 const drawShape = (x: number, y: number) => {
   if (!ctx.value) return
 
   ctx.value.beginPath()
+  let shapeType = currentTool.value as 'rect' | 'circle' | 'line'
   switch (currentTool.value) {
     case 'rect':
       ctx.value.rect(startX.value, startY.value, x - startX.value, y - startY.value)
@@ -265,9 +329,22 @@ const drawShape = (x: number, y: number) => {
       break
   }
   ctx.value.stroke()
+  if (isDrawing.value) {
+    collabStore.sendCanvasOperation({
+      type: 'shape',
+      payload: {
+        shapeType: shapeType,
+        startX: startX.value,
+        startY: startY.value,
+        endX: x,
+        endY: y,
+        color: brushColor.value,
+        size: brushSize.value,
+      },
+    })
+  }
 }
 
-// 鼠标事件
 const handleMouseDown = (e: MouseEvent) => {
   const { x, y } = getRelativeCoords(e)
   isDrawing.value = true
@@ -284,7 +361,6 @@ const handleMouseMove = (e: MouseEvent) => {
   if (currentTool.value === 'brush' || currentTool.value === 'eraser') {
     draw(x, y)
   } else {
-    // 绘制形状时实时预览
     const tempCtx = ctx.value?.getImageData(0, 0, canvasRef.value!.width, canvasRef.value!.height)
     drawShape(x, y)
     ctx.value?.putImageData(tempCtx!, 0, 0)
@@ -298,7 +374,6 @@ const handleMouseUp = () => {
   saveHistory()
 }
 
-// 触摸事件
 const handleTouchStart = (e: TouchEvent) => {
   e.preventDefault()
   if (e.touches.length > 0) {
@@ -318,7 +393,6 @@ const handleTouchEnd = (e: TouchEvent) => {
   handleMouseUp()
 }
 
-// 监听属性变化
 watch(brushColor, (newColor) => {
   if (ctx.value) {
     ctx.value.strokeStyle = newColor
@@ -333,25 +407,46 @@ watch(brushSize, (newSize) => {
 
 watch(currentTool, (newTool) => {
   if (ctx.value) {
-    if (newTool === 'eraser') {
-      ctx.value.strokeStyle = '#ffffff'
-    } else {
-      ctx.value.strokeStyle = brushColor.value
-    }
+    const color = newTool === 'eraser' ? '#ffffff' : brushColor.value
+    ctx.value.strokeStyle = color
+    collabStore.sendCanvasOperation({
+      type: 'tool_switch',
+      payload: { tool: newTool, color: color },
+    })
   }
 })
 
-// 生命周期
 onMounted(() => {
   initCanvas()
   window.addEventListener('resize', initCanvas)
+  editStore.setCanvasInstance({
+    applyRemoteDraw,
+    clearCanvas,
+    applyRemoteShape,
+    loadCanvasData,
+    undo,
+    redo,
+  })
+
+  if (collabStore.isConnected) {
+    collabStore.fetchCanvasCurrentState()
+  } else {
+    const connectionWatch = watch(
+      () => collabStore.isConnected,
+      (isConnected) => {
+        if (isConnected) {
+          collabStore.fetchCanvasCurrentState()
+          connectionWatch()
+        }
+      },
+    )
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', initCanvas)
 })
 
-// 暴露方法
 defineExpose({
   clearCanvas,
   undo,
