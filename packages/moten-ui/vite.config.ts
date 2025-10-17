@@ -10,6 +10,7 @@ import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { readdirSync } from "fs";
 import { filter, includes, map } from "lodash-es";
 import viteImagemin from "vite-plugin-imagemin";
+import dts from "unplugin-dts/vite";
 
 function getDirectoriesSync(basePath: string) {
   const entries = readdirSync(basePath, { withFileTypes: true });
@@ -22,6 +23,11 @@ function getDirectoriesSync(basePath: string) {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    dts({
+      bundleTypes: true,
+      tsconfigPath: "./tsconfig.app.json",
+      processor: "vue",
+    }),
     vue(),
     tailwindcss(),
     AutoImport({
@@ -60,7 +66,6 @@ export default defineConfig({
             assetInfo.type === "asset" &&
             /\.(css)$/i.test(assetInfo.name as string)
           ) {
-            console.log(assetInfo.name);
             return `theme/[name].css`;
           }
           return assetInfo.name as string;
