@@ -9,7 +9,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts">  
 import { getPageList } from '@/components/edit/nested'
 import { useEditStore } from '@/stores/edit'
 import { useUserStore } from '@/stores/user'
