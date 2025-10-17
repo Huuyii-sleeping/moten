@@ -9,6 +9,7 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { readdirSync } from "fs";
 import { filter, includes, map } from "lodash-es";
+import viteImagemin from "vite-plugin-imagemin";
 
 function getDirectoriesSync(basePath: string) {
   const entries = readdirSync(basePath, { withFileTypes: true });
@@ -29,6 +30,14 @@ export default defineConfig({
     Components({
       resolvers: [ElementPlusResolver()],
     }),
+    // 进行图片压缩的插件
+    viteImagemin({
+      gifsicle: { optimizationLevel: 7, interlaced: false },
+      optipng: { optimizationLevel: 7 },
+      mozjpeg: { quality: 20 },
+      pngquant: { quality: [0.8, 0.9], speed: 4 },
+      svgo: { plugins: [{ removeViewBox: false }] },
+    }),
   ],
   resolve: {
     alias: {
@@ -43,7 +52,7 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["vue"],
+      external: ["vue", "echarts", "element-plus"],
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === "style.css") return "index.css";
@@ -51,7 +60,8 @@ export default defineConfig({
             assetInfo.type === "asset" &&
             /\.(css)$/i.test(assetInfo.name as string)
           ) {
-            return "theme/[name].[ext]";
+            console.log(assetInfo.name);
+            return `theme/[name].css`;
           }
           return assetInfo.name as string;
         },
@@ -65,6 +75,17 @@ export default defineConfig({
             id.includes("plugin-vue:export-helper")
           ) {
             return "utils";
+          }
+          if (id.endsWith(".scss") || id.endsWith(".css")) {
+            if (id.includes("/src/components/")) {
+              const componentName = id.split("/components/")[1].split("/")[0];
+              return `css/components/${componentName}`;
+            }
+            if (id.includes("/src/assets/styles/")) {
+              const styleName = id.split("/styles/")[1].split(".")[0];
+              return `css/assets/${styleName}`;
+            }
+            return "css/vendor";
           }
           for (const item of getDirectoriesSync("./src/components")) {
             if (includes(id, `/src/components/${item}`)) {
