@@ -51,6 +51,7 @@ export default defineConfig({
     },
   },
   build: {
+    minify: "terser",
     lib: {
       entry: resolve(__dirname, "src/main.ts"),
       name: "moten",
@@ -58,6 +59,9 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
+      treeshake: {
+        moduleSideEffects: false,
+      },
       external: ["vue", "echarts", "element-plus"],
       output: {
         assetFileNames: (assetInfo) => {
