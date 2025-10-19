@@ -113,6 +113,8 @@ export const reverseBlockConfig = (config: any) => {
     formData: toRaw(item.value),
     children: item.children,
     nested: item.nested,
+    x: item.x,
+    y: item.y,
   }))
 }
 

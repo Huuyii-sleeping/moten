@@ -1,5 +1,5 @@
 <template>
-  <div :class="classes" :style="displayStyle">
+  <div :class="classes" :style="[displayStyle, styles]">
     <QuillEditor
       class="textarea"
       v-model:content="content"
@@ -25,8 +25,8 @@ const { n } = createNameSpace("textarea");
 const propsData = defineProps(props);
 const { data, viewport } = toRefs(propsData);
 const classes = computed(() => [n()]);
-const width = computed(() => data.value?.width?.[viewport.value] || "");
-const height = computed(() => data.value?.height?.[viewport.value] || "");
+const width = computed(() => data.value?.width?.[viewport.value] || "200px");
+const height = computed(() => data.value?.height?.[viewport.value] || "200px");
 const content = computed(() => data.value?.content?.[viewport.value] || "");
 const styles = computed(() => [{ width: width.value, height: height.value }]);
 const display = computed(() => {

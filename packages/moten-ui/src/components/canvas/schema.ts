@@ -26,7 +26,7 @@ const height = Type.String({
 const width = Type.String({
   code: "config-input",
   title: "宽度",
-  default: "100%",
+  default: "200px",
 });
 
 const schema = Type.Object({

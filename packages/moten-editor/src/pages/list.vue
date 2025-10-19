@@ -193,6 +193,7 @@ onMounted(async () => {
   const { code, data, message } = await getPageAsync()
   if (code === 200) {
     userStore.setList(data)
+    console.log(data)
   } else {
     console.warn(message)
   }

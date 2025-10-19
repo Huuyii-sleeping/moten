@@ -54,6 +54,8 @@ export const seniorBlocks: BaseBlock[] = [
     name: '多列',
     code: 'column',
     icon: 'column',
+    x: 100,
+    y: 100,
     nested: true,
     children: [[], []],
     formData: {},

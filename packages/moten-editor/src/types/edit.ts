@@ -18,6 +18,14 @@ export interface BaseBlock {
   formData?: Partial<BlockSchema[BlockSchemaKeys] | Object>
   // 区分内容
   type?: string
+
+  x?: number
+
+  y?: number
+
+  width?: number
+
+  height?: number
 }
 
 export interface ElementBlock {

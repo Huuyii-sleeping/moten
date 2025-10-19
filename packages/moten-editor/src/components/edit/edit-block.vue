@@ -16,57 +16,46 @@
     <div class="right" v-if="activeMenu === 0">
       <el-collapse v-model="activeNames">
         <el-collapse-item title="基础组件" name="1">
-          <edit-block-drag
+          <InteractEditBlockDrag
             :list="baseBlockList"
-            :group="{ name: dragGroup, pull: 'clone', put: false }"
-          ></edit-block-drag>
+          ></InteractEditBlockDrag>
         </el-collapse-item>
         <el-collapse-item title="高级组件" name="2">
-          <edit-block-drag
+          <InteractEditBlockDrag
             :list="seniorBlockList"
-            :sort="false"
-            :group="{ name: dragGroup, pull: 'clone', put: false }"
-          ></edit-block-drag>
+          ></InteractEditBlockDrag>
         </el-collapse-item>
       </el-collapse>
     </div>
     <div class="right" v-else-if="activeMenu === 1">
       <el-collapse v-model="activeNames">
         <el-collapse-item title="基础交互组件" name="1">
-          <edit-block-drag
+          <InteractEditBlockDrag
             :list="canvasBlockList"
-            :sort="false"
-            :group="{ name: dragGroup, pull: 'clone', put: false }"
-          ></edit-block-drag>
+          ></InteractEditBlockDrag>
         </el-collapse-item>
       </el-collapse>
       <el-collapse v-model="activeNames">
         <el-collapse-item title="数据展示类组件" name="2">
-          <edit-block-drag
+          <InteractEditBlockDrag
             :list="showDataBlockList"
-            :sort="false"
-            :group="{ name: dragGroup, pull: 'clone', put: false }"
-          ></edit-block-drag>
+          ></InteractEditBlockDrag>
         </el-collapse-item>
       </el-collapse>
       <el-collapse v-model="activeNames">
         <el-collapse-item title="布局与容器组件" name="3">
-          <edit-block-drag
+          <InteractEditBlockDrag
             :list="containerBlockList"
-            :sort="false"
-            :group="{ name: dragGroup, pull: 'clone', put: false }"
-          ></edit-block-drag>
+          ></InteractEditBlockDrag>
         </el-collapse-item>
       </el-collapse>
     </div>
     <div class="right" v-else-if="activeMenu === 2">
       <el-collapse v-model="activeNames">
         <el-collapse-item title="自定义插件" name="1" v-if="componentPalette.length > 0">
-          <edit-block-drag
+          <InteractEditBlockDrag
             :list="componentPalette"
-            :sort="false"
-            :group="{ name: dragGroup, pull: 'clone', put: false }"
-          ></edit-block-drag>
+          ></InteractEditBlockDrag>
         </el-collapse-item>
 
         <el-collapse-item title="自定义插件" name="1" v-else>
@@ -182,6 +171,7 @@ import { useCollaborationStore } from '@/stores/collaborationStore'
 import { useEditStore } from '@/stores/edit'
 import { ElMessage } from 'element-plus'
 import MoCanvas from '../canvas/index.vue'
+import InteractEditBlockDrag from './InteractEditBlockDrag.vue'
 
 const menuList = ref([
   {

@@ -97,7 +97,6 @@ const validateAll = async (item: any) => {
   const validate = ajv.compile(schema)
   const valid = validate(value)
   if (!valid) {
-    // 这里是用来将没有填信息的地方实现自动跳转 并将数据放置到store的里面，实现跳转
     const path = validate.errors?.[0]?.instancePath
     if (path) {
       const [, , pathViewport] = path.split('/')
@@ -161,20 +160,24 @@ const waitImageReady = (imgSelector: string) => {
   return new Promise<void>((resolve) => {
     const img = document.querySelector<HTMLImageElement>(imgSelector)
     console.log(img)
-    if(!img) return resolve()
-    if(img.complete) return resolve()
+    if (!img) return resolve()
+    if (img.complete) return resolve()
     img.onload = resolve as any
     img.onerror = resolve as any
   })
 }
 
-
 const exportPDF = async () => {
   await waitImageReady('#image')
-  exportToPdf('.edit-render-drag', {
+  const container = document.querySelector('.edit-render')
+  if (!container) {
+    ElMessage.error('未找到画布容器')
+    return
+  }
+  exportToPdf('.edit-render', {
     filename: 'test.pdf',
     margin: 15,
-    jsPDF: { orientation: 'landscape' },
+    jsPDF: { orientation: 'portrait' },
   })
 }
 const uploadEdite = async () => {
@@ -234,6 +237,8 @@ const submit = async () => {
       code: item.code,
       children: item.children,
       nested: item.nested,
+      x: item.x,
+      y: item.y,
     }
   })
   list.forEach((item) => {
@@ -254,8 +259,10 @@ const submit = async () => {
       })
       collabStore.dismissRoom()
       router.push('/')
-      edit.setPageConfig({} as any)
-      edit.setBlockConfig({} as any)
+      setTimeout(() => {
+        edit.setPageConfig({} as any)
+        edit.setBlockConfig([] as any)
+      }, 0)
     } else {
       ElMessage({
         message: '发布失败: ' + message,

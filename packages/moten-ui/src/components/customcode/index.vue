@@ -29,7 +29,7 @@ const classes = computed(() => [n()]);
 const codeContainer = ref<HTMLElement | null>(null);
 const error = ref<string | null>(null);
 const isCodeEmpty = computed(() => !data.value?.code?.[viewport.value]?.trim());
-const width = computed(() => data.value?.width?.[viewport.value] || "100%");
+const width = computed(() => data.value?.width?.[viewport.value] || "200px");
 const height = computed(() => data.value?.height?.[viewport.value] || "200px");
 const color = computed(() => data.value?.color?.[viewport.value] || "");
 const styles = computed(() => ({

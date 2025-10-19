@@ -21,7 +21,7 @@ const color = Type.String({
 const width = Type.String({
   code: "config-input",
   title: "宽度",
-  default: "100%",
+  default: "200px",
   placeholder: "请输入宽度",
   minLength: 1,
   errorMessage: {

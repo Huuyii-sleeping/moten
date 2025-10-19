@@ -2,14 +2,14 @@
   <div class="edit" :class="pageClass">
     <edit-header :isPreview="true"></edit-header>
     <div class="container" :class="pageClass">
-        
       <div class="overlay"></div>
-        <edit-render-drag :list="newList" class="export_render"></edit-render-drag>
+      <InteractPreviewRender :list="newList" class="export_render"></InteractPreviewRender>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">  
+<script setup lang="ts">
+import InteractPreviewRender from '@/components/edit/InteractPreviewRender.vue'
 import { getPageList } from '@/components/edit/nested'
 import { useEditStore } from '@/stores/edit'
 import { useUserStore } from '@/stores/user'
@@ -27,13 +27,14 @@ const route = useRoute()
 const allPages = useUser.list
 const getResolveList = () => {
   if (props.list) {
-    return ref(props.list)
+    return props.list
   }
   const _temp = ref<any[]>([])
   getPageList(route, _temp, allPages)
   return _temp
 }
-const newList = getResolveList()
+const newList = getResolveList() as any
+console.log('newList:', newList)
 const edit = useEditStore()
 const pageClass = computed(() => {
   return { 'is-mobile': edit.isMobileViewport }

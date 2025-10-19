@@ -51,7 +51,7 @@ export default defineConfig({
     },
   },
   build: {
-    minify: "terser",
+    // minify: "terser",
     lib: {
       entry: resolve(__dirname, "src/main.ts"),
       name: "moten",

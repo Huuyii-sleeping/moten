@@ -18,8 +18,8 @@ const platform = inject('platform')
 const propsData = defineProps(props)
 const { data, viewport, children } = toRefs(propsData)
 const classes = computed(() => [n()])
-const width = computed(() => data.value?.width?.[viewport.value] || '')
-const height = computed(() => data.value?.height?.[viewport.value] || '')
+const width = computed(() => data.value?.width?.[viewport.value] || '200px')
+const height = computed(() => data.value?.height?.[viewport.value] || '295px')
 const styles = computed(() => ({ width: width.value, height: height.value }))
 const display = computed(() => {
     const display = data.value?.display?.[viewport.value]

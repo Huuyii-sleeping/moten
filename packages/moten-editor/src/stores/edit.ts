@@ -43,44 +43,12 @@ export const useEditStore = defineStore('edit', () => {
   )
 
   function addBlock(block: BaseBlock) {
-    blockConfig.value.push(block)
-    if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-      collabStore.sendBlockOperation({ op: 'add', block })
+    const newBlock = {
+      ...block,
+      id: `block_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
     }
-  }
-
-  function updateBlockFormData(blockId: string, newFormDate: Partial<BaseBlock['formData']>) {
-    const block = blockConfig.value.find((b) => b.id === blockId)
-    if (block) {
-      block.formData = { ...block.formData, ...newFormDate }
-      if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-        collabStore.sendBlockOperation({ op: 'update', id: blockId, formData: newFormDate })
-      }
-    }
-  }
-
-  function deleteBlock(blockId: string) {
-    const index = blockConfig.value.findIndex((b) => b.id === blockId)
-    if (index === -1) {
-      blockConfig.value.splice(index, 1)
-      if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-        collabStore.sendBlockOperation({ op: 'delete', id: blockId })
-      }
-    }
-  }
-
-  function moveBlock(fromIndex: number, toIndex: number) {
-    if (fromIndex === toIndex) return
-    const block = blockConfig.value.splice(fromIndex, 1)[0]
-    blockConfig.value.splice(toIndex, 0, block)
-    if (collabStore.isConnected && shouldSyncToLocalCollab.value) {
-      collabStore.sendBlockOperation({
-        op: 'move',
-        id: block.id,
-        fromIndex,
-        toIndex,
-      })
-    }
+    blockConfig.value.push(newBlock)
+    setCurrentSelect(newBlock)
   }
 
   watch(
@@ -175,8 +143,5 @@ export const useEditStore = defineStore('edit', () => {
     setViewport,
     setCurrentSelect,
     addBlock,
-    updateBlockFormData,
-    deleteBlock,
-    moveBlock,
   }
 })
