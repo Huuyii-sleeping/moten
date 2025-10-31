@@ -130,7 +130,13 @@
       </button>
     </div>
   </div>
-  <div class="edit-render-drag" ref="canvasRef" :class="{ 'is-preview': edit.isPreview }">
+  <div
+    class="edit-render-drag"
+    ref="canvasRef"
+    :class="{ 'is-preview': edit.isPreview }"
+    @dragover.prevent
+    @drag.prevent="handleDrop"
+  >
     <canvas
       v-if="!edit.isPreview && edit.isFreehandMode"
       ref="drawCanvasRef"
@@ -348,6 +354,100 @@ const historyIndex = ref(-1)
 const isEraser = ref(false)
 const lineColor = ref('#000000')
 const lineWidth = ref(3)
+const viewOffset = ref({ x: 0, y: 0 })
+const isDraggingCanvas = ref(false)
+const startDragPos = ref({ x: 0, y: 0 })
+const dragOverPos = ref({ x: 0, y: 0 })
+
+// 画布组件中新增 handleDrop 方法
+const handleDrop = (e: DragEvent) => {
+  if (edit.isPreview || !canvasRef.value) return
+
+  // 1. 获取拖拽传递的组件信息
+  const componentDataStr = e.dataTransfer!.getData('application/json')
+  if (!componentDataStr) return
+  const componentData: BaseBlock = JSON.parse(componentDataStr)
+
+  // 2. 计算鼠标释放时在画布中的绝对坐标（关键）
+  const canvasRect = canvasRef.value.getBoundingClientRect()
+  // 鼠标相对画布容器的坐标 = 鼠标屏幕坐标 - 画布左上角位置
+  const relativeX = e.clientX - canvasRect.left
+  const relativeY = e.clientY - canvasRect.top
+  // 画布绝对坐标 = 相对坐标 + 视图偏移（与视图同步）
+  const absoluteX = relativeX + viewOffset.value.x
+  const absoluteY = relativeY + viewOffset.value.y
+
+  // 3. 给组件设置正确的坐标
+  const newComponent: BaseBlock = {
+    ...componentData,
+    id: `block-${Date.now()}`, // 生成新ID
+    x: absoluteX, // 最终坐标
+    y: absoluteY,
+  }
+
+  // 4. 添加到画布
+  const newList = [...props.list, newComponent]
+  emit('update:list', newList)
+  edit.setCurrentSelect(newComponent)
+}
+
+// 画布鼠标按下：判断是否点击空白区域
+const handleCanvasMouseDown = (e: MouseEvent) => {
+  // 仅当点击画布空白处（非元素）且非绘制模式时触发
+  if (e.target === canvasRef.value && !edit.isFreehandMode && !edit.isPreview) {
+    isDraggingCanvas.value = true
+    startDragPos.value = { x: e.clientX, y: e.clientY }
+    ;(e.target as HTMLElement).style.cursor = 'grabbing'
+    edit.setCurrentSelect(null) // 取消元素选中
+  }
+}
+
+// 画布鼠标移动：更新视图偏移
+const handleCanvasMouseMove = (e: MouseEvent) => {
+  if (isDraggingCanvas.value) {
+    const dx = e.clientX - startDragPos.value.x
+    const dy = e.clientY - startDragPos.value.y
+    // 视图偏移 = 原有偏移 + 鼠标移动距离（实现画布拖动）
+    viewOffset.value = {
+      x: viewOffset.value.x + dx,
+      y: viewOffset.value.y + dy,
+    }
+    startDragPos.value = { x: e.clientX, y: e.clientY } // 重置起点
+  }
+}
+
+// 画布鼠标释放：结束拖动
+const handleCanvasMouseUp = () => {
+  if (isDraggingCanvas.value) {
+    isDraggingCanvas.value = false
+    canvasRef.value?.style.setProperty('cursor', 'default')
+  }
+}
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  // 按住空格+方向键移动视图（模拟Figma）
+  if (e.code === 'Space' || e.ctrlKey) return
+
+  const step = e.shiftKey ? 20 : 5 // 按住Shift加速
+  switch (e.key) {
+    case 'ArrowLeft':
+      viewOffset.value.x -= step
+      e.preventDefault()
+      break
+    case 'ArrowRight':
+      viewOffset.value.x += step
+      e.preventDefault()
+      break
+    case 'ArrowUp':
+      viewOffset.value.y -= step
+      e.preventDefault()
+      break
+    case 'ArrowDown':
+      viewOffset.value.y += step
+      e.preventDefault()
+      break
+  }
+}
 
 const toggleEraser = (status: boolean) => {
   isEraser.value = status
@@ -573,17 +673,18 @@ const getDrawPos = (e: MouseEvent | TouchEvent): { x: number; y: number; pressur
   let x = 0,
     y = 0,
     pressure = 0.5
+
   if (e instanceof MouseEvent) {
-    x = e.clientX - rect.left
-    y = e.clientY - rect.top
-  } else if (e.touches && e.touches.length > 0) {
+    // 画笔坐标 = 鼠标相对画布的位置 + 视图偏移（与元素实际位置对齐）
+    x = e.clientX - rect.left + viewOffset.value.x
+    y = e.clientY - rect.top + viewOffset.value.y
+  } else if (e.touches?.length) {
     const touch = e.touches[0]
-    x = touch.clientX - rect.left
-    y = touch.clientY - rect.top
+    x = touch.clientX - rect.left + viewOffset.value.x
+    y = touch.clientY - rect.top + viewOffset.value.y
     pressure = touch.force || 0.5
   }
-  x = Math.max(0, Math.min(x, rect.width))
-  y = Math.max(0, Math.min(y, rect.height))
+
   return { x, y, pressure }
 }
 
@@ -625,15 +726,13 @@ const clearAllDraw = () => {
 const getElementStyle = (element: BaseBlock) => {
   const baseStyle: Record<string, any> = {
     position: 'absolute',
-    left: `${element.x ?? 100}px`,
-    top: `${element.y ?? 100}px`,
-    width: element.width ? `${element.width}` : 'auto',
-    height: element.height ? `${element.height}` : 'auto',
+    left: `${(element.x ?? 0) - viewOffset.value.x}px`,
+    top: `${(element.y ?? 0) - viewOffset.value.y}px`,
+    width: element.width ? `${element.width}px` : 'auto',
+    height: element.height ? `${element.height}px` : 'auto',
     cursor: edit.isPreview ? 'default' : 'grab',
     ...getRemoteHighlightStyle(element.id),
-  }
-  if (!edit.isPreview) {
-    baseStyle.zIndex = edit.currentSelect?.id === element.id ? 100 : 10
+    zIndex: edit.currentSelect?.id === element.id ? 100 : 10,
   }
   return baseStyle
 }
@@ -739,8 +838,8 @@ const initInteract = () => {
             if (block.id === id) {
               return {
                 ...block,
-                x: (block.x || 0) + event.dx,
-                y: (block.y || 0) + event.dy,
+                x: (block.x || 0) + event.dx, // 仅累加鼠标dx
+                y: (block.y || 0) + event.dy, // 仅累加鼠标dy
               }
             }
             if (block.children && block.nested) {
@@ -868,16 +967,26 @@ watch(
 )
 
 onMounted(() => {
-  if (edit.isPreview) {
-    return
+  // 绑定画布拖拽事件
+  canvasRef.value?.addEventListener('mousedown', handleCanvasMouseDown)
+  window.addEventListener('mousemove', handleCanvasMouseMove)
+  window.addEventListener('mouseup', handleCanvasMouseUp)
+  window.addEventListener('keydown', handleKeyDown)
+
+  // 初始化元素拖拽
+  if (!edit.isPreview) {
+    nextTick(() => {
+      initDrawCanvas()
+      retryInit()
+    })
   }
-  nextTick(() => {
-    initDrawCanvas()
-    retryInit()
-  })
 })
 
 onUnmounted(() => {
+  canvasRef.value?.removeEventListener('mousedown', handleCanvasMouseDown)
+  window.removeEventListener('mousemove', handleCanvasMouseMove)
+  window.removeEventListener('mouseup', handleCanvasMouseUp)
+  window.removeEventListener('keydown', handleKeyDown)
   interact('.element').unset()
 })
 </script>
@@ -1015,52 +1124,49 @@ onUnmounted(() => {
   /* 其他原有样式不变 */
 }
 .edit-render-drag {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  padding-top: 60px; // 避开顶部工具栏
   background-color: #f9fafb;
-
-  // 点阵背景（仅编辑模式）
-  &:not(.is-preview) {
-    background-color: #f8f9fa;
-    background-image:
-      radial-gradient(circle, #b0b0b0 1.5px, transparent 1.5px),
-      radial-gradient(circle, #ced4da 1px, transparent 1px);
-    background-size:
-      50px 50px,
-      10px 10px;
-  }
-
-  .freehand-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: auto;
-    cursor: crosshair;
-    z-index: 999;
-  }
+  background-image:
+    radial-gradient(circle, #b0b0b0 1.5px, transparent 1.5px),
+    radial-gradient(circle, #ced4da 1px, transparent 1px);
+  background-size:
+    50px 50px,
+    10px 10px;
+  overflow: hidden; // 隐藏滚动条，通过视图偏移控制显示范围
+  cursor: default;
 
   &.is-preview {
-    pointer-events: auto;
-    background-image: none; // 预览模式无网格
+    background-image: none;
   }
 
-  .element {
-    user-select: none;
-    border: 2px solid transparent;
-    transition: outline 0.2s;
-
-    &:active {
-      cursor: grabbing !important;
-    }
-
-    &.preview-disabled {
-      cursor: default !important;
-      pointer-events: none;
-    }
+  // 画布空白区域样式（区分可拖拽区域）
+  &:not(.is-preview):hover {
+    cursor: grab;
   }
+}
+
+// 元素样式确保层级正确
+.element {
+  position: absolute;
+  user-select: none;
+  // 确保元素始终在Canvas之上（如果启用）
+  z-index: 10;
+}
+
+// Canvas层级调整（绘制时在元素上方，平时在下方）
+.freehand-overlay {
+  position: absolute;
+  top: 60px; // 与工具栏高度对齐
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 60px);
+  pointer-events: auto;
+  z-index: 20; // 绘制时覆盖元素
 }
 
 .nested-item {
