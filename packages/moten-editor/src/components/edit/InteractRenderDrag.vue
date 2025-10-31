@@ -289,6 +289,12 @@ const initInteract = () => {
         endOnly: false,
         elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
       }),
+      interact.modifiers.snap({
+        targets: [interact.createSnapGrid({ x: 10, y: 10 })],
+        range: 7,
+        endOnly: false,
+        relativePoints: [{ x: 0, y: 0 }],
+      }),
     ],
     listeners: {
       start() {
@@ -410,13 +416,26 @@ const clear = (id: string) => {
 </script>
 
 <style scoped lang="scss">
-.interact-render-drag {
+.edit-render-drag {
   position: relative;
   width: 100%;
   height: 100%;
+  background-color: #f9fafb;
+
+  // 点阵背景（仅编辑模式）
+  &:not(.is-preview) {
+    background-color: #f8f9fa;
+    background-image:
+      radial-gradient(circle, #b0b0b0 1.5px, transparent 1.5px),
+      radial-gradient(circle, #ced4da 1px, transparent 1px);
+    background-size:
+      50px 50px,
+      10px 10px;
+  }
 
   &.is-preview {
-    pointer-events: auto; // 修复：不屏蔽整体容器，只屏蔽元素交互
+    pointer-events: auto;
+    background-image: none; // 预览模式无网格
   }
 
   .element {
@@ -428,10 +447,9 @@ const clear = (id: string) => {
       cursor: grabbing !important;
     }
 
-    // 新增：预览禁用样式
     &.preview-disabled {
       cursor: default !important;
-      pointer-events: none; // 禁用所有事件（拖拽、点击）
+      pointer-events: none;
     }
   }
 }
