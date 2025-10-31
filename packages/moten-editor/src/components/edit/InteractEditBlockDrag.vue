@@ -43,7 +43,17 @@ const onDragStart = (event: DragEvent, element: BaseBlock) => {
   // 通过 dataTransfer 传递 JSON 字符串
   event.dataTransfer.setData('application/json', JSON.stringify(cloned))
   event.dataTransfer.effectAllowed = 'copy'
-  event.dataTransfer.setDragImage(createDragImage(element.name), 0, 0)
+  const dragImageEl = createDragImage(element.name)
+  event.dataTransfer.setDragImage(dragImageEl, 0, 0)
+
+  const cleanup = () => {
+    if (dragImageEl.parentElement) {
+      dragImageEl.parentNode?.removeChild(dragImageEl)
+    }
+    document.removeEventListener('dragend', cleanup)
+  }
+  document.addEventListener('dragend', cleanup, { once: true })
+  setTimeout(cleanup, 1500)
 }
 
 // 点击也触发添加（方便移动端或不想拖拽的用户）

@@ -2,6 +2,18 @@ import type { ComponentViewport } from "@/types/components";
 import type { PropType } from "vue";
 
 export type MoCanvasPropsData = {
+  canvasData: {
+    desktop: string;
+    mobile: string;
+  };
+  lineWidth: {
+    desktop: number;
+    mobile: number;
+  };
+  lineColor: {
+    desktop: string;
+    mobile: string;
+  };
   color: {
     desktop: string;
     mobile: string;
@@ -27,18 +39,30 @@ export const props = {
     type: Object as PropType<MoCanvasPropsData>,
     default: () => ({
       display: {
-        desktop: "",
-        mobile: "",
+        desktop: true,
+        mobile: true,
       },
       width: {
-        desktop: "",
-        mobile: "",
+        desktop: "200px",
+        mobile: "200px",
       },
       height: {
-        desktop: "",
-        mobile: "",
+        desktop: "295px",
+        mobile: "295px",
       },
       color: {
+        desktop: "#fff",
+        mobile: "#fff",
+      },
+      lineColor: {
+        desktop: "#000000",
+        mobile: "#000000",
+      },
+      lineWidth: {
+        desktop: 3,
+        mobile: 3,
+      },
+      canvasData: {
         desktop: "",
         mobile: "",
       },

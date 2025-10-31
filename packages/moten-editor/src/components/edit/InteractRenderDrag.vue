@@ -9,7 +9,9 @@
       @mouseenter="hoverId = element.id"
       @mouseleave="hoverId = ''"
       @click="handleElementClick(element)"
+      :class="{ 'preview-disabled': edit.isPreview }"
     >
+      <!-- 原有模板内容完全不变 -->
       <div v-if="edit.isPreview">
         <div v-if="element.nested && level < 2">
           <component
@@ -147,7 +149,7 @@ import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
 import pluginManager from '@/utils/pluginManager'
 import { COMPONENT_PREFIX } from '@moten/ui'
-import { computed, h, onMounted, onUnmounted, ref, nextTick } from 'vue'
+import { computed, h, onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 import interact from 'interactjs'
 import performanceMonitorWrapper from '../performance/performanceMonitorWrapper.vue'
 import { nestedClass } from './nested'
@@ -230,6 +232,7 @@ const getComponentValues = (defaultValue: any) => {
   return target
 }
 
+// 修复：添加return，确保占位符组件正常显示
 const getPluginComponent = (pluginId: string) => {
   const component = pluginManager.getComponent(pluginId)
   if (component) return component
@@ -238,7 +241,8 @@ const getPluginComponent = (pluginId: string) => {
     name: 'PluginPlaceholder',
     setup() {
       return () => {
-        h(
+        // 修复：添加return
+        return h(
           'div',
           {
             class: 'plugin-placeholder',
@@ -273,126 +277,95 @@ const getRemoteHighlightStyle = (blockId: string) => {
   }
 }
 
+// 修复：将initInteract和retryInit提到外面，让watch能访问
+const initInteract = () => {
+  if (edit.isPreview || !canvasRef.value) return
+  interact('.element').unset()
+  interact('.element:not(.preview-disabled)').draggable({
+    inertia: true,
+    modifiers: [
+      interact.modifiers.restrictRect({
+        restriction: canvasRef.value,
+        endOnly: false,
+        elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
+      }),
+    ],
+    listeners: {
+      start() {
+        if (edit.isPreview) return // 双重保险：防止模式切换时仍触发
+        document.body.style.cursor = 'grabbing'
+      },
+      move(event) {
+        if (edit.isPreview) return // 双重保险
+        const target = event.target as HTMLElement
+        const id = target.dataset.id
+        if (!id) return
+        const updateBlock = (blocks: BaseBlock[]): BaseBlock[] => {
+          return blocks.map((block) => {
+            if (block.id === id) {
+              return {
+                ...block,
+                x: (block.x || 0) + event.dx,
+                y: (block.y || 0) + event.dy,
+              }
+            }
+            if (block.children && block.nested) {
+              return {
+                ...block,
+                children: block.children.map((childList) => updateBlock(childList)),
+              }
+            }
+            return block
+          })
+        }
+        const newList = updateBlock(props.list)
+        emit('update:list', newList)
+      },
+      end() {
+        document.body.style.cursor = ''
+      },
+    },
+  })
+}
+
+const retryInit = (count = 0) => {
+  nextTick(() => {
+    if (document.querySelector('.element:not(.preview-disabled)') || count >= 3) {
+      initInteract()
+    } else if (count < 3) {
+      setTimeout(() => retryInit(count + 1), 50)
+    }
+  })
+}
+
+watch(
+  () => edit.isPreview,
+  (isPreview) => {
+    if (isPreview) {
+      interact('.element').unset()
+      document.body.style.cursor = ''
+    } else {
+      nextTick(() => retryInit()) // 修复：用nextTick确保DOM更新后初始化
+    }
+  },
+)
+
+// 修复：删除重复的hanleElementClick，在正确的函数里添加预览判断
+const handleElementClick = (element: BaseBlock) => {
+  if (edit.isPreview) return // 预览模式禁用选中
+  edit.setCurrentSelect(element)
+}
+
 onMounted(() => {
   if (edit.isPreview) {
     return
   }
-
-  const initInteract = () => {
-    if (!canvasRef.value) return
-    interact('.element').unset()
-    interact('.element').draggable({
-      inertia: true,
-      modifiers: [
-        interact.modifiers.restrictRect({
-          restriction: canvasRef.value,
-          endOnly: false,
-          elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
-        }),
-      ],
-      listeners: {
-        start() {
-          document.body.style.cursor = 'grabbing'
-        },
-        move(event) {
-          const target = event.target as HTMLElement
-          const id = target.dataset.id
-          if (!id) return
-          const updateBlock = (blocks: BaseBlock[]): BaseBlock[] => {
-            return blocks.map((block) => {
-              if (block.id === id) {
-                return {
-                  ...block,
-                  x: (block.x || 0) + event.dx,
-                  y: (block.y || 0) + event.dy,
-                }
-              }
-              if (block.children && block.nested) {
-                return {
-                  ...block,
-                  children: block.children.map((childList) => updateBlock(childList)),
-                }
-              }
-              return block
-            })
-          }
-          const newList = updateBlock(props.list)
-          emit('update:list', newList)
-        },
-        end() {
-          document.body.style.cursor = ''
-        },
-      },
-    })
-  }
-
-  const retryInit = (count = 0) => {
-    nextTick(() => {
-      if (document.querySelector('.element') || count >= 3) {
-        initInteract()
-      } else if (count < 3) {
-        setTimeout(() => retryInit(count + 1), 50)
-      }
-    })
-  }
-
-  retryInit()
-
-  // nextTick(() => {
-  //   if (!canvasRef.value) return
-  //   interact('.element').draggable({
-  //     inertia: true,
-  //     modifiers: [
-  //       interact.modifiers.restrictRect({
-  //         restriction: canvasRef.value,
-  //         endOnly: false,
-  //         elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
-  //       }),
-  //     ],
-  //     listeners: {
-  //       start() {
-  //         document.body.style.cursor = 'grabbing'
-  //       },
-  //       move(event) {
-  //         const target = event.target as HTMLElement
-  //         const id = target.dataset.id
-  //         if (!id) return
-  //         const updateBlock = (blocks: BaseBlock[]): BaseBlock[] => {
-  //           return blocks.map((block) => {
-  //             if (block.id === id) {
-  //               return {
-  //                 ...block,
-  //                 x: (block.x || 0) + event.dx,
-  //                 y: (block.y || 0) + event.dy,
-  //               }
-  //             }
-  //             if (block.children && block.nested) {
-  //               return {
-  //                 ...block,
-  //                 children: block.children.map((childList) => updateBlock(childList)),
-  //               }
-  //             }
-  //             return block
-  //           })
-  //         }
-  //         const newList = updateBlock(props.list)
-  //         emit('update:list', newList)
-  //       },
-  //       end() {
-  //         document.body.style.cursor = ''
-  //       },
-  //     },
-  //   })
-  // })
+  retryInit() // 直接调用retryInit
 })
 
 onUnmounted(() => {
   interact('.element').unset()
 })
-
-const handleElementClick = (element: BaseBlock) => {
-  edit.setCurrentSelect(element)
-}
 
 const findNodeById = (arr: BaseBlock[], nodeId: string, callback: (params: any) => void) => {
   for (let i = 0; i < arr.length; i++) {
@@ -413,7 +386,9 @@ const replaceNodeId = (node: BaseBlock): BaseBlock => {
   return JSON.parse(JSON.stringify(node).replace(/"id":"[^"]+"/g, `"id":"${Date.now()}"`))
 }
 
+// 修复：预览模式禁用复制
 const copy = (id: string) => {
+  if (edit.isPreview) return
   const newList = JSON.parse(JSON.stringify(props.list))
   findNodeById(newList, id, ({ array, node, index }) => {
     array.splice(index, 0, replaceNodeId(node))
@@ -422,7 +397,9 @@ const copy = (id: string) => {
   edit.setCurrentSelect(null)
 }
 
+// 修复：预览模式禁用删除
 const clear = (id: string) => {
+  if (edit.isPreview) return
   const newList = JSON.parse(JSON.stringify(props.list))
   findNodeById(newList, id, ({ array, index }) => {
     array.splice(index, 1)
@@ -439,7 +416,7 @@ const clear = (id: string) => {
   height: 100%;
 
   &.is-preview {
-    pointer-events: none;
+    pointer-events: auto; // 修复：不屏蔽整体容器，只屏蔽元素交互
   }
 
   .element {
@@ -449,6 +426,12 @@ const clear = (id: string) => {
 
     &:active {
       cursor: grabbing !important;
+    }
+
+    // 新增：预览禁用样式
+    &.preview-disabled {
+      cursor: default !important;
+      pointer-events: none; // 禁用所有事件（拖拽、点击）
     }
   }
 }
@@ -497,5 +480,18 @@ const clear = (id: string) => {
       }
     }
   }
+}
+
+// 补充：插件占位符样式（防止未加载时样式错乱）
+.plugin-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  background: #fff3cd;
+  border: 1px dashed #ffeaa7;
+  color: #856404;
+  font-size: 14px;
+  border-radius: 4px;
 }
 </style>

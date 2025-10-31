@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     Canvas: typeof import('./src/components/canvas/index.vue')['default']
     ConfigBaseTab: typeof import('./src/components/config/base/config-base-tab.vue')['default']
+    ConfigCanvas: typeof import('./src/components/config/config-canvas.vue')['default']
     ConfigCode: typeof import('./src/components/config/config-code.vue')['default']
     ConfigColor: typeof import('./src/components/config/config-color.vue')['default']
     ConfigColumn: typeof import('./src/components/config/config-column.vue')['default']
@@ -50,6 +51,8 @@ declare module 'vue' {
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
+    ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
+    ElMention: typeof import('element-plus/es')['ElMention']
     ElOption: typeof import('element-plus/es')['ElOption']
     ElRadio: typeof import('element-plus/es')['ElRadio']
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
