@@ -16,6 +16,11 @@ export const useEditStore = defineStore('edit', () => {
   const diagnorseKey = ref(1)
   const shouldSyncToLocalCollab = ref(true)
   const canvasInstance = ref<any>()
+  const canvasDrawData = ref<Record<string, string>>({})
+  const isFreehandMode = ref(false)
+  const toggleFreehandMode = () => {
+    isFreehandMode.value = !isFreehandMode.value
+  }
   const isMobileViewport = computed(() => {
     return viewport.value === 'mobile'
   })
@@ -117,6 +122,9 @@ export const useEditStore = defineStore('edit', () => {
   function setCanvasInstance(instance: any) {
     canvasInstance.value = instance
   }
+  function setCanvasDrawData(viewport: string, dataUrl: string) {
+    canvasDrawData.value[viewport] = dataUrl
+  }
   return {
     viewport,
     currentSelect,
@@ -129,6 +137,10 @@ export const useEditStore = defineStore('edit', () => {
     isEdit,
     diagnorseKey,
     canvasInstance,
+    canvasDrawData,
+    isFreehandMode,
+    toggleFreehandMode,
+    setCanvasDrawData,
     setCanvasInstance,
     setEdit,
     applyRemoteBlockConfig,
