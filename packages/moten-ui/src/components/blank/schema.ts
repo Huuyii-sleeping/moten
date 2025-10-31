@@ -13,13 +13,13 @@ const display = Type.Boolean({
 const color = Type.String({
   code: "config-color",
   title: "背景色",
-  default: "transparent",
+  default: "#fff",
   placeholder: "请选择颜色",
 });
 const width = Type.String({
   code: "config-input",
   title: "宽度",
-  default: "100%",
+  default: "200px",
   placeholder: "请输入宽度",
   minLength: 1,
   errorMessage: {
@@ -33,7 +33,7 @@ const width = Type.String({
 const height = Type.String({
   code: "config-input",
   title: "高度",
-  default: "295px",
+  default: "300px",
   placeholder: "请输入高度",
   minLength: 1,
   errorMessage: {
