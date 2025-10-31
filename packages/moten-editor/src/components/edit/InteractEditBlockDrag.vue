@@ -56,25 +56,107 @@ const onClick = (element: BaseBlock) => {
   edit.addBlock(cloned) // 👈 需要在 store 中新增方法
 }
 
-// 可选：自定义拖拽图标
 const createDragImage = (name: string): HTMLElement => {
   const el = document.createElement('div')
-  el.textContent = `+ ${name}`
-  el.style.cssText = `
-    background: #409EFF;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    pointer-events: none;
+
+  el.innerHTML = `
+    <div class="drag-container">
+      <div class="drag-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+      </div>
+      <div class="drag-divider"></div>
+      <div class="drag-content">
+        <div class="drag-label">添加组件</div>
+        <div class="drag-name">${name}</div>
+      </div>
+      <div class="drag-action">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </div>
+    </div>
   `
+
+  el.style.cssText = `
+    pointer-events: none;
+    width: 200px;
+    padding: 8px 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #36bffA 0%, #2584f0 100%);
+    box-shadow: 0 4px 12px rgba(37, 132, 240, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transform: scale(0.98);
+  `
+
+  // 内部元素样式
+  const style = document.createElement('style')
+  style.textContent = `
+    .drag-container {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+    
+    .drag-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+    
+    .drag-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 12px;
+    }
+    
+    .drag-content {
+      flex: 1;
+      padding-right: 12px;
+    }
+    
+    .drag-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 2px;
+    }
+    
+    .drag-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .drag-action {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.1);
+    }
+  `
+  el.appendChild(style)
+
   document.body.appendChild(el)
   return el
 }
 </script>
 
 <style scoped lang="scss">
-/* 样式完全保留你原有的 */
 .edit-block-drag {
   display: flex;
   flex-wrap: wrap;

@@ -163,7 +163,6 @@ import {
   showDataBlock,
   containerBlock,
 } from '@/config/block'
-import { dragGroup } from './nested'
 import { getInstalledPluginsAsync } from '@/api/plugins'
 import pluginManager from '@/utils/pluginManager'
 import { useRouter } from 'vue-router'
