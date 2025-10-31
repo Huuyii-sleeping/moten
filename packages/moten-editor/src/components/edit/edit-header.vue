@@ -211,7 +211,7 @@ const uploadEdite = async () => {
     })
     if (status) {
       ElMessage.success('发布编辑成功')
-      edit.setEdit()
+      edit.setEdit(false)
       edit.setPageConfig({} as any)
       router.push('/')
     } else {
@@ -283,6 +283,7 @@ const convertToJSON = (data: any) => {
 }
 
 const goHome = () => {
+  edit.setEdit(false)
   router.push('/')
 }
 // 预览模式的替换

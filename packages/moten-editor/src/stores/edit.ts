@@ -111,8 +111,8 @@ export const useEditStore = defineStore('edit', () => {
   function stopCollaboration() {
     collabStore.disconnect()
   }
-  function setEdit() {
-    isEdit.value = !isEdit.value
+  function setEdit(is: boolean) {
+    isEdit.value = is
   }
   function setCanvasInstance(instance: any) {
     canvasInstance.value = instance

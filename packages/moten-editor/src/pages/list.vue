@@ -139,7 +139,7 @@ const hanleMarket = () => {
 // 编辑页面
 const handleEdit = (pageId: string) => {
   const selectedPage = userStore.list.find((l: any) => l.page_id === pageId) as any
-  edit.setEdit()
+  edit.setEdit(true)
   edit.setPageConfig({
     title: {
       desktop: selectedPage.name,
