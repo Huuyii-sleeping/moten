@@ -236,6 +236,7 @@ const initDrawCanvas = () => {
   ctx.scale(dpr.value, dpr.value)
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
+  ctx.globalCompositeOperation = 'source-over'
 
   const savedData = edit.canvasDrawData?.[edit.viewport] || ''
   if (savedData) {
@@ -299,7 +300,14 @@ const drawPoints = () => {
       smoothing: 0.5,
       streamline: 0.5,
     })
-    ctx.fillStyle = currentColor
+    const originalComposite = ctx.globalCompositeOperation
+    if (isEraser.value) {
+      ctx.globalCompositeOperation = 'destination-out'
+      ctx.fillStyle = 'rgba(0, 0, 0, 1)'
+    } else {
+      ctx.globalCompositeOperation = 'source-over'
+      ctx.fillStyle = lineColor.value
+    }
     ctx.beginPath()
     if (currentStroke.length > 0) {
       ctx.moveTo(currentStroke[0][0], currentStroke[0][1])
@@ -308,6 +316,9 @@ const drawPoints = () => {
       }
     }
     ctx.fill()
+    if (isEraser.value) {
+      ctx.globalCompositeOperation = originalComposite
+    }
   }
 }
 
@@ -357,11 +368,23 @@ const drawGrid = () => {
 const drawOtherLines = (lines: DrawLine[], ctx: CanvasRenderingContext2D) => {
   lines.forEach((line) => {
     if (line.isBackground) return
+
+    // 保存原始的混合模式和样式
+    const originalComnposite = ctx.globalCompositeOperation
+    const originalFillStyle = ctx.fillStyle
+    const originalWidth = ctx.lineWidth
     if (line.isArrow && line.startPos && line.endPos) {
+      ctx.globalCompositeOperation = 'source-over'
       drawSingleArrow(line.startPos, line.endPos, ctx, line.color, line.width)
     } else if (line.points.length >= 2) {
-      const lineColor = line.isEraser ? '#ffffff' : line.color
+      const lineColor = line.isEraser ? `rgba(0, 0, 0, 1)` : line.color
       const lineWidth = line.isEraser ? 20 : line.width
+
+      if (line.isEraser) {
+        ctx.globalCompositeOperation = 'destination-out'
+      } else {
+        ctx.globalCompositeOperation = 'source-over'
+      }
       const stroke = getStroke(line.points, {
         size: lineWidth,
         thinning: 0.6,
@@ -378,6 +401,10 @@ const drawOtherLines = (lines: DrawLine[], ctx: CanvasRenderingContext2D) => {
       }
       ctx.fill()
     }
+
+    ctx.globalCompositeOperation = originalComnposite
+    ctx.fillStyle = originalFillStyle
+    ctx.lineWidth = originalWidth
   })
 }
 
@@ -881,10 +908,16 @@ watch(
   (isActive) => {
     isDrawing.value = false
     isEraser.value = isActive
-    if (isActive) {
-      if (drawCtx.value) {
-        drawCtx.value.strokeStyle = '#ffffff'
+    if (drawCtx.value) {
+      if (isActive) {
+        drawCtx.value.globalCompositeOperation = 'destination-out'
+        drawCtx.value.fillStyle = 'rgba(0, 0, 0, 1)'
         drawCtx.value.lineWidth = 20
+      } else {
+        drawCtx.value.globalCompositeOperation = 'source-over'
+        drawCtx.value.strokeStyle = lineColor.value
+        drawCtx.value.fillStyle = lineColor.value
+        drawCtx.value.lineWidth = lineWidth.value
       }
     }
   },
