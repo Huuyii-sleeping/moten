@@ -654,6 +654,8 @@ const getElementStyle = (element: BaseBlock) => {
     width: element.width ? `${element.width}` : 'auto',
     height: element.height ? `${element.height}` : 'auto',
     cursor: edit.isPreview ? 'default' : 'grab',
+    transform: `scale(${edit.zoomRatio / 100})`,
+    transformOrigin: `top left`,
     ...getRemoteHighlightStyle(element.id),
   }
   if (!edit.isPreview) {

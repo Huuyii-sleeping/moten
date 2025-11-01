@@ -63,7 +63,8 @@ const icon = {
   sticky: 'streamline-flex-color:new-sticky-note-flat',
   arrow: 'memory:arrow',
   undo: 'ix:undo',
-  redo: 'ix:redo'
+  redo: 'ix:redo',
+  screen: 'ic:twotone-fit-screen',
 }
 
 export default icon

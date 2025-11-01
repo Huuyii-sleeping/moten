@@ -39,13 +39,17 @@ export const useEditStore = defineStore('edit', () => {
     isFreehandMode.value = !isFreehandMode.value
   }
   const toggleEraserMode = () => {
+    if (isEraserMode.value === true) {
+      resetToolMode()
+      return
+    }
     resetToolMode()
     isEraserMode.value = true
   }
   const toggleArrowMode = () => {
-    if(isArrowMode.value === true){
+    if (isArrowMode.value === true) {
       resetToolMode()
-      return 
+      return
     }
     resetToolMode()
     isArrowMode.value = true

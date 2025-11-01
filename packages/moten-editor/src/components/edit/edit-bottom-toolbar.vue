@@ -70,7 +70,7 @@
       <div class="separator"></div>
       <!-- 缩小 -->
       <button class="zoom-btn" title="缩小" @click="handleZoomOut">
-        <i class="fa fa-minus"></i>
+        <v-icon icon="subtract" class="icon"></v-icon>
       </button>
       <!-- 缩放输入框：绑定Store的zoomRatio -->
       <div class="zoom-input">
@@ -78,11 +78,11 @@
       </div>
       <!-- 放大 -->
       <button class="zoom-btn" title="放大" @click="handleZoomIn">
-        <i class="fa fa-plus"></i>
+        <v-icon icon="add" class="icon"></v-icon>
       </button>
       <!-- 适应屏幕 -->
       <button class="tool-btn" title="适应屏幕 (Shift+1)" @click="handleZoomToFit">
-        <i class="fa fa-expand"></i>
+        <v-icon icon="screen" class="icon"></v-icon>
       </button>
     </div>
   </div>
