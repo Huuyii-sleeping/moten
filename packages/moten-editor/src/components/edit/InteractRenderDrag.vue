@@ -1106,28 +1106,6 @@ onUnmounted(() => {
   }
 }
 
-/* 原有样式调整：给画布容器添加顶部间距，避免被工具层遮挡 */
-.edit-render-drag {
-  /* 新增：工具层高度约为 50px，这里预留 60px 避免遮挡 */
-  padding-top: 60px;
-  /* 原有样式不变 */
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-color: #f9fafb;
-
-  &:not(.is-preview) {
-    background-color: #f8f9fa;
-    background-image:
-      radial-gradient(circle, #b0b0b0 1.5px, transparent 1.5px),
-      radial-gradient(circle, #ced4da 1px, transparent 1px);
-    background-size:
-      50px 50px,
-      10px 10px;
-  }
-
-  /* 其他原有样式不变 */
-}
 .edit-render-drag {
   position: relative;
   width: 100%;

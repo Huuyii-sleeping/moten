@@ -69,7 +69,8 @@ const icon = {
   layoutGrid: 'tabler:layout',
   export: 'uil:export',
   pdf: 'proicons:pdf-2',
-  collaborate: 'carbon:collaborate'
+  collaborate: 'carbon:collaborate',
+  edit: 'uil:edit',
 }
 
 export default icon

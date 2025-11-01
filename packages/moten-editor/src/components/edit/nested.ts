@@ -115,6 +115,7 @@ export const reverseBlockConfig = (config: any) => {
     nested: item.nested,
     x: item.x,
     y: item.y,
+    type: item.type,
   }))
 }
 

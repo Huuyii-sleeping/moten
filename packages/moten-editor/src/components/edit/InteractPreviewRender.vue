@@ -1,12 +1,14 @@
 <template>
-  <div class="preview-render" :class="{ 'is-mobile': edit.isMobileViewport }">
+  <div
+    class="preview-render"
+    :class="{ 'is-preview': edit.isPreview }"
+  >
     <div
       v-for="element in flattenedList"
       :key="element.id"
       class="preview-element"
       :style="getElementStyle(element)"
     >
-      <!-- 渲染组件（无编辑态逻辑） -->
       <div v-if="element.nested && level < 2">
         <component
           :is="renderComponentCode(element)"
@@ -19,11 +21,25 @@
           </template>
         </component>
       </div>
+      <!-- 修复 el 组件渲染逻辑 -->
       <div v-else-if="element.type">
-        <component
-          :is="element.type === 'el' ? element.code : getPluginComponent(element.code)"
-          v-bind="getComponentValues(element.formData)"
-        />
+        <div v-if="element.type === 'el'">
+          <component
+            :is="renderComponentCode(element)"
+            v-bind="getComponentValues(element.formData)"
+            :value="getComponentValues(element.formData)['content']"
+            :disabled="true"
+          >
+            <!-- 提供插槽内容，确保组件有文本显示 -->
+            {{ getComponentValues(element.formData)['content'] }}
+          </component>
+        </div>
+        <div v-else>
+          <component
+            :is="getPluginComponent(element.code)"
+            v-bind="getComponentValues(element.formData)"
+          />
+        </div>
       </div>
       <div v-else>
         <component
@@ -76,10 +92,13 @@ const getElementStyle = (element: BaseBlock): any => {
   }
 }
 
-const renderComponentCode = (element: { code: string; type?: string }) => {
-  if (element.type === 'el') return element.code
-  return COMPONENT_PREFIX + '-' + element.code
-}
+// 预览组件中修改 renderComponentCode，对齐编辑组件
+const renderComponentCode = computed(() => {
+  return (element: { code: string; type?: string }) => {
+    if (element.type === 'el') return element.code // 确保 el 组件名正确返回
+    return COMPONENT_PREFIX + '-' + element.code
+  }
+})
 
 const getComponentValues = (defaultValue: any) => {
   const defaultKeys = Object.keys(defaultValue)
@@ -95,14 +114,28 @@ const getPluginComponent = (pluginId: string) => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .preview-render {
   position: relative;
   width: 100%;
-  min-height: 100%;
+  min-height: 100vh; // 确保有足够高度
+  background-color: #ffffff; // 白色背景，避免组件和背景融合
+
+  &:not(.is-preview) {
+    background-color: #f8f9fa;
+    background-image:
+      radial-gradient(circle, #b0b0b0 1.5px, transparent 1.5px),
+      radial-gradient(circle, #ced4da 1px, transparent 1px);
+    background-size:
+      50px 50px,
+      10px 10px;
+  }
 }
 .preview-element {
-  /* 预览模式无编辑态样式 */
-  pointer-events: none; /* 禁用所有交互 */
+  position: absolute;
+  z-index: 1; // 基础层级，避免被覆盖
+  pointer-events: none;
+  /* 给组件添加轻微边框，方便调试是否渲染成功 */
+  border: 1px solid transparent;
 }
 </style>

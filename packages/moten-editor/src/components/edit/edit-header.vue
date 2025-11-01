@@ -14,7 +14,7 @@
           inactive-color="#e5e7eb"
           style="--el-switch-width: 40px; --el-switch-height: 20px"
         />
-        <span class="viewport-label">{{ isDesktop ? '移动端' : '桌面端' }}</span>
+        <span class="viewport-label">{{ isDesktop ? '显示背景' : '不显示背景' }}</span>
       </div>
       <div v-else class="viewport-selector">
         <v-select
@@ -80,7 +80,7 @@
         </template>
         <template v-else>
           <button class="figma-btn primary" @click="uploadEdite">
-            <v-icon icon="Edit" class="btn-icon" />
+            <v-icon icon="edit" class="btn-icon" />
             发布编辑
           </button>
         </template>
@@ -231,6 +231,7 @@ const uploadEdite = async () => {
       schema: blockSchema[item.code as BlockSchemaKeys] || '',
       code: item.code || '',
       children: item.children || [],
+      type: item.type || '',
       nested: item.nested || false,
     }
   })
@@ -276,12 +277,14 @@ const submit = async () => {
       nested: item.nested,
       x: item.x,
       y: item.y,
+      type: item.type || '',
     }
   })
   list.forEach((item) => {
     validateAll(item)
   })
   const JSONList = convertToJSON(list)
+  console.log(list)
   try {
     const { status, message } = await submitPageAsync({
       name: list[0].name,
@@ -328,8 +331,8 @@ const togglePreview = () => {
   edit.setPreview(!edit.isPreview)
 }
 
-watch(isDesktop, (val) => {
-  val === true ? (viewport.value = 'mobile') : (viewport.value = 'desktop')
+watch(isDesktop, () => {
+  edit.setPreview(!edit.isPreview)
 })
 watch(viewport, (val) => {
   edit.setViewport(val)
