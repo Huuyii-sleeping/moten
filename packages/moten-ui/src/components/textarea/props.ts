@@ -18,6 +18,10 @@ export type MoImagePropsData = {
     desktop: string;
     mobile: string;
   };
+  color?: {
+    desktop: string;
+    mobile: string;
+  };
 };
 
 export const props = {
@@ -38,7 +42,11 @@ export const props = {
       },
       content: {
         desktop: "",
-        module: "",
+        mobile: "",
+      },
+      color: {
+        desktop: "",
+        mobile: "",
       },
     }),
   },

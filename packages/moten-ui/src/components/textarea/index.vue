@@ -27,8 +27,11 @@ const { data, viewport } = toRefs(propsData);
 const classes = computed(() => [n()]);
 const width = computed(() => data.value?.width?.[viewport.value] || "200px");
 const height = computed(() => data.value?.height?.[viewport.value] || "200px");
+const color = computed(() => data.value?.color?.[viewport.value] || "#ffffff");
 const content = computed(() => data.value?.content?.[viewport.value] || "");
-const styles = computed(() => [{ width: width.value, height: height.value }]);
+const styles = computed(() => [
+  { width: width.value, height: height.value, backgroundColor: color.value },
+]);
 const display = computed(() => {
   const display = data.value?.display?.[viewport.value];
   return typeof display === "boolean" ? display : true;

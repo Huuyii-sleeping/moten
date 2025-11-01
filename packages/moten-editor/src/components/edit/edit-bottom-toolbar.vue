@@ -99,14 +99,12 @@ const clearClick = (e: MouseEvent) => {
 const stickyNodeClick = () => {
   edit.addBlock({
     id: '',
-    code: 'stickyNote',
-    name: 'stickyNote',
+    code: 'textarea',
+    name: '文本',
+    icon: 'text',
+    formData: {},
     x: 100,
     y: 100,
-    width: 200,
-    height: 100,
-    content: '新建便签',
-    style: { backgroundColor: '#fff9c4', borderRadius: 8, padding: 16 },
   } as BaseBlock)
 }
 const arrowClick = (e: MouseEvent) => {

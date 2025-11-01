@@ -40,6 +40,12 @@ const height = Type.String({
   ],
 });
 
+const color = Type.String({
+  code: "config-color",
+  title: "背景颜色",
+  default: "",
+});
+
 const content = Type.String({
   code: "config-richtext",
   title: "内容",
@@ -59,6 +65,7 @@ const schema = Type.Object({
   display: schemaAllViewport(display),
   width: schemaAllViewport(width),
   height: schemaAllViewport(height),
+  color: schemaAllViewport(color),
   content: schemaAllViewport(content),
 });
 
