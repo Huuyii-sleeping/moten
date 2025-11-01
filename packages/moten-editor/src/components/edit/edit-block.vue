@@ -559,7 +559,6 @@ onMounted(() => {
   display: flex;
   justify-content: flex-start;
   width: var(--edit-block-width);
-  z-index: 999;
 
   .left {
     width: 70px;

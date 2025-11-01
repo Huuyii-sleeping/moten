@@ -67,6 +67,9 @@ const icon = {
   screen: 'ic:twotone-fit-screen',
   grid: 'mingcute:grid-line',
   layoutGrid: 'tabler:layout',
+  export: 'uil:export',
+  pdf: 'proicons:pdf-2',
+  collaborate: 'carbon:collaborate'
 }
 
 export default icon
