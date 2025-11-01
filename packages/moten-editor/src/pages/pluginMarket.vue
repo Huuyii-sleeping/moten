@@ -248,7 +248,7 @@ $transition-default: all 0.25s ease-in-out;
 
 // 页面容器
 .plugin-market {
-  padding: 32px 48px;
+  padding: 0px 20px;
   background-color: $bg-secondary;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

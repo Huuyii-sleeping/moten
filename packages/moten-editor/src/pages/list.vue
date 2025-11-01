@@ -1,84 +1,134 @@
 <template>
-  <div class="page-list-container">
-    <div class="page-list-header">
-      <h1>链创低代码平台</h1>
-      <div class="header-actions">
-        <button class="figma-btn secondary" @click="hanleMarket">
-          <el-icon :size="16"><Shop /></el-icon>
-          插件市场
-        </button>
-        <button class="figma-btn primary" @click="handleCreateNew">
-          <el-icon :size="16"><Plus /></el-icon>
-          新建页面
-        </button>
+  <div class="main-container">
+    <!-- 左侧树状导航栏 -->
+    <div class="left-container">
+      <div class="sidebar-header">
+        <el-icon class="sidebar-logo"><Layout /></el-icon>
+        <h3 class="sidebar-title">huuyii</h3>
       </div>
-    </div>
 
-    <div v-if="loading" class="loading-container">
-      <el-skeleton :rows="3" animated :style="{ '--el-skeleton-bg': '#f3f4f6' }" />
-    </div>
-
-    <div v-else-if="pages.length === 0" class="empty-state">
-      <div class="empty-icon">🖌️</div>
-      <h3>暂无设计页面</h3>
-      <p>创建你的第一个低代码设计页面，开启创作之旅</p>
-      <button class="figma-btn primary" @click="handleCreateNew">立即创建</button>
-    </div>
-
-    <div v-else class="page-grid">
-      <div v-for="page in pages" :key="page.id" class="page-card">
-        <!-- 缩略图区域 -->
-        <div class="card-thumbnail" @click="handlePreview(page.page_id)">
-          <img
-            v-if="page.coverImage"
-            :src="`http://localhost:8081${page.coverImage}`"
-            :alt="page.name"
-            class="thumbnail-img"
-          />
-          <div v-else class="placeholder-thumbnail">
-            <el-icon :size="48" color="#94a3b8">
-              <Picture />
+      <el-tree
+        class="custom-tree"
+        :data="treeData"
+        :props="treeProps"
+        :expand-on-click-node="true"
+        :default-expanded-keys="['project-root']"
+        :default-selected-keys="['my-pages']"
+        @node-click="handleTreeNodeClick"
+        ref="treeRef"
+      >
+        <template #default="{ node, data }">
+          <div class="tree-node-content">
+            <el-icon class="node-icon" :color="data.color || '#64748b'">
+              <component :is="data.icon" />
             </el-icon>
+            <span class="node-label" v-if="!isSidebarCollapsed">{{ node.label }}</span>
           </div>
-          <div class="thumbnail-overlay">
-            <span class="preview-text">预览</span>
+        </template>
+      </el-tree>
+    </div>
+
+    <!-- 右侧内容区域 -->
+    <div class="page-list-container">
+      <!-- 顶部操作栏 -->
+      <div class="page-list-header">
+        <h1 class="page-title">{{ currentTitle }}</h1>
+        <div class="header-actions">
+          <button class="figma-btn secondary" @click="hanleMarket">
+            <el-icon :size="16"><Shop /></el-icon>
+            插件市场
+          </button>
+          <button
+            class="figma-btn primary"
+            @click="handleCreateNew"
+            v-if="currentSelectedKey === 'my-pages'"
+          >
+            <el-icon :size="16"><Plus /></el-icon>
+            新建页面
+          </button>
+        </div>
+      </div>
+
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-container">
+        <el-skeleton :rows="3" animated :style="{ '--el-skeleton-bg': '#f3f4f6' }" />
+      </div>
+
+      <!-- 空状态 -->
+      <div v-else-if="pages.length === 0 && currentSelectedKey === 'my-pages'" class="empty-state">
+        <div class="empty-icon">🖌️</div>
+        <h3>暂无设计页面</h3>
+        <p>创建你的第一个低代码设计页面，开启创作之旅</p>
+        <button class="figma-btn primary" @click="handleCreateNew">立即创建</button>
+      </div>
+
+      <!-- 页面列表（默认展示） -->
+      <div v-else-if="currentSelectedKey === 'my-pages'" class="page-grid">
+        <div v-for="page in pages" :key="page.id" class="page-card">
+          <!-- 缩略图区域 -->
+          <div class="card-thumbnail" @click="handlePreview(page.page_id)">
+            <img
+              v-if="page.coverImage"
+              :src="`http://localhost:8081${page.coverImage}`"
+              :alt="page.name"
+              class="thumbnail-img"
+            />
+            <div v-else class="placeholder-thumbnail">
+              <el-icon :size="48" color="#94a3b8">
+                <Picture />
+              </el-icon>
+            </div>
+            <div class="thumbnail-overlay">
+              <span class="preview-text">预览</span>
+            </div>
+          </div>
+
+          <!-- 内容区域 -->
+          <div class="card-content">
+            <h3 class="card-title" @click="handlePreview(page.page_id)">
+              {{ page.name }}
+            </h3>
+            <p v-if="page.description" class="card-desc">
+              {{ page.description }}
+            </p>
+            <p v-else class="card-desc placeholder-desc">无描述</p>
+            <div class="card-meta-group">
+              <p class="card-meta">
+                <el-icon :size="14" color="#94a3b8"><Clock /></el-icon>
+                创建于 {{ formatDate(page.create_time) }}
+              </p>
+              <p class="card-meta">
+                <el-icon :size="14" color="#94a3b8"><EditPen /></el-icon>
+                更新于 {{ formatDate(page.update_time) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- 操作区域 -->
+          <div class="card-actions">
+            <button class="figma-btn icon-btn" @click="handleExport" title="导出PDF">
+              <el-icon :size="16"><Document /></el-icon>
+            </button>
+            <button class="figma-btn text-btn" @click="handleEdit(page.page_id)">
+              <el-icon :size="14" class="btn-icon"><Edit /></el-icon>
+              编辑
+            </button>
+            <button class="figma-btn text-btn danger" @click="handleDelete(page.page_id)">
+              <el-icon :size="14" class="btn-icon"><Delete /></el-icon>
+              删除
+            </button>
           </div>
         </div>
-
-        <!-- 内容区域 -->
-        <div class="card-content">
-          <h3 class="card-title" @click="handlePreview(page.page_id)">
-            {{ page.name }}
-          </h3>
-          <p v-if="page.description" class="card-desc">
-            {{ page.description }}
-          </p>
-          <p v-else class="card-desc placeholder-desc">无描述</p>
-          <div class="card-meta-group">
-            <p class="card-meta">
-              <el-icon :size="14" color="#94a3b8"><Clock /></el-icon>
-              创建于 {{ formatDate(page.create_time) }}
-            </p>
-            <p class="card-meta">
-              <el-icon :size="14" color="#94a3b8"><EditPen /></el-icon>
-              更新于 {{ formatDate(page.update_time) }}
-            </p>
-          </div>
-        </div>
-
-        <!-- 操作区域 -->
-        <div class="card-actions">
-          <button class="figma-btn icon-btn" @click="handleExport" title="导出PDF">
-            <el-icon :size="16"><Document /></el-icon>
-          </button>
-          <button class="figma-btn text-btn" @click="handleEdit(page.page_id)">
-            <el-icon :size="14" class="btn-icon"><Edit /></el-icon>
-            编辑
-          </button>
-          <button class="figma-btn text-btn danger" @click="handleDelete(page.page_id)">
-            <el-icon :size="14" class="btn-icon"><Delete /></el-icon>
-            删除
-          </button>
+      </div>
+      <div v-else-if="currentSelectedKey === 'plugin-market'">
+        <plugin-market></plugin-market>
+      </div>
+      <!-- 其他节点内容占位（可扩展） -->
+      <div v-else class="other-node-content">
+        <div class="node-placeholder">
+          <el-icon :size="64" color="#cbd5e1"><component :is="currentNodeIcon" /></el-icon>
+          <h3 class="placeholder-title">{{ currentTitle }}</h3>
+          <p class="placeholder-desc">点击左侧导航栏展开更多功能</p>
         </div>
       </div>
     </div>
@@ -86,19 +136,27 @@
 </template>
 
 <script setup lang="ts">
-// 原有逻辑完全不变，此处完整保留
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElTree, ElSkeleton } from 'element-plus'
+import pluginMarket from './pluginMarket.vue'
+// 补充导入 File 图标（之前缺失导致初始化异常）
 import {
+  Shop,
+  Plus,
   Picture,
   Clock,
   EditPen,
   Edit,
   Delete,
   Document,
-  Shop,
-  Plus,
+  Folder,
+  Star,
+  TakeawayBox,
+  Setting,
+  DeleteFilled,
+  User,
+  Files, // 关键修复：导入 Files 图标
 } from '@element-plus/icons-vue'
 import { deletePageAcync, getPageAsync } from '@/api/page'
 import { useUserStore } from '@/stores/user'
@@ -108,9 +166,93 @@ import { exportToPdf } from '@/utils/exportPdf'
 // 路由
 const router = useRouter()
 const userStore = useUserStore()
+const editStore = useEditStore()
+
+// 状态管理
 const pages = ref<any>([])
 const loading = ref(true)
-const edit = useEditStore()
+const treeRef = ref<any>(null)
+const isSidebarCollapsed = ref(false)
+const currentSelectedKey = ref('my-pages')
+const currentTitle = ref('我的页面')
+const currentNodeIcon = ref(Files) // 现在 Files 图标已导入，无异常
+
+// 树状导航数据
+const treeData = ref([
+  {
+    id: 'project-root',
+    label: '项目管理',
+    icon: Folder,
+    color: '#4263eb',
+    children: [
+      {
+        id: 'my-pages',
+        label: '我的页面',
+        icon: Files,
+        color: '#3b82f6',
+      },
+      {
+        id: 'component-lib',
+        label: '组件库',
+        icon: TakeawayBox,
+        color: '#10b981',
+      },
+      {
+        id: 'favorite',
+        label: '收藏夹',
+        icon: Star,
+        color: '#f59e0b',
+      },
+    ],
+  },
+  {
+    id: 'plugin-root',
+    label: '插件管理',
+    icon: Shop,
+    color: '#8b5cf6',
+    children: [
+      {
+        id: 'plugin-market',
+        label: '插件市场',
+        icon: Shop,
+        color: '#8b5cf6',
+      },
+      {
+        id: 'my-plugins',
+        label: '已安装插件',
+        icon: Star,
+        color: '#ec4899',
+      },
+    ],
+  },
+  {
+    id: 'system-root',
+    label: '系统设置',
+    icon: Setting,
+    color: '#64748b',
+    children: [
+      {
+        id: 'recycle-bin',
+        label: '回收站',
+        icon: DeleteFilled,
+        color: '#ef4444',
+      },
+      {
+        id: 'account-setting',
+        label: '账户设置',
+        icon: User,
+        color: '#64748b',
+      },
+    ],
+  },
+])
+
+// 树状图配置
+const treeProps = ref({
+  label: 'label',
+  children: 'children',
+  icon: 'icon',
+})
 
 // 格式化日期
 const formatDate = (dateString: any) => {
@@ -124,12 +266,36 @@ const formatDate = (dateString: any) => {
   })
 }
 
+// 切换侧边栏折叠/展开（模板中已移除按钮，保留方法供后续扩展）
+const toggleSidebar = () => {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value
+}
+
+// 树节点点击事件
+const handleTreeNodeClick = (data: any, node: any) => {
+  currentSelectedKey.value = data.id
+  currentTitle.value = data.label
+  currentNodeIcon.value = data.icon
+
+  // 节点跳转逻辑：只处理子节点，父节点仅展开不跳转
+  switch (data.id) {
+    case 'my-pages':
+      loadPages() // 刷新页面列表
+      break
+    case 'recycle-bin':
+      // 回收站功能可后续扩展
+      break
+    default:
+      // 父节点（如项目管理）点击仅展开，不做额外操作
+      break
+  }
+}
+
 // 加载页面列表
 const loadPages = () => {
   try {
     loading.value = true
     pages.value = userStore.list
-    console.log(pages.value)
   } catch (error) {
     console.error('加载页面列表失败:', error)
     ElMessage.error('加载失败，请刷新重试')
@@ -138,6 +304,7 @@ const loadPages = () => {
   }
 }
 
+// 导出PDF
 const handleExport = () => {
   exportToPdf('.export_render', {
     filename: 'test.pdf',
@@ -150,14 +317,17 @@ const handleExport = () => {
 const handleCreateNew = () => {
   router.push('/edit')
 }
+
+// 跳转到插件市场
 const hanleMarket = () => {
   router.push('/plugins')
 }
+
 // 编辑页面
 const handleEdit = (pageId: string) => {
   const selectedPage = userStore.list.find((l: any) => l.page_id === pageId) as any
-  edit.setEdit(true)
-  edit.setPageConfig({
+  editStore.setEdit(true)
+  editStore.setPageConfig({
     title: {
       desktop: selectedPage.name,
       mobile: selectedPage.name,
@@ -174,6 +344,7 @@ const handleEdit = (pageId: string) => {
   router.push(`/edit/${pageId}`)
 }
 
+// 预览页面
 const handlePreview = (pageId: string) => {
   router.push(`/preview/${pageId}`)
 }
@@ -218,109 +389,222 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-// Figma 核心设计变量（统一风格）
-$figma-primary: #2563eb; /* 主色：Figma 标志性蓝色 */
-$figma-primary-hover: #1d4ed8; /* 主色 hover */
-$figma-primary-active: #1e40af; /* 主色 active */
-$figma-secondary: #f3f4f6; /* 次要背景色 */
-$figma-secondary-hover: #e5e7eb; /* 次要背景 hover */
-$figma-text-primary: #1f2937; /* 主要文字色 */
-$figma-text-secondary: #4b5563; /* 次要文字色 */
-$figma-text-tertiary: #94a3b8; /* 辅助文字色 */
-$figma-border: #e5e7eb; /* 边框色 */
-$figma-radius: 8px; /* 统一圆角（Figma 标准） */
-$figma-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 基础阴影 */
-$figma-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08); /* hover 阴影 */
-$figma-transition: all 0.2s ease; /* 统一过渡动画 */
+// 全局设计变量（保持系统统一）
+$primary-color: #4263eb;
+$primary-hover: #3351d8;
+$text-primary: #1d2129;
+$text-secondary: #4e5969;
+$text-tertiary: #86909c;
+$border-color: #e5e6eb;
+$bg-primary: #ffffff;
+$bg-secondary: #f7f8fa;
+$bg-sidebar: #f8fafc;
+$radius-sm: 6px;
+$radius-md: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$transition-default: all 0.25s ease-in-out;
 
-// 页面容器
-.page-list-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-  background-color: #ffffff;
+// 主容器布局
+.main-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: $bg-secondary;
 }
 
-// 头部区域
+// 左侧树状导航栏
+.left-container {
+  width: 240px;
+  background-color: $bg-sidebar;
+  border-right: 1px solid $border-color;
+  transition: width $transition-default;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  }
+}
+
+// 侧边栏头部
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid $border-color;
+
+  .sidebar-logo {
+    color: $primary-color;
+    font-size: 20px;
+  }
+
+  .sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 12px;
+    flex: 1;
+  }
+
+  .collapse-btn {
+    color: $text-tertiary;
+    cursor: pointer;
+    transition: $transition-default;
+
+    &:hover {
+      color: $primary-color;
+      transform: scale(1.1);
+    }
+  }
+
+  .rotate-180 {
+    transform: rotate(180deg);
+  }
+}
+
+// 自定义树状图
+.custom-tree {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+
+  // 隐藏滚动条
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 2px;
+  }
+
+  // 树节点样式
+  .el-tree-node {
+    padding: 10px 0;
+  }
+
+  // 选中节点样式
+  .el-tree-node.is-current .tree-node-content {
+    // background-color: rgba(66, 99, 235, 0.15);
+    border-radius: $radius-sm;
+  }
+
+  // 节点内容
+  .tree-node-content {
+    display: flex;
+    align-items: center;
+    padding: 6px 20px;
+    cursor: pointer;
+    transition: $transition-default;
+  }
+
+  .node-icon {
+    font-size: 16px;
+    margin-right: 10px;
+  }
+
+  .node-label {
+    font-size: 14px;
+    color: $text-secondary;
+    transition: $transition-default;
+  }
+
+  // 展开/收起图标
+  .el-tree-node__expand-icon {
+    color: $text-tertiary;
+    font-size: 14px;
+
+    &:hover {
+      color: $primary-color;
+    }
+  }
+
+  // 隐藏连接线
+  .el-tree-node__children {
+    padding-left: 16px !important;
+  }
+
+  .el-tree-node__line {
+    display: none;
+  }
+}
+
+// 右侧内容区域
+.page-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  transition: $transition-default;
+}
+
+// 顶部操作栏
 .page-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  padding: 0;
-  border: none; /* 移除底部边框，Figma 风格更简洁 */
+  padding-bottom: 16px;
+  border-bottom: 1px solid $border-color;
 
-  h1 {
-    font-size: 20px;
-    font-weight: 500;
-    color: $figma-text-primary;
+  .page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: $text-primary;
     margin: 0;
-    padding: 0;
-    position: relative;
-
-    &::before {
-      display: none; /* 移除左侧竖线，简化视觉 */
-    }
   }
 
   .header-actions {
     display: flex;
-    gap: 8px; /* 按钮间距 */
+    gap: 12px;
   }
 }
 
-// Figma 风格按钮（分级设计）
+// Figma风格按钮
 .figma-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: $figma-radius;
+  padding: 8px 16px;
+  border-radius: $radius-sm;
   border: none;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: $figma-transition;
+  transition: $transition-default;
   white-space: nowrap;
 
-  // 主要按钮（新建页面）
   &.primary {
-    background-color: $figma-primary;
-    color: #ffffff;
+    background-color: $primary-color;
+    color: #fff;
 
     &:hover {
-      background-color: $figma-primary-hover;
-    }
-
-    &:active {
-      background-color: $figma-primary-active;
+      background-color: $primary-hover;
+      box-shadow: 0 2px 8px rgba(66, 99, 235, 0.3);
     }
   }
 
-  // 次要按钮（插件市场）
   &.secondary {
-    background-color: $figma-secondary;
-    color: $figma-text-primary;
+    background-color: $bg-primary;
+    color: $text-secondary;
+    border: 1px solid $border-color;
 
     &:hover {
-      background-color: $figma-secondary-hover;
-    }
-
-    &:active {
-      background-color: #d1d5db;
+      background-color: $bg-secondary;
+      border-color: #d1d5db;
     }
   }
 
-  // 文字按钮（编辑/删除）
   &.text-btn {
     background: transparent;
-    color: $figma-text-secondary;
+    color: $text-secondary;
     padding: 4px 8px;
 
     &:hover {
-      background-color: $figma-secondary;
-      color: $figma-primary;
+      background-color: $bg-secondary;
+      color: $primary-color;
     }
 
     &.danger {
@@ -337,18 +621,17 @@ $figma-transition: all 0.2s ease; /* 统一过渡动画 */
     }
   }
 
-  // 图标按钮（导出PDF）
   &.icon-btn {
     background: transparent;
-    color: $figma-text-tertiary;
-    width: 32px;
-    height: 32px;
+    color: $text-tertiary;
+    width: 36px;
+    height: 36px;
     padding: 0;
-    border-radius: 6px;
+    border-radius: $radius-sm;
 
     &:hover {
-      background-color: $figma-secondary;
-      color: $figma-primary;
+      background-color: $bg-secondary;
+      color: $primary-color;
     }
   }
 }
@@ -357,71 +640,59 @@ $figma-transition: all 0.2s ease; /* 统一过渡动画 */
 .page-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px; /* 卡片间距 */
+  gap: 24px;
 }
 
-// 页面卡片（核心样式优化）
+// 页面卡片
 .page-card {
   height: 100%;
   display: flex;
   flex-direction: column;
-  cursor: default;
-  border-radius: $figma-radius;
+  background-color: $bg-primary;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
   overflow: hidden;
-  transition: $figma-transition;
-  background-color: #ffffff;
-  border: 1px solid $figma-border;
-  box-shadow: $figma-shadow;
+  transition: $transition-default;
+  box-shadow: $shadow-sm;
 
-  // Figma 轻盈 hover 效果
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: $figma-shadow-hover;
-    border-color: #d1d5db;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    border-color: $primary-color;
   }
 }
 
 // 卡片缩略图
 .card-thumbnail {
   height: 160px;
-  background-color: $figma-secondary;
+  background-color: $bg-secondary;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0;
-  border-radius: 0; /* 与卡片圆角统一，顶部无额外圆角 */
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  transition: $figma-transition;
-
-  &:hover {
-    transform: none; /* 取消单独缩放，继承卡片 hover 效果 */
-    box-shadow: none;
-  }
 
   .thumbnail-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: $figma-transition;
+    transition: transform $transition-default;
   }
 
   &:hover .thumbnail-img {
-    transform: scale(1.03); /* 轻微缩放，更自然 */
+    transform: scale(1.03);
   }
 
-  // 占位缩略图
   .placeholder-thumbnail {
+    width: 100%;
+    height: 100%;
+    background-color: #f0f7ff;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
-    background-color: #f8fafc;
   }
 
-  // 预览遮罩（Figma 半透明风格）
   .thumbnail-overlay {
     position: absolute;
     top: 0;
@@ -433,7 +704,7 @@ $figma-transition: all 0.2s ease; /* 统一过渡动画 */
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity $transition-default;
   }
 
   &:hover .thumbnail-overlay {
@@ -441,62 +712,56 @@ $figma-transition: all 0.2s ease; /* 统一过渡动画 */
   }
 
   .preview-text {
-    color: #ffffff;
+    color: #fff;
+    background-color: $primary-color;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
     font-weight: 500;
-    padding: 6px 12px;
-    background-color: $figma-primary;
-    border-radius: 4px;
-    font-size: 13px;
-    letter-spacing: 0.3px;
   }
 }
 
 // 卡片内容区
 .card-content {
   flex: 1;
-  margin-bottom: 12px;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
   margin: 0 0 8px 0;
-  font-size: 15px;
-  font-weight: 500;
-  color: $figma-text-primary;
   cursor: pointer;
-  line-height: 1.4;
-  transition: $figma-transition;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  transition: color $transition-default;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
   &:hover {
-    color: $figma-primary; /* 仅文字变色，简洁反馈 */
+    color: $primary-color;
   }
 }
 
-// 描述文本
 .card-desc {
-  margin: 0 0 12px 0;
-  font-size: 13px;
-  color: $figma-text-secondary;
+  font-size: 14px;
+  color: $text-secondary;
   line-height: 1.5;
-  min-height: 36px;
+  margin: 0 0 16px 0;
+  flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .placeholder-desc {
-  color: $figma-text-tertiary;
-  font-style: normal; /* 移除斜体，更简洁 */
+  color: $text-tertiary;
 }
 
-// 元信息区域
+// 卡片元信息
 .card-meta-group {
   display: flex;
   flex-direction: column;
@@ -504,10 +769,9 @@ $figma-transition: all 0.2s ease; /* 统一过渡动画 */
 }
 
 .card-meta {
+  font-size: 12px;
+  color: $text-tertiary;
   margin: 0;
-  font-size: 11px;
-  color: $figma-text-tertiary;
-  line-height: 1.4;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -518,86 +782,143 @@ $figma-transition: all 0.2s ease; /* 统一过渡动画 */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
   padding: 0 16px 16px;
-  border-top: 1px solid $figma-border;
+  border-top: 1px solid $border-color;
 }
 
-// 空状态（Figma 简约风格）
+// 空状态
 .empty-state {
   text-align: center;
-  padding: 60px 20px;
-  background-color: #f9fafb;
-  border-radius: $figma-radius;
-  margin-top: 20px;
-}
+  padding: 80px 20px;
+  background-color: $bg-primary;
+  border-radius: $radius-md;
+  border: 1px solid $border-color;
+  margin-top: 40px;
 
-.empty-icon {
-  font-size: 60px;
-  margin-bottom: 20px;
-  color: $figma-text-tertiary;
-  animation: float 3s ease-in-out infinite;
-}
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    color: $text-tertiary;
+    animation: float 3s ease-in-out infinite;
+  }
 
-.empty-state h3 {
-  font-size: 17px;
-  color: $figma-text-primary;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
+  h3 {
+    font-size: 18px;
+    color: $text-primary;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
 
-.empty-state p {
-  color: $figma-text-tertiary;
-  margin-bottom: 24px;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 13px;
+  p {
+    color: $text-tertiary;
+    margin-bottom: 24px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 14px;
+  }
 }
 
 // 加载状态
 .loading-container {
-  padding: 40px 0;
-  background-color: #f9fafb;
-  border-radius: $figma-radius;
-  margin-top: 20px;
+  padding: 60px 0;
+  background-color: $bg-primary;
+  border-radius: $radius-md;
+  border: 1px solid $border-color;
+  margin-top: 40px;
 }
 
-// 响应式适配（Figma 移动端简洁风格）
-@media (max-width: 768px) {
-  .page-list-container {
-    padding: 16px;
-  }
+// 其他节点占位内容
+.other-node-content {
+  height: calc(100vh - 180px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  .page-list-header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
-  }
+  .node-placeholder {
+    text-align: center;
+    padding: 40px;
+    background-color: $bg-primary;
+    border-radius: $radius-md;
+    border: 1px solid $border-color;
+    box-shadow: $shadow-sm;
 
-  .page-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
+    .placeholder-title {
+      font-size: 18px;
+      color: $text-primary;
+      margin: 16px 0 8px;
+      font-weight: 500;
+    }
 
-  .card-actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .card-desc {
-    -webkit-line-clamp: 2; /* 保持2行，避免拥挤 */
+    .placeholder-desc {
+      font-size: 14px;
+      color: $text-tertiary;
+    }
   }
 }
 
-// 浮动动画（更柔和自然）
+// 浮动动画
 @keyframes float {
   0%,
   100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translateY(-10px);
+  }
+}
+
+// 响应式适配
+@media (max-width: 1024px) {
+  .left-container {
+    width: 80px;
+
+    .sidebar-title,
+    .node-label {
+      display: none;
+    }
+
+    .sidebar-header {
+      padding: 16px;
+
+      .sidebar-logo {
+        margin: 0 auto;
+      }
+
+      .collapse-btn {
+        display: none;
+      }
+    }
+
+    .tree-node-content {
+      justify-content: center;
+      padding: 8px 0;
+    }
+
+    .node-icon {
+      margin-right: 0;
+    }
+  }
+
+  .page-list-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .page-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-actions {
+    flex-wrap: wrap;
   }
 }
 </style>
