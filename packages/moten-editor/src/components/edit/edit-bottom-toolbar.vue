@@ -133,7 +133,7 @@ const toggleGrid = () => {
 .toolbar {
   position: fixed;
   bottom: 16px; /* 底部间距营造营造浮空感 */
-  left: 50%;
+  left: 60%;
   transform: translateX(-50%); /* 水平居中 */
   min-width: 600px;
   max-width: 900px; /* 限制最大宽度 */
