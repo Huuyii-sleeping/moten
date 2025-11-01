@@ -5,4 +5,7 @@ export interface DrawLine {
   isEraser: boolean
   isBackground?: boolean
   imageData?: string
+  isArrow?: boolean
+  startPos?: { x: number; y: number }
+  endPos?: { x: number; y: number }
 }

@@ -15,16 +15,6 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="tool-bar">
-        <button
-          class="tool-btn"
-          :class="{ active: edit.isFreehandMode }"
-          @click="edit.toggleFreehandMode"
-          title="画笔"
-        >
-          ✏️
-        </button>
-      </div>
       <div style="margin-right: 20px">
         <el-button @click="exportProject" :loading="exporting">
           {{ exporting ? '导出中...' : '导出项目' }}

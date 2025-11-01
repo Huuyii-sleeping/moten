@@ -5,6 +5,7 @@
       <edit-block></edit-block>
       <InteractEditRender></InteractEditRender>
       <edit-config></edit-config>
+      <edit-bottom-toolbar></edit-bottom-toolbar>
     </div>
   </div>
 </template>
@@ -13,6 +14,7 @@
 import editHeader from '@/components/edit/edit-header.vue'
 import editBlock from '@/components/edit/edit-block.vue'
 import editConfig from '@/components/edit/edit-config.vue'
+import editBottomToolbar from '@/components/edit/edit-bottom-toolbar.vue'
 import InteractEditRender from '@/components/edit/InteractEditRender.vue'
 import { useEditStore } from '@/stores/edit'
 import { computed } from 'vue'

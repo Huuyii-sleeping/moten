@@ -29,6 +29,7 @@ declare module 'vue' {
     ConfigViewport: typeof import('./src/components/config/config-viewport.vue')['default']
     EditBlock: typeof import('./src/components/edit/edit-block.vue')['default']
     EditBlockDrag: typeof import('./src/components/edit/edit-block-drag.vue')['default']
+    EditBottomToolbar: typeof import('./src/components/edit/edit-bottom-toolbar.vue')['default']
     EditConfig: typeof import('./src/components/edit/edit-config.vue')['default']
     EditConfigBlock: typeof import('./src/components/edit/edit-config-block.vue')['default']
     EditConfigPage: typeof import('./src/components/edit/edit-config-page.vue')['default']

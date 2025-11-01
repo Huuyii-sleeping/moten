@@ -57,6 +57,13 @@ const icon = {
   plugin: 'clarity:plugin-line',
   pluginActive: 'clarity:plugin-solid',
   history: 'material-symbols:history-rounded',
+  pen: 'pepicons-pencil:pen',
+  eraser: 'picon:eraser',
+  clear: 'tdesign:clear',
+  sticky: 'streamline-flex-color:new-sticky-note-flat',
+  arrow: 'memory:arrow',
+  undo: 'ix:undo',
+  redo: 'ix:redo'
 }
 
 export default icon

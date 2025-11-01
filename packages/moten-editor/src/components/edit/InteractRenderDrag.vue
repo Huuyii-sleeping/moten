@@ -1,135 +1,4 @@
 <template>
-  <div class="top-toolbar" v-if="!edit.isPreview && edit.isFreehandMode">
-    <div class="tool-group">
-      <button class="tool-btn" @click="undo" :disabled="!canUndo" title="撤销 (Ctrl+Z)">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M3 10h10a8 8 0 0 1 8 8v0a8 8 0 0 1-8 8H3"></path>
-          <path d="M3 10l5-5"></path>
-          <path d="M3 10l5 5"></path>
-        </svg>
-      </button>
-      <button class="tool-btn" @click="redo" :disabled="!canRedo" title="重做 (Ctrl+Y)">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M21 10H11a8 8 0 0 0-8 8v0a8 8 0 0 0 8 8h10"></path>
-          <path d="M21 10 16 5"></path>
-          <path d="M21 10l-5 5"></path>
-        </svg>
-      </button>
-      <div class="divider"></div>
-      <button
-        class="tool-btn"
-        :class="{ active: !isEraser }"
-        @click="toggleEraser(false)"
-        title="画笔"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path
-            d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.83 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.83L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"
-          ></path>
-        </svg>
-      </button>
-      <button
-        class="tool-btn"
-        :class="{ active: isEraser }"
-        @click="toggleEraser(true)"
-        title="橡皮擦"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M18 13L5 5"></path>
-          <path d="M7 5H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1Z"></path>
-        </svg>
-      </button>
-      <div class="divider"></div>
-      <el-color-picker
-        v-model="lineColor"
-        size="mini"
-        class="color-picker"
-        :predefine="['#000000', '#ff3e3e', '#37c2ff', '#36d399', '#fbbd23', '#f87272', '#94a3b8']"
-        title="选择颜色"
-      ></el-color-picker>
-      <div class="width-selector">
-        <span
-          :class="{ active: lineWidth === 1 }"
-          @click="lineWidth = 1"
-          :style="{ height: '1px' }"
-        ></span>
-        <span
-          :class="{ active: lineWidth === 3 }"
-          @click="lineWidth = 3"
-          :style="{ height: '3px' }"
-        ></span>
-        <span
-          :class="{ active: lineWidth === 6 }"
-          @click="lineWidth = 6"
-          :style="{ height: '6px' }"
-        ></span>
-        <span
-          :class="{ active: lineWidth === 10 }"
-          @click="lineWidth = 10"
-          :style="{ height: '10px' }"
-        ></span>
-      </div>
-      <div class="divider"></div>
-      <button class="tool-btn clear" @click="clearAllDraw" title="清空画布">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path
-            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-          ></path>
-        </svg>
-      </button>
-    </div>
-  </div>
   <div class="edit-render-drag" ref="canvasRef" :class="{ 'is-preview': edit.isPreview }">
     <canvas
       v-if="!edit.isPreview && edit.isFreehandMode"
@@ -343,22 +212,12 @@ const drawCtx = ref<CanvasRenderingContext2D | null>(null)
 const isDrawing = ref(false)
 const points = ref<{ x: number; y: number; pressure: number }[]>([])
 const dpr = ref(window.devicePixelRatio || 1)
-const drawHistory = ref<DrawLine[]>([])
-const historyIndex = ref(-1)
 const isEraser = ref(false)
 const lineColor = ref('#000000')
 const lineWidth = ref(3)
-
-const toggleEraser = (status: boolean) => {
-  isEraser.value = status
-}
-
-watch([lineColor, lineWidth], () => {
-  if (drawCtx.value && !isEraser.value) {
-    drawCtx.value.strokeStyle = lineColor.value
-    drawCtx.value.lineWidth = lineWidth.value
-  }
-})
+const isDrawingArrow = ref(false)
+const arrowStartPos = ref<{ x: number; y: number } | null>(null)
+const arrowEndPos = ref<{ x: number; y: number } | null>(null)
 
 // 初始化操作
 const initDrawCanvas = () => {
@@ -383,7 +242,7 @@ const initDrawCanvas = () => {
     const img = new Image()
     img.onload = () => {
       ctx.drawImage(img, 0, 0, rect.width, rect.height)
-      if (drawHistory.value.length === 0) {
+      if (edit.drawHistory.length === 0) {
         const backgroundLine: DrawLine = {
           points: [],
           color: '',
@@ -392,15 +251,15 @@ const initDrawCanvas = () => {
           isBackground: true,
           imageData: savedData,
         }
-        drawHistory.value = [backgroundLine]
-        historyIndex.value = 0
+        edit.drawHistory = [backgroundLine]
+        edit.historyIndex = 0
       }
     }
     img.src = savedData
   } else {
     ctx.clearRect(0, 0, rect.width, rect.height)
-    drawHistory.value = []
-    historyIndex.value = -1
+    edit.drawHistory = []
+    edit.historyIndex = -1
   }
 }
 
@@ -413,8 +272,8 @@ const drawPoints = () => {
 
   ctx.clearRect(0, 0, containerRect.width, containerRect.height)
 
-  if (historyIndex.value >= 0) {
-    const visibleHistory = drawHistory.value.slice(0, historyIndex.value + 1)
+  if (edit.historyIndex >= 0) {
+    const visibleHistory = edit.drawHistory.slice(0, edit.historyIndex + 1)
     const backgroundLine = visibleHistory.find((line) => line.isBackground)
     if (backgroundLine && backgroundLine.imageData) {
       const img = new Image()
@@ -429,7 +288,9 @@ const drawPoints = () => {
   }
 
   // 2. 绘制当前正在画的线条（如果处于绘制中）
-  if (isDrawing.value && points.value.length >= 2) {
+  if (edit.isArrowMode && isDrawingArrow.value && arrowEndPos.value && arrowStartPos.value) {
+    drawSingleArrow(arrowStartPos.value, arrowEndPos.value, ctx, lineColor.value, lineWidth.value)
+  } else if (isDrawing.value && edit.isFreehandMode && points.value.length >= 2) {
     const currentColor = isEraser.value ? '#ffffff' : lineColor.value
     const currentWidth = isEraser.value ? 20 : lineWidth.value
     const currentStroke = getStroke(points.value, {
@@ -450,35 +311,112 @@ const drawPoints = () => {
   }
 }
 
+const drawGrid = () => {
+  if (!drawCtx.value || !canvasRef.value) return
+  const rect = canvasRef.value.getBoundingClientRect()
+  const ctx = drawCtx.value
+  if (edit.showGrid) {
+    ctx.strokeStyle = '#f0f0f0'
+    ctx.lineWidth = 1
+    const gridSize = 20
+    for (let y = 0; y < rect.height; y += gridSize) {
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      ctx.lineTo(rect.width, y)
+      ctx.stroke()
+    }
+
+    for (let x = 0; x < rect.width; x += gridSize) {
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x, rect.height)
+      ctx.stroke()
+    }
+  }
+
+  if (edit.showLayoutGrid) {
+    ctx.strokeStyle = '#e0e0e0'
+    ctx.lineWidth = 2
+    const layoutSize = 100
+    for (let y = 0; y < rect.height; y += layoutSize) {
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      ctx.lineTo(rect.width, y)
+      ctx.stroke()
+    }
+    // 绘制竖线
+    for (let x = 0; x < rect.width; x += layoutSize) {
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x, rect.height)
+      ctx.stroke()
+    }
+  }
+}
+
 const drawOtherLines = (lines: DrawLine[], ctx: CanvasRenderingContext2D) => {
   lines.forEach((line) => {
     if (line.isBackground) return
-    if (line.points.length < 2) return
-    const lineColor = line.isEraser ? '#ffffff' : line.color
-    const lineWidth = line.isEraser ? 20 : line.width
-    const stroke = getStroke(line.points, {
-      size: lineWidth,
-      thinning: 0.6,
-      smoothing: 0.5,
-      streamline: 0.5,
-    })
-    ctx.fillStyle = lineColor
-    ctx.beginPath()
-    if (stroke.length > 0) {
-      ctx.moveTo(stroke[0][0], stroke[0][1])
-      for (let i = 1; i < stroke.length; i++) {
-        ctx.lineTo(stroke[i][0], stroke[i][1])
+    if (line.isArrow && line.startPos && line.endPos) {
+      drawSingleArrow(line.startPos, line.endPos, ctx, line.color, line.width)
+    } else if (line.points.length >= 2) {
+      const lineColor = line.isEraser ? '#ffffff' : line.color
+      const lineWidth = line.isEraser ? 20 : line.width
+      const stroke = getStroke(line.points, {
+        size: lineWidth,
+        thinning: 0.6,
+        smoothing: 0.5,
+        streamline: 0.5,
+      })
+      ctx.fillStyle = lineColor
+      ctx.beginPath()
+      if (stroke.length > 0) {
+        ctx.moveTo(stroke[0][0], stroke[0][1])
+        for (let i = 1; i < stroke.length; i++) {
+          ctx.lineTo(stroke[i][0], stroke[i][1])
+        }
       }
+      ctx.fill()
     }
-    ctx.fill()
   })
 }
 
 const stopDraw = () => {
-  if (isDrawing.value) {
+  if (edit.isArrowMode && isDrawingArrow.value) {
+    isDrawingArrow.value = false
+    if (arrowStartPos.value && arrowEndPos.value) {
+      const start = arrowStartPos.value
+      const end = arrowEndPos.value
+      const distance = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2))
+      if (distance > 5) {
+        // 记得在这里清除已经废弃的历史记录
+        let newHistory = edit.drawHistory.slice(0, edit.historyIndex + 1)
+        const backgroundIndex = newHistory.findIndex((line) => line.isBackground)
+        if (backgroundIndex !== -1) {
+          newHistory = newHistory.slice(0, backgroundIndex + 1)
+        }
+        const arrowLine: DrawLine = {
+          points: [],
+          color: lineColor.value,
+          width: lineWidth.value,
+          isEraser: false,
+          isArrow: true,
+          startPos: start,
+          endPos: end,
+        }
+        newHistory.push(arrowLine)
+        edit.drawHistory = newHistory
+        edit.historyIndex = newHistory.length - 1 // 指向新的记录
+
+        saveCurrentState()
+      }
+    }
+    arrowStartPos.value = null
+    arrowEndPos.value = null
+  } else if (isDrawing.value && edit.isFreehandMode) {
     isDrawing.value = false
     if (points.value.length >= 2) {
-      let newHistory = drawHistory.value
+      let newHistory = edit.drawHistory.slice(0, edit.historyIndex + 1)
       const backgroundIndex = newHistory.findIndex((line) => line.isBackground)
       if (backgroundIndex !== -1) {
         newHistory = newHistory.slice(0, backgroundIndex + 1)
@@ -490,8 +428,8 @@ const stopDraw = () => {
         isEraser: isEraser.value,
       }
       newHistory.push(currentHistory)
-      drawHistory.value = newHistory
-      historyIndex.value = newHistory.length - 1
+      edit.drawHistory = newHistory
+      edit.historyIndex = newHistory.length - 1
     }
     if (drawCanvasRef.value && canvasRef.value) {
       const containerRect = canvasRef.value.getBoundingClientRect()
@@ -519,9 +457,47 @@ const stopDraw = () => {
   }
 }
 
+const drawSingleArrow = (
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+  ctx: CanvasRenderingContext2D,
+  color: string,
+  width: number,
+) => {
+  const headLength = width * 4 // 箭头头部长度（按线宽4倍自适应）
+  const angle = Math.atan2(end.y - start.y, end.x - start.x) // 计算直线角度
+
+  // 1. 绘制箭头主线
+  ctx.strokeStyle = color
+  ctx.lineWidth = width
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  ctx.beginPath()
+  ctx.moveTo(start.x, start.y)
+  ctx.lineTo(end.x, end.y)
+  ctx.stroke()
+
+  // 2. 绘制箭头头部（三角形填充）
+  ctx.fillStyle = color
+  ctx.beginPath()
+  ctx.moveTo(end.x, end.y) // 箭头终点（三角形顶点）
+  // 箭头头部左端点
+  ctx.lineTo(
+    end.x - headLength * Math.cos(angle - Math.PI / 6),
+    end.y - headLength * Math.sin(angle - Math.PI / 6),
+  )
+  // 箭头头部右端点
+  ctx.lineTo(
+    end.x - headLength * Math.cos(angle + Math.PI / 6),
+    end.y - headLength * Math.sin(angle + Math.PI / 6),
+  )
+  ctx.closePath()
+  ctx.fill()
+}
+
 const undo = () => {
   if (canUndo.value) {
-    historyIndex.value--
+    edit.historyIndex--
     drawPoints()
     saveCurrentState()
   }
@@ -529,7 +505,7 @@ const undo = () => {
 
 const redo = () => {
   if (canRedo.value) {
-    historyIndex.value++
+    edit.historyIndex++
     drawPoints()
     saveCurrentState()
   }
@@ -561,8 +537,8 @@ const saveCurrentState = () => {
   }
 }
 
-const canUndo = computed(() => historyIndex.value >= 0)
-const canRedo = computed(() => historyIndex.value < drawHistory.value.length - 1)
+const canUndo = computed(() => edit.historyIndex >= 0)
+const canRedo = computed(() => edit.historyIndex < edit.drawHistory.length - 1)
 
 // 事件处理
 const getDrawPos = (e: MouseEvent | TouchEvent): { x: number; y: number; pressure: number } => {
@@ -588,23 +564,44 @@ const getDrawPos = (e: MouseEvent | TouchEvent): { x: number; y: number; pressur
 }
 
 const startDraw = (e: MouseEvent) => {
-  isDrawing.value = true
-  points.value = [getDrawPos(e)]
-  drawPoints()
+  if (edit.isArrowMode) {
+    const pos = getDrawPos(e)
+    isDrawingArrow.value = true
+    arrowStartPos.value = { x: pos.x, y: pos.y }
+    arrowEndPos.value = { x: pos.x, y: pos.y }
+    drawPoints()
+  } else if (edit.isFreehandMode) {
+    isDrawing.value = true
+    points.value = [getDrawPos(e)]
+    drawPoints()
+  }
 }
 
 const startDrawTouch = (e: TouchEvent) => {
   e.preventDefault()
   if (e.touches.length === 0) return
-  isDrawing.value = true
-  points.value = [getDrawPos(e)]
-  drawPoints()
+  const pos = getDrawPos(e)
+  if (edit.isArrowMode) {
+    isDrawingArrow.value = true
+    arrowStartPos.value = { x: pos.x, y: pos.y }
+    arrowEndPos.value = { x: pos.x, y: pos.y }
+    drawPoints()
+  } else if (edit.isFreehandMode) {
+    isDrawing.value = true
+    points.value = [pos]
+    drawPoints()
+  }
 }
 
 const drawing = (e: MouseEvent | TouchEvent) => {
-  if (!isDrawing.value || !drawCtx.value) return
-  points.value.push(getDrawPos(e))
-  drawPoints()
+  if (edit.isArrowMode && isDrawingArrow.value) {
+    const pos = getDrawPos(e)
+    arrowEndPos.value = { x: pos.x, y: pos.y }
+    drawPoints()
+  } else if (edit.isFreehandMode && isDrawing.value && drawCtx.value) {
+    points.value.push(getDrawPos(e))
+    drawPoints()
+  }
 }
 
 const drawingTouch = (e: TouchEvent) => {
@@ -616,8 +613,8 @@ const clearAllDraw = () => {
   if (!drawCtx.value || !canvasRef.value) return
   const rect = canvasRef.value.getBoundingClientRect()
   drawCtx.value.clearRect(0, 0, rect.width, rect.height)
-  drawHistory.value = []
-  historyIndex.value = -1
+  edit.drawHistory = []
+  edit.historyIndex = -1
   points.value = []
   edit.setCanvasDrawData(edit.viewport, '')
 }
@@ -849,6 +846,13 @@ watch(
   },
 )
 
+watch([lineColor, lineWidth], () => {
+  if (drawCtx.value && !isEraser.value) {
+    drawCtx.value.strokeStyle = lineColor.value
+    drawCtx.value.lineWidth = lineWidth.value
+  }
+})
+
 watch(
   () => edit.isFreehandMode,
   (newMode, oldMode) => {
@@ -859,6 +863,11 @@ watch(
       saveCurrentState()
     }
     if (newMode && !oldMode && !edit.isPreview) {
+      isDrawing.value = false
+      if (drawCtx.value) {
+        drawCtx.value.strokeStyle = lineColor.value
+        drawCtx.value.lineWidth = lineWidth.value
+      }
       nextTick(() => {
         initDrawCanvas()
       })
@@ -867,8 +876,73 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () => edit.isEraserMode,
+  (isActive) => {
+    isDrawing.value = false
+    isEraser.value = isActive
+    if (isActive) {
+      if (drawCtx.value) {
+        drawCtx.value.strokeStyle = '#ffffff'
+        drawCtx.value.lineWidth = 20
+      }
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => edit.isArrowMode,
+  (isActive) => {
+    isDrawing.value = false
+    isDrawingArrow.value = false
+    points.value = []
+    arrowStartPos.value = null
+    arrowEndPos.value = null
+    if (isActive) {
+      // todo 箭头操作逻辑
+      if (drawCtx.value) {
+        drawCtx.value.strokeStyle = lineColor.value
+        drawCtx.value.lineWidth = lineWidth.value
+      }
+      nextTick(() => {
+        initDrawCanvas()
+      })
+    } else {
+      drawPoints()
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => edit.zoomRatio,
+  (radio) => {
+    if (drawCanvasRef.value && drawCtx.value) {
+      const scale = radio / 100
+      drawCtx.value.setTransform(scale, 0, 0, scale, 0, 0)
+      drawPoints()
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  [() => edit.showGrid, () => edit.showLayoutGrid],
+  () => {
+    drawGrid()
+    drawPoints()
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
   // 初始化元素拖拽
+  edit.setCanvasInstance({
+    undo,
+    redo,
+    clearAllDraw,
+  })
   if (!edit.isPreview) {
     nextTick(() => {
       initDrawCanvas()

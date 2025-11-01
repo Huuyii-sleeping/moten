@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { BaseBlock, BaseBlockNull, BasePage, Viewport } from '@/types/edit'
 import type { PageSchemaFormData } from '@/config/schema'
 import { useCollaborationStore } from './collaborationStore'
+import type { DrawLine } from '@/types/canvas'
 
 export const useEditStore = defineStore('edit', () => {
   const viewport = ref<Viewport>('desktop')
@@ -18,8 +19,51 @@ export const useEditStore = defineStore('edit', () => {
   const canvasInstance = ref<any>()
   const canvasDrawData = ref<Record<string, string>>({})
   const isFreehandMode = ref(false)
+  const isEraserMode = ref(false)
+  const isArrowMode = ref(false)
+  const zoomRatio = ref(100)
+  const showGrid = ref(false)
+  const showLayoutGrid = ref(false)
+  const drawHistory = ref<DrawLine[]>([])
+  const historyIndex = ref(-1)
+  const canUndo = computed(() => historyIndex.value >= 0)
+  const canRedo = computed(() => historyIndex.value < drawHistory.value.length - 1)
+
+  const resetToolMode = () => {
+    // isFreehandMode.value = false
+    isEraserMode.value = false
+    isArrowMode.value = false
+  }
   const toggleFreehandMode = () => {
+    resetToolMode()
     isFreehandMode.value = !isFreehandMode.value
+  }
+  const toggleEraserMode = () => {
+    resetToolMode()
+    isEraserMode.value = true
+  }
+  const toggleArrowMode = () => {
+    if(isArrowMode.value === true){
+      resetToolMode()
+      return 
+    }
+    resetToolMode()
+    isArrowMode.value = true
+  }
+  const zoomIn = () => {
+    zoomRatio.value = Math.min(zoomRatio.value + 10, 200)
+  }
+  const zoomOut = () => {
+    zoomRatio.value = Math.max(zoomRatio.value - 10, 50)
+  }
+  const zoomToFit = () => {
+    zoomRatio.value = 100
+  }
+  const toggleShowGrid = () => {
+    showGrid.value = !showGrid.value
+  }
+  const toggleShowLayoutGrid = () => {
+    showLayoutGrid.value = !showLayoutGrid.value
   }
   const isMobileViewport = computed(() => {
     return viewport.value === 'mobile'
@@ -139,6 +183,23 @@ export const useEditStore = defineStore('edit', () => {
     canvasInstance,
     canvasDrawData,
     isFreehandMode,
+    isEraserMode,
+    isArrowMode,
+    zoomRatio,
+    showGrid,
+    showLayoutGrid,
+    canRedo,
+    canUndo,
+    drawHistory,
+    historyIndex,
+    resetToolMode,
+    toggleShowLayoutGrid,
+    toggleShowGrid,
+    zoomIn,
+    zoomOut,
+    zoomToFit,
+    toggleArrowMode,
+    toggleEraserMode,
     toggleFreehandMode,
     setCanvasDrawData,
     setCanvasInstance,
