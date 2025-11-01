@@ -65,6 +65,8 @@ const icon = {
   undo: 'ix:undo',
   redo: 'ix:redo',
   screen: 'ic:twotone-fit-screen',
+  grid: 'mingcute:grid-line',
+  layoutGrid: 'tabler:layout',
 }
 
 export default icon

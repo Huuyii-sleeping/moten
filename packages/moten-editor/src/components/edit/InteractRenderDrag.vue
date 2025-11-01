@@ -323,9 +323,15 @@ const drawPoints = () => {
 }
 
 const drawGrid = () => {
-  if (!drawCtx.value || !canvasRef.value) return
+  if (!drawCtx.value || !canvasRef.value) {
+    return
+  }
   const rect = canvasRef.value.getBoundingClientRect()
   const ctx = drawCtx.value
+  const originalComnposite = ctx.globalCompositeOperation
+
+  ctx.globalCompositeOperation = 'source-over'
+
   if (edit.showGrid) {
     ctx.strokeStyle = '#f0f0f0'
     ctx.lineWidth = 1
@@ -336,7 +342,6 @@ const drawGrid = () => {
       ctx.lineTo(rect.width, y)
       ctx.stroke()
     }
-
     for (let x = 0; x < rect.width; x += gridSize) {
       ctx.beginPath()
       ctx.moveTo(x, 0)
@@ -355,7 +360,6 @@ const drawGrid = () => {
       ctx.lineTo(rect.width, y)
       ctx.stroke()
     }
-    // 绘制竖线
     for (let x = 0; x < rect.width; x += layoutSize) {
       ctx.beginPath()
       ctx.moveTo(x, 0)
@@ -363,6 +367,7 @@ const drawGrid = () => {
       ctx.stroke()
     }
   }
+  ctx.globalCompositeOperation = originalComnposite
 }
 
 const drawOtherLines = (lines: DrawLine[], ctx: CanvasRenderingContext2D) => {

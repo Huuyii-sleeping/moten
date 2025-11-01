@@ -56,17 +56,9 @@
         @click="toggleGrid"
         :class="{ active: edit.showGrid }"
       >
-        <i class="fa fa-th"></i>
+        <v-icon icon="grid" class="icon"></v-icon>
       </button>
       <!-- 布局网格：active绑定showLayoutGrid -->
-      <button
-        class="tool-btn"
-        title="布局网格 (Ctrl+G)"
-        @click="toggleLayoutGrid"
-        :class="{ active: edit.showLayoutGrid }"
-      >
-        <i class="fa fa-th-large"></i>
-      </button>
       <div class="separator"></div>
       <!-- 缩小 -->
       <button class="zoom-btn" title="缩小" @click="handleZoomOut">
@@ -134,8 +126,9 @@ const handleZoomIn = () => edit.zoomIn()
 const handleZoomOut = () => edit.zoomOut()
 const handleZoomToFit = () => edit.zoomToFit()
 
-const toggleGrid = () => edit.toggleShowGrid()
-const toggleLayoutGrid = () => edit.toggleShowLayoutGrid()
+const toggleGrid = () => {
+  edit.toggleShowGrid()
+}
 </script>
 
 <style scoped lang="scss">
