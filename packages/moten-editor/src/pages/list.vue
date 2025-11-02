@@ -14,6 +14,7 @@
         :expand-on-click-node="true"
         :default-expanded-keys="['project-root']"
         :default-selected-keys="['my-pages']"
+        :default-expand-all="true"
         @node-click="handleTreeNodeClick"
         ref="treeRef"
       >
@@ -123,6 +124,9 @@
       <div v-else-if="currentSelectedKey === 'plugin-market'">
         <plugin-market></plugin-market>
       </div>
+      <div v-else-if="currentSelectedKey === 'account-setting'">
+        <account-setting></account-setting>
+      </div>
       <div v-else-if="currentSelectedKey === 'my-plugins'">
         <my-plugins></my-plugins>
       </div>
@@ -144,6 +148,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElTree, ElSkeleton } from 'element-plus'
 import pluginMarket from './pluginMarket.vue'
 import myPlugins from './my-plugins.vue'
+import accountSetting from './account-setting.vue'
 // 补充导入 File 图标（之前缺失导致初始化异常）
 import {
   Shop,
