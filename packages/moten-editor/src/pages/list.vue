@@ -123,6 +123,9 @@
       <div v-else-if="currentSelectedKey === 'plugin-market'">
         <plugin-market></plugin-market>
       </div>
+      <div v-else-if="currentSelectedKey === 'my-plugins'">
+        <my-plugins></my-plugins>
+      </div>
       <!-- 其他节点内容占位（可扩展） -->
       <div v-else class="other-node-content">
         <div class="node-placeholder">
@@ -140,6 +143,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElTree, ElSkeleton } from 'element-plus'
 import pluginMarket from './pluginMarket.vue'
+import myPlugins from './my-plugins.vue'
 // 补充导入 File 图标（之前缺失导致初始化异常）
 import {
   Shop,
