@@ -28,7 +28,7 @@ const width = Type.String({
 const height = Type.String({
   code: "config-input",
   title: "高度",
-  default: "200px",
+  default: "300px",
   placeholder: "请输入高度",
   minLength: 1,
   errorMessage: {

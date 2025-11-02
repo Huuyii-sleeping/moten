@@ -1,4 +1,12 @@
 @include b("image") {
+  background-color: #ffffff;
+  /* 父容器设置 flex 布局，控制子元素居中 */
+  display: flex;
+  justify-content: center; /* 水平居中子元素 */
+  align-items: center; /* 垂直居中子元素 */
+  /* 父容器设置高度（与子元素高度一致，确保垂直居中生效） */
+  @include res(height, 295, 295);
+
   .image {
     width: 100%;
     display: block;
@@ -6,11 +14,13 @@
     margin: 0 auto;
     @include res(height, 295, 295);
   }
+
   .no-image {
-    width: 100%;
+    /* 可选：调整宽度（若不需要占满父容器，可设为具体值或百分比） */
+    width: 90%; /* 例如设为 90%，留空间体现水平居中 */
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: center; /* 自身内容垂直居中 */
+    justify-content: center; /* 自身内容水平居中 */
     background: #ffffff;
     @include res(height, 295, 295);
   }

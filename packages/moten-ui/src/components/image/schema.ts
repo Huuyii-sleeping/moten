@@ -40,7 +40,7 @@ const link = Type.String({
 const width = Type.String({
   code: "config-input",
   title: "宽度",
-  default: "100%",
+  default: "300px",
   placeholder: "请输入宽度",
   minLength: 1,
   errorMessage: {
@@ -54,7 +54,7 @@ const width = Type.String({
 const height = Type.String({
   code: "config-input",
   title: "高度",
-  default: "295px",
+  default: "200px",
   placeholder: "请输入高度",
   minLength: 1,
   errorMessage: {

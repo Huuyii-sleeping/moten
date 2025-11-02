@@ -29,9 +29,9 @@ const classes = computed(() => [n()]);
 const codeContainer = ref<HTMLElement | null>(null);
 const error = ref<string | null>(null);
 const isCodeEmpty = computed(() => !data.value?.code?.[viewport.value]?.trim());
-const width = computed(() => data.value?.width?.[viewport.value] || "200px");
+const width = computed(() => data.value?.width?.[viewport.value] || "300px");
 const height = computed(() => data.value?.height?.[viewport.value] || "200px");
-const color = computed(() => data.value?.color?.[viewport.value] || "");
+const color = computed(() => data.value?.color?.[viewport.value] || "#ffffff");
 const styles = computed(() => ({
   width: width.value,
   height: height.value,

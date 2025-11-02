@@ -14,14 +14,14 @@ const display = Type.Boolean({
 const color = Type.String({
   code: "config-color",
   title: "背景色",
-  default: "transparent",
+  default: "#ffffff",
   placeholder: "请选择颜色",
 });
 
 const width = Type.String({
   code: "config-input",
   title: "宽度",
-  default: "200px",
+  default: "300px",
   placeholder: "请输入宽度",
   minLength: 1,
   errorMessage: {
