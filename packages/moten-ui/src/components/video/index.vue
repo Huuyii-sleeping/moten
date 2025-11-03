@@ -10,7 +10,7 @@
       :width="width"
       :height="height"
     ></video>
-    <div v-else :class="classes" class="no-video">
+    <div v-else :class="classes" class="no-video" :style="styles">
       <mo-empty description="暂无视频,请上传" />
     </div>
   </div>

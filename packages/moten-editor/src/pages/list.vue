@@ -65,7 +65,7 @@
 
       <!-- 页面列表（默认展示） -->
       <div v-else-if="currentSelectedKey === 'my-pages'" class="page-grid">
-        <div v-for="page in pages" :key="page.id" class="page-card">
+        <div v-for="page in pages" :key="page.id" class="page-card" v-memo="[page]">
           <!-- 缩略图区域 -->
           <div class="card-thumbnail" @click="handlePreview(page.page_id)">
             <img

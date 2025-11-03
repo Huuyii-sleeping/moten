@@ -3,7 +3,7 @@
     <mo-link v-if="src" :to="link" target="_blank">
       <img class="image" v-bind="$attrs" :src="src" alt="" :style="styles" />
     </mo-link>
-    <div v-else class="no-image">
+    <div v-else class="no-image" :style="styles">
       <mo-empty description="暂无图片，请上传"></mo-empty>
     </div>
   </div>
