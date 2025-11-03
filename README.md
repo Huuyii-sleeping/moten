@@ -1,69 +1,104 @@
 # Moten ✨
 
-** Vue 3 组件开发全链路加速器 **—— 用「组件库+编辑器+预览台」的黄金组合，让你的组件开发效率起飞 🚀
+**Vue 3 组件开发全链路加速器**—— 用「组件库 + 编辑器 + 预览台」的黄金组合，让你的组件开发效率起飞 🚀
 
-## 🔥 为什么选择 Moten？
+## 项目介绍
 
-大多数组件库只给你「零件」，而 Moten 给你「生产线」：
+Moten 是一套面向 Vue 3 生态的组件开发全链路解决方案，旨在解决传统组件开发中「工具链分散、重复劳动多、跨端适配难」等问题。
 
--** 开发闭环 **：从组件编码 → 可视化配置 → 多端预览，无需切换工具链
--** 轻量不妥协 **：核心组件库 gzip 后仅 8KB，却包含企业级场景所需的全部基础能力
--** 零成本接入 **：Vue 3 原生语法兼容，无需学习新框架，10 分钟即可上手
--** 工程化开箱即用 **：内置经过验证的开发规范与构建流程，新项目初始化时间从 1 天缩短至 30 分钟
+与传统组件库不同，Moten 提供的是从「组件编码」到「可视化配置」再到「多端预览」的完整闭环，让开发者专注于创造性工作而非重复劳动。
 
-## 🧩 核心模块展示
+## 核心功能
 
-### 1. moten-ui —— 为效率而生的组件库
-✨** 特色 **：
+### 1. 核心模块
 
-- 「场景优先」设计：每个组件都针对真实业务场景优化（如空状态支持自定义图片+文案组合）
-- 样式原子化：通过 Sass 混合器实现「一处定义，多处复用」，样式冗余减少 40%
-- 按需加载：支持 Tree-Shaking，只打包用到的组件
+- **moten-ui**：轻量高效的 Vue 3 组件库，gzip 后仅 8KB，支持按需加载和样式原子化，针对真实业务场景优化。
+- **moten-editor**：可视化组件开发工具，支持「拖拽 + 代码」双模式编辑，实时语法校验与代码优化。
+- **moten-playground**：支持手机 / 平板 / 桌面端同屏展示，内置性能分析工具。
 
-### 2. moten-editor —— 组件开发的「可视化大脑」
-✨** 特色 **：
+### 2. 工程化亮点
 
-- 「双模式编辑」：支持可视化拖拽 + 代码编辑实时同步
-- 智能纠错：Vue 3 语法实时校验，错误定位精确到行列
-- 代码优化器：自动精简冗余代码，生成符合 ESLint 规范的生产级代码
+- 基于 PNPM Workspace 实现多包协同，版本联动无冲突
+- 内置 Husky + ESLint 质量门禁，保障代码规范
+- 自动化版本管理与 CHANGELOG 生成
+- Vite 构建优化，开发热更新 < 300ms，生产包体积比同类工具小 30%
 
-### 3. moten-playground —— 多维度预览「实验室」
-✨** 特色 **：
+## 快速开始
 
-- 「三端同屏」：手机/平板/桌面端效果同时预览，响应式问题一目了然
-- 性能透视：内置 Lighthouse 轻量分析器，组件加载性能数据可视化
-- 沙箱隔离：通过 iframe + 自定义协议实现安全隔离，避免样式污染
+### 环境要求
 
-## 🚀 30 秒快速上手
+- Node.js ≥ 20.x
+- PNPM ≥ 10.x
 
-# 安装核心依赖
+### 安装依赖
 
-```
+bash
+
+```bash
+# 克隆仓库
+git clone https://github.com/your-username/moten.git
+cd moten
+
+# 安装依赖
 pnpm install
 ```
 
-## 🏭 工程化亮点
+### 开发模式
 
--** 多包协同 **：基于 PNPM Workspace 实现「组件库-编辑器-预览台」版本联动，避免依赖冲突
--** 质量门禁 **：通过 Husky + ESLint 构建「提交前校验 → 自动化测试 → 覆盖率检测」全链路保障，主分支零报错
--** 智能发布 **：基于 Git 提交信息自动生成版本号（如 `fix:` → patch 版本），CHANGELOG 自动同步
--** 极致构建 **：Vite 构建优化 + 按需编译，开发热更新速度 < 300ms，生产包体积比同类工具小 30%
+bash
 
-## 📚 资源中心
+```bash
+# 启动编辑器（核心开发入口）
+pnpm dev
 
-- [完整文档](https://moten-docs.example.com)（含组件API、最佳实践）
-- [在线演示](https://moten-playground.example.com)（可直接在浏览器中体验）
-- [贡献指南](./CONTRIBUTING.md)（如何参与开发）
-- [常见问题](./docs/FAQ.md)（解决90%的使用疑惑）
+# 单独启动组件库示例
+pnpm ui
 
-## 🔄 版本迭代
+# 单独启动 Vue 3 预览台
+pnpm v3
+```
 
-查看 [CHANGELOG.md](./CHANGELOG.md) 了解最新功能与更新记录。
+### 构建生产版本
 
-## 📄 许可证
+bash
 
-[MIT](./LICENSE) © 2023 Huuyii-sleeping
+```bash
+# 构建编辑器
+cd packages/moten-editor
+pnpm build
 
----
+# 构建组件库
+cd packages/moten-ui
+pnpm build
+```
 
-** 用 Moten，让组件开发从「重复劳动」变成「创造性工作」**💡
+## GitHub Pages 部署
+
+1. 构建预览台产物：
+    
+    bash
+    
+    ```bash
+    cd packages/moten-playground/vue3
+    pnpm build
+    ```
+    
+2. 将 `dist` 目录内容推送到 `gh-pages` 分支：
+    
+    bash
+    
+    ```bash
+    # 安装部署工具（如需要）
+    pnpm add -g gh-pages
+    
+    # 部署
+    gh-pages -d dist
+    ```
+    
+1. 在 GitHub 仓库设置中，将 GitHub Pages 源指向 `gh-pages` 分支，访问 [低代码平台 Moten](https://huuyii-sleeping.github.io/moten/#/edit) 即可查看在线演示。
+    
+
+## 资源与文档
+
+- [完整文档](https://moten-docs.example.com/)
+- [展示区域](https://huuyii-sleeping.github.io/moten/#/edit)
