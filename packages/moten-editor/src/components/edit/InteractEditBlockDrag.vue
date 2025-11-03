@@ -6,6 +6,8 @@
       class="block-item"
       draggable="true"
       @dragstart="onDragStart($event, element)"
+      @dragend="isDragging = false"
+      @dragleave="isDragging = false"
       @click="onClick(element)"
     >
       <v-icon class="block-icon" :icon="element.icon" />
@@ -15,10 +17,14 @@
 </template>
 
 <script setup lang="ts">
+import { useCanvasStateStore } from '@/stores/canvasState'
 import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
+import { generateUniqueId } from '@/utils'
+import { ref } from 'vue'
 
 const edit = useEditStore()
+const canvasState = useCanvasStateStore()
 
 const props = defineProps({
   list: {
@@ -27,18 +33,18 @@ const props = defineProps({
     default: () => [],
   },
 })
-
+const isDragging = ref(false)
 // 拖拽开始：设置拖拽数据（传递组件信息）
 const onDragStart = (event: DragEvent, element: BaseBlock) => {
+  isDragging.value = true
   if (!event.dataTransfer) return
 
+  event.stopPropagation()
   // 克隆一份新数据（避免引用）
   const cloned = JSON.parse(JSON.stringify(element))
-  // 设置默认位置（后续可优化为鼠标位置）
-  cloned.x = 100
-  cloned.y = 100
+  cloned.id = generateUniqueId()
   cloned.width = cloned.width || 200
-  cloned.height = cloned.height || 100
+  cloned.height = cloned.height || 200
 
   // 通过 dataTransfer 传递 JSON 字符串
   event.dataTransfer.setData('application/json', JSON.stringify(cloned))
@@ -47,23 +53,34 @@ const onDragStart = (event: DragEvent, element: BaseBlock) => {
   event.dataTransfer.setDragImage(dragImageEl, 0, 0)
 
   const cleanup = () => {
-    if (dragImageEl.parentElement) {
-      dragImageEl.parentNode?.removeChild(dragImageEl)
-    }
+    dragImageEl.parentNode?.removeChild(dragImageEl)
     document.removeEventListener('dragend', cleanup)
+    isDragging.value = false
   }
   document.addEventListener('dragend', cleanup, { once: true })
-  setTimeout(cleanup, 1500)
+  document.addEventListener('dragleave', () => {
+    isDragging.value = false
+  })
 }
 
 // 点击也触发添加（方便移动端或不想拖拽的用户）
 const onClick = (element: BaseBlock) => {
+  debugger
+  if (isDragging.value) return
+  const { viewportOffsetX, viewportOffsetY } = canvasState
+  const canvasEl = document.querySelector('.edit-render-drag')
+  if (!canvasEl) return
+  const canvasRect = canvasEl.getBoundingClientRect()
+  const centerX = canvasRect.width / 2 - 300
+  const centerY = canvasRect.height / 2 - 200
   const cloned = JSON.parse(JSON.stringify(element))
-  cloned.x = 100
-  cloned.y = 100
+  console.log('click:', cloned)
+  cloned.id = generateUniqueId()
+  cloned.x = centerX - viewportOffsetX
+  cloned.y = centerY - viewportOffsetY
   cloned.width = cloned.width || 200
-  cloned.height = cloned.height || 100
-  edit.addBlock(cloned) // 👈 需要在 store 中新增方法
+  cloned.height = cloned.height || 200
+  edit.addBlock(cloned)
 }
 
 const createDragImage = (name: string): HTMLElement => {

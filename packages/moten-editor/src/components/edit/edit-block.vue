@@ -16,46 +16,46 @@
     <div class="right" v-if="activeMenu === 0">
       <el-collapse v-model="activeNames">
         <el-collapse-item title="基础组件" name="1">
-          <InteractEditBlockDrag
-            :list="baseBlockList"
-          ></InteractEditBlockDrag>
+          <div @dragover.prevent @drop.prevent>
+            <InteractEditBlockDrag :list="baseBlockList"></InteractEditBlockDrag>
+          </div>
         </el-collapse-item>
         <el-collapse-item title="高级组件" name="2">
-          <InteractEditBlockDrag
-            :list="seniorBlockList"
-          ></InteractEditBlockDrag>
+          <div @dragover.prevent @drop.prevent>
+            <InteractEditBlockDrag :list="seniorBlockList"></InteractEditBlockDrag>
+          </div>
         </el-collapse-item>
       </el-collapse>
     </div>
     <div class="right" v-else-if="activeMenu === 1">
       <el-collapse v-model="activeNames">
         <el-collapse-item title="基础交互组件" name="1">
-          <InteractEditBlockDrag
-            :list="canvasBlockList"
-          ></InteractEditBlockDrag>
+          <div @dragover.prevent @drop.prevent>
+            <InteractEditBlockDrag :list="canvasBlockList"></InteractEditBlockDrag>
+          </div>
         </el-collapse-item>
       </el-collapse>
       <el-collapse v-model="activeNames">
         <el-collapse-item title="数据展示类组件" name="2">
-          <InteractEditBlockDrag
-            :list="showDataBlockList"
-          ></InteractEditBlockDrag>
+          <div @dragover.prevent @drop.prevent>
+            <InteractEditBlockDrag :list="showDataBlockList"></InteractEditBlockDrag>
+          </div>
         </el-collapse-item>
       </el-collapse>
       <el-collapse v-model="activeNames">
         <el-collapse-item title="布局与容器组件" name="3">
-          <InteractEditBlockDrag
-            :list="containerBlockList"
-          ></InteractEditBlockDrag>
+          <div @dragover.prevent @drop.prevent>
+            <InteractEditBlockDrag :list="containerBlockList"></InteractEditBlockDrag>
+          </div>
         </el-collapse-item>
       </el-collapse>
     </div>
     <div class="right" v-else-if="activeMenu === 2">
       <el-collapse v-model="activeNames">
         <el-collapse-item title="自定义插件" name="1" v-if="componentPalette.length > 0">
-          <InteractEditBlockDrag
-            :list="componentPalette"
-          ></InteractEditBlockDrag>
+          <div @dragover.prevent @drop.prevent>
+            <InteractEditBlockDrag :list="componentPalette"></InteractEditBlockDrag>
+          </div>
         </el-collapse-item>
 
         <el-collapse-item title="自定义插件" name="1" v-else>
@@ -559,6 +559,7 @@ onMounted(() => {
   display: flex;
   justify-content: flex-start;
   width: var(--edit-block-width);
+  z-index: 999;
 
   .left {
     width: 70px;

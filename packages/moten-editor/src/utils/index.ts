@@ -77,3 +77,7 @@ export const getBlobFromUrl = async (blobUrl: any) => {
   const response = await fetch(blobUrl)
   return await response.blob()
 }
+
+export const generateUniqueId = () => {
+  return Date.now() + '-' + Math.random().toString(36).slice(2, 10)
+}

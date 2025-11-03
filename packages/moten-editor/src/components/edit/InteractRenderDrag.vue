@@ -1,9 +1,16 @@
 <template>
-  <div class="edit-render-drag" ref="canvasRef" :class="{ 'is-preview': edit.isPreview }">
+  <div
+    class="edit-render-drag"
+    ref="canvasRef"
+    :class="{ 'is-preview': edit.isPreview }"
+    @dragover.prevent
+    @drop.prevent="handleDrop"
+  >
     <canvas
       v-if="!edit.isPreview && edit.isFreehandMode"
       ref="drawCanvasRef"
       class="freehand-overlay"
+      :style="{ pointerEvents: edit.isFreehandMode || edit.isArrowMode ? 'auto' : 'none' }"
       @mousedown="startDraw"
       @mousemove="drawing"
       @mouseup="stopDraw"
@@ -22,6 +29,8 @@
       @mouseleave="hoverId = ''"
       @click="handleElementClick(element)"
       :class="{ 'preview-disabled': edit.isPreview }"
+      @dragover.prevent="() => {}"
+      @drop.prevent="() => {}"
     >
       <!-- 原有模板内容完全不变 -->
       <div v-if="edit.isPreview">
@@ -167,6 +176,8 @@ import performanceMonitorWrapper from '../performance/performanceMonitorWrapper.
 import { nestedClass } from './nested'
 import getStroke from 'perfect-freehand'
 import type { DrawLine } from '@/types/canvas'
+import { useCanvasStateStore } from '@/stores/canvasState'
+import { generateUniqueId } from '@/utils'
 const edit = useEditStore()
 const collabStore = useCollaborationStore()
 const props = defineProps({
@@ -218,6 +229,73 @@ const lineWidth = ref(3)
 const isDrawingArrow = ref(false)
 const arrowStartPos = ref<{ x: number; y: number } | null>(null)
 const arrowEndPos = ref<{ x: number; y: number } | null>(null)
+const canvasState = useCanvasStateStore()
+let isHandingDrop = ref(false)
+let isDraggingCanvas = ref(false)
+let lastCanvasDragPos = ref<{ x: number; y: number } | null>(null)
+
+const handleDrop = (event: DragEvent) => {
+  if (isHandingDrop.value) return
+  isHandingDrop.value = true
+  if (!canvasRef.value || !event.dataTransfer) return
+  if (event.dataTransfer.dropEffect !== 'copy') return
+
+  const target = event.target as HTMLElement
+  if (target.closest('.element')) {
+    isHandingDrop.value = false
+    return
+  }
+  // 获取画布容器的位置，用来计算鼠标相对画布的坐标
+  const canvasRect = canvasRef.value.getBoundingClientRect()
+  // 计算鼠标在画布中的相对坐标（相对画布的左上角）
+  const mouseX = event.clientX - canvasRect.left
+  const mouseY = event.clientY - canvasRect.top
+
+  const dragData = event.dataTransfer.getData('application/json')
+  if (!dragData) {
+    isHandingDrop.value = false
+    return
+  }
+  if (!dragData) return
+  const newBlock = JSON.parse(dragData) as BaseBlock
+  // 关键抵消视口的偏移，使得能够让组件显示在鼠标的位置
+  // 原理：元素最终位置 = 鼠标相对位置 - 视口的偏移
+  newBlock.id = generateUniqueId()
+  newBlock.x = mouseX - canvasState.viewportOffsetX
+  newBlock.y = mouseY - canvasState.viewportOffsetY
+
+  newBlock.width = newBlock.width || 200
+  newBlock.height = newBlock.height || 200
+
+  edit.addBlock(newBlock)
+  event.dataTransfer.clearData()
+  setTimeout(() => {
+    isHandingDrop.value = false
+  }, 100)
+}
+
+const handleCanvasMouseDown = (e: MouseEvent) => {
+  if (edit.isPreview || edit.isFreehandMode || edit.isArrowMode) return
+  if ((e.target as HTMLElement).closest('.element')) return
+  isDraggingCanvas.value = true
+  lastCanvasDragPos.value = { x: e.clientX, y: e.clientY }
+  document.body.style.cursor = 'grabbing'
+}
+
+const handleCanvasMouseMove = (e: MouseEvent) => {
+  if (!isDraggingCanvas.value || !lastCanvasDragPos.value) return
+  const dx = e.clientX - lastCanvasDragPos.value.x
+  const dy = e.clientY - lastCanvasDragPos.value.y
+  canvasState.setViewportOffsetX(canvasState.viewportOffsetX + dx)
+  canvasState.setViewportOffsetY(canvasState.viewportOffsetY + dy)
+  lastCanvasDragPos.value = { x: e.clientX, y: e.clientY }
+}
+
+const handleCanvasMouseUp = () => {
+  isDraggingCanvas.value = false
+  lastCanvasDragPos.value = null
+  document.body.style.cursor = ''
+}
 
 // 初始化操作
 const initDrawCanvas = () => {
@@ -237,6 +315,7 @@ const initDrawCanvas = () => {
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
   ctx.globalCompositeOperation = 'source-over'
+  ctx.translate(-canvasState.viewportOffsetX, -canvasState.viewportOffsetY)
 
   const savedData = edit.canvasDrawData?.[edit.viewport] || ''
   if (savedData) {
@@ -271,7 +350,16 @@ const drawPoints = () => {
   const ctx = drawCtx.value
   const containerRect = canvasRef.value.getBoundingClientRect()
 
-  ctx.clearRect(0, 0, containerRect.width, containerRect.height)
+  ctx.save()
+  ctx.setTransform(dpr.value, 0, 0, dpr.value, 0, 0)
+  ctx.translate(-canvasState.viewportOffsetX, -canvasState.viewportOffsetY)
+
+  ctx.clearRect(
+    -canvasState.viewportOffsetX,
+    -canvasState.viewportOffsetY,
+    containerRect.width,
+    containerRect.height,
+  )
 
   if (edit.historyIndex >= 0) {
     const visibleHistory = edit.drawHistory.slice(0, edit.historyIndex + 1)
@@ -320,6 +408,7 @@ const drawPoints = () => {
       ctx.globalCompositeOperation = originalComposite
     }
   }
+  ctx.restore()
 }
 
 const drawGrid = () => {
@@ -654,8 +743,8 @@ const clearAllDraw = () => {
 const getElementStyle = (element: BaseBlock) => {
   const baseStyle: Record<string, any> = {
     position: 'absolute',
-    left: `${element.x ?? 100}px`,
-    top: `${element.y ?? 100}px`,
+    left: `${(element.x ?? 100) + canvasState.viewportOffsetX}px`,
+    top: `${(element.y ?? 100) + canvasState.viewportOffsetY}px`,
     width: element.width ? `${element.width}` : 'auto',
     height: element.height ? `${element.height}` : 'auto',
     cursor: edit.isPreview ? 'default' : 'grab',
@@ -744,7 +833,7 @@ const initInteract = () => {
     inertia: true,
     modifiers: [
       interact.modifiers.restrictRect({
-        restriction: canvasRef.value,
+        restriction: false as any,
         endOnly: false,
         elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
       }),
@@ -989,10 +1078,20 @@ onMounted(() => {
       retryInit()
     })
   }
+  if (canvasRef.value) {
+    canvasRef.value.addEventListener('mousedown', handleCanvasMouseDown)
+    window.addEventListener('mousemove', handleCanvasMouseMove)
+    window.addEventListener('mouseup', handleCanvasMouseUp)
+  }
 })
 
 onUnmounted(() => {
   interact('.element').unset()
+  if (canvasRef.value) {
+    canvasRef.value.removeEventListener('mousedown', handleCanvasMouseDown)
+  }
+  window.removeEventListener('mousemove', handleCanvasMouseMove)
+  window.removeEventListener('mouseup', handleCanvasMouseUp)
 })
 </script>
 
