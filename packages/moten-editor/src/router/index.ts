@@ -66,21 +66,20 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, from, next) => {
-  const userStore = useUserStore()
-  const isLogin = !!userStore.token
+// router.beforeEach(async (to, from, next) => {
+//   const userStore = useUserStore()
+//   const isLogin = !!userStore.token
+//   if (isLogin && ['/login', '/register'].includes(to.path)) {
+//     next('/')
+//     return
+//   }
 
-  if (isLogin && ['/login', '/register'].includes(to.path)) {
-    next('/')
-    return
-  }
+//   if (!isLogin && to.meta.requiresAuth) {
+//     next(`/login`)
+//     return
+//   }
 
-  if (!isLogin && to.meta.requiresAuth) {
-    next(`/login`)
-    return
-  }
-
-  next()
-})
+//   next()
+// })
 
 export default router
