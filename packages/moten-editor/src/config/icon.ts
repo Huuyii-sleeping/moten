@@ -72,6 +72,7 @@ const icon = {
   collaborate: 'carbon:collaborate',
   edit: 'uil:edit',
   comment: 'lets-icons:comment',
+  close: 'mdi:close-outline',
 }
 
 export default icon
