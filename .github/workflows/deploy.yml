@@ -25,15 +25,16 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: "22" # 根据你的项目调整
+                  cache: 'pnpm'
 
             - name: Install root dependencies
-              run: npm install 
+              run: pnpm install 
 
             - name: Build moten-editor
               run: |
                   cd packages/moten-editor
-                  npm install
-                  npm run build 
+                  pnpm install
+                  pnpm run build 
 
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
