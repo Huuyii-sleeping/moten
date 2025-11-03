@@ -71,6 +71,7 @@ const icon = {
   pdf: 'proicons:pdf-2',
   collaborate: 'carbon:collaborate',
   edit: 'uil:edit',
+  comment: 'lets-icons:comment',
 }
 
 export default icon

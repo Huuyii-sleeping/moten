@@ -28,6 +28,9 @@ export const useEditStore = defineStore('edit', () => {
   const historyIndex = ref(-1)
   const canUndo = computed(() => historyIndex.value >= 0)
   const canRedo = computed(() => historyIndex.value < drawHistory.value.length - 1)
+  const showComment = ref(false)
+  const currentComment = ref('')
+  const comments = ref([])
 
   const resetToolMode = () => {
     // isFreehandMode.value = false
@@ -72,6 +75,9 @@ export const useEditStore = defineStore('edit', () => {
   const isMobileViewport = computed(() => {
     return viewport.value === 'mobile'
   })
+  const toggleComment = () => {
+    showComment.value = !showComment.value
+  }
   const collabStore = useCollaborationStore()
   watch(
     blockConfig,
@@ -196,6 +202,10 @@ export const useEditStore = defineStore('edit', () => {
     canUndo,
     drawHistory,
     historyIndex,
+    showComment,
+    currentComment,
+    comments,
+    toggleComment,
     resetToolMode,
     toggleShowLayoutGrid,
     toggleShowGrid,

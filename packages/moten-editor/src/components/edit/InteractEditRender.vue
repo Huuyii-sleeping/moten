@@ -57,7 +57,6 @@ const onDrop = (event: DragEvent) => {
         block.y = event.clientY - rect.top
       }
     }
-    // edit.addBlock(block)
   } catch (error) {
     console.error('拖拽数据解析失败', error)
   }
