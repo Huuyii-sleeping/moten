@@ -1,11 +1,13 @@
 import mysql from "mysql2";
+import dotenv from 'dotenv'
+dotenv.config()
 
 const pool = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  database: "moten",
-  password: "hhy20060626",
-  port: 3306,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
   connectionLimit: 1000,
   queueLimit: 0,
   waitForConnections: true,

@@ -1,7 +1,14 @@
 <template>
   <div class="config-files">
     <el-form-item :label="title" :prop="key + '.' + viewport">
-      <img v-if="src" :src="src" class="image" id="image" @click="triggerFileInput" crossorigin="anonymous"/>
+      <img
+        v-if="src"
+        :src="src"
+        class="image"
+        id="image"
+        @click="triggerFileInput"
+        crossorigin="anonymous"
+      />
       <div v-else class="file" @click="triggerFileInput">
         <v-icon icon="upload" class="icon" />
       </div>
@@ -40,6 +47,7 @@ const { title, default: defaultValue } = data.value.properties[props.viewport]
 const src = ref('')
 const fileInput = ref<HTMLElement | null>(null)
 const uploadError = ref('')
+const baseURL = import.meta.env.VITE_BASE_URL
 
 watch(
   () => formData,
@@ -97,7 +105,7 @@ const handleFileChange = async (event: Event) => {
   }
   try {
     const truthUrl = await uploadImage(file)
-    src.value = `http://localhost:8081${truthUrl}`
+    src.value = `${baseURL}${truthUrl}`
     uploadError.value = ''
     if (fileInput.value) {
       fileInput.value = null

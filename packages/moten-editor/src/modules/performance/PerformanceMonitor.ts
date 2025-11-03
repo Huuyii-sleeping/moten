@@ -4,6 +4,7 @@
  * 用于跟踪和分析 Vue 组件的渲染性能
  * 单例模式，确保整个应用中只有一个性能监控实例
  */
+const baseURL = import.meta.env.VITE_BASE_URL
 export class PerformanceMonitor {
   private static instance: PerformanceMonitor
   private componentMetrics = new Map<string, ComponentMetrics>()
@@ -220,7 +221,7 @@ export class PerformanceMonitor {
    */
   private async reportToServer(data: PerformanceData): Promise<void> {
     try {
-      await fetch('http://localhost:8081/api/performance/component', {
+      await fetch(`${baseURL}/api/performance/component`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

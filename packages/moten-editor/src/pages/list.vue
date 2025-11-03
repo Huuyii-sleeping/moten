@@ -70,7 +70,7 @@
           <div class="card-thumbnail" @click="handlePreview(page.page_id)">
             <img
               v-if="page.coverImage"
-              :src="`http://localhost:8081${page.coverImage}`"
+              :src="`${baseURL}${page.coverImage}`"
               :alt="page.name"
               class="thumbnail-img"
             />
@@ -185,6 +185,7 @@ const isSidebarCollapsed = ref(false)
 const currentSelectedKey = ref('my-pages')
 const currentTitle = ref('我的页面')
 const currentNodeIcon = ref(Files) // 现在 Files 图标已导入，无异常
+const baseURL = import.meta.env.VITE_BASE_URL
 
 // 树状导航数据
 const treeData = ref([

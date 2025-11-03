@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
 import path from "path";
 import { createServer } from "http";
 import { error404Handler, errorHandler } from "./middleware/error.js";
@@ -13,17 +14,16 @@ import {
   pluginUploadController,
 } from "./controller/index.js";
 import { expressjwt } from "express-jwt";
-import { SECRET_KEY } from "./config/index.js";
 import { authFailedHandler } from "./middleware/auth.js";
 import { permissionHandler } from "./middleware/permission.js";
 import { BasicCollabService } from "./services/collab/collab-basic-service.js";
 import { exportRoute } from "./routes/export.js";
 import performanceRouter from "./routes/performance.js";
-
+dotenv.config()
 const app = express();
 app.use(cors());
 const server = createServer(app);
-const port = 8081;
+const port = process.env.PORT || 8081;
 
 const basiccollabService = new BasicCollabService();
 basiccollabService.init(server);
@@ -33,7 +33,7 @@ app.use(express.json());
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(
   expressjwt({
-    secret: SECRET_KEY,
+    secret: process.env.SECRET_KEY,
     algorithms: ["HS256"],
   }).unless({
     path: [

@@ -3,7 +3,6 @@ import { response } from "../utils/response.js";
 import { userDAO } from "../dao/user.js";
 import validate from "../middleware/validate.js";
 import jwt from "jsonwebtoken";
-import { SECRET_KEY } from "../config/index.js";
 
 export class UserController {
   register() {
@@ -33,7 +32,7 @@ export class UserController {
           res.json(response.accessDenied());
           return;
         }
-        const token = jwt.sign({ id: resultFirst.user_id }, SECRET_KEY, {
+        const token = jwt.sign({ id: resultFirst.user_id }, process.env.SECRET_KEY, {
           expiresIn: "24h",
         });
         return res.json(response.success({ ...resultFirst, token }));

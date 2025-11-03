@@ -155,12 +155,12 @@ const validateAll = async (item: any) => {
   }
   console.warn('ajv submit!')
 }
-
+const baseURL = import.meta.env.VITE_BASE_URL
 const exportProject = async () => {
   exporting.value = true
 
   try {
-    const response = await fetch('http://localhost:8081/api/export', {
+    const response = await fetch(`${baseURL}/api/export`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

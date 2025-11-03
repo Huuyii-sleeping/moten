@@ -297,13 +297,14 @@ const updateHistory = async () => {
   await collabStore.sendHistoryUpdata(blockConfig, historyIntroduction.value)
   await loadHistoryRecords()
 }
+const baseURL = import.meta.env.VITE_BASE_URL
 async function loadInstallPlugins() {
   try {
     const res = await getInstalledPluginsAsync()
     const _list = res.data
     const loadPromises = _list.map(async (plugin: any) => {
       const zipFilename = plugin.filePath.split('/').pop()
-      const zipUrl = `http://localhost:8081/uploads/plugins/${zipFilename}`
+      const zipUrl = `${baseURL}/uploads/plugins/${zipFilename}`
       await pluginManager.loadPlugin(plugin.id.toString(), zipUrl)
     })
     await Promise.all(loadPromises)
