@@ -24,6 +24,7 @@ export default defineConfig({
       dts: true,
     }) as Plugin,
   ],
+  base: '/moten/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
