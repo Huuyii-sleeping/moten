@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="preview-render"
-    :class="{ 'is-preview': edit.isPreview }"
-  >
+  <div class="preview-render" :class="{ 'is-preview': edit.isPreview }">
     <div
       v-for="element in flattenedList"
       :key="element.id"
@@ -57,7 +54,8 @@ import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
 import pluginManager from '@/utils/pluginManager'
 import { COMPONENT_PREFIX } from '@moten/ui'
-import { computed } from 'vue'
+import { memoize, result } from 'lodash-es'
+import { computed, ref, shallowRef, watch } from 'vue'
 
 const props = defineProps<{
   list: BaseBlock[]
@@ -68,37 +66,28 @@ const edit = useEditStore()
 const level = props.level || 1
 
 // 扁平化列表（预览不需要拖拽，但需正确渲染嵌套）
-const flattenedList = computed(() => {
-  const result: BaseBlock[] = []
-  const traverse = (items: BaseBlock[]) => {
-    items.forEach((item) => {
-      result.push(item)
-      if (item.children && item.nested) {
-        item.children.forEach((childList) => traverse(childList))
-      }
-    })
-  }
-  traverse(props.list)
-  return result
-})
+const flattenedListRef = shallowRef<BaseBlock[]>([])
+const flattenedList = computed(() => flattenedListRef.value)
+const pluginComponentCache = ref<Record<string, any>>({})
 
-const getElementStyle = (element: BaseBlock): any => {
-  return {
-    position: 'absolute',
-    left: `${element.x ?? 0}px`,
-    top: `${element.y ?? 0}px`,
-    width: element.width ? `${element.width}px` : 'auto',
-    height: element.height ? `${element.height}px` : 'auto',
-  }
-}
+const getElementStyle = memoize(
+  (element: BaseBlock): any => {
+    return {
+      position: 'absolute',
+      left: `${element.x ?? 0}px`,
+      top: `${element.y ?? 0}px`,
+      width: element.width ? `${element.width}px` : 'auto',
+      height: element.height ? `${element.height}px` : 'auto',
+    }
+  },
+  (element) => `${element.x}-${element.y}-${element.width}-${element.height}`,
+)
 
 // 预览组件中修改 renderComponentCode，对齐编辑组件
-const renderComponentCode = computed(() => {
-  return (element: { code: string; type?: string }) => {
-    if (element.type === 'el') return element.code // 确保 el 组件名正确返回
-    return COMPONENT_PREFIX + '-' + element.code
-  }
-})
+const renderComponentCode = (element: { code: string; type?: string }) => {
+  if (element.type === 'el') return element.code
+  return COMPONENT_PREFIX + '-' + element.code
+}
 
 const getComponentValues = (defaultValue: any) => {
   const defaultKeys = Object.keys(defaultValue)
@@ -110,8 +99,32 @@ const getComponentValues = (defaultValue: any) => {
 }
 
 const getPluginComponent = (pluginId: string) => {
-  return pluginManager.getComponent(pluginId) || 'div'
+  if (pluginComponentCache.value[pluginId]) {
+    return pluginComponentCache.value[pluginId]
+  }
+  const component = pluginManager.getComponent(pluginId) || 'div'
+  pluginComponentCache.value[pluginId] = component
+  return component
 }
+
+// 减少flatten扁平化的递归操作的触发频率
+watch(
+  () => props.list,
+  (newList) => {
+    const result: BaseBlock[] = []
+    const traverse = (items: BaseBlock[]) => {
+      items.forEach((item) => {
+        result.push(item)
+        if (item.children && item.nested) {
+          item.children.forEach((childrenList) => traverse(childrenList))
+        }
+      })
+    }
+    traverse(newList)
+    flattenedListRef.value = result
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped lang="scss">
