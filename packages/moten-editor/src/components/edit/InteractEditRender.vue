@@ -17,6 +17,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPageList } from './utils/nested'
 import InteractRenderDrag from './InteractRenderDrag.vue'
+import { isEqual } from 'lodash-es'
 
 const route = useRoute()
 const edit = useEditStore()
@@ -25,19 +26,25 @@ const useUser = useUserStore()
 const list = ref<BaseBlock[]>([]) as any
 const allPages = useUser.list
 getPageList(route, list, allPages)
-edit.setBlockConfig(list.value)
+if (list.value.length && !isEqual(list.value, edit.blockConfig)) {
+  edit.setBlockConfig(list.value)
+}
 
 watch(
   () => list.value,
   (val) => {
-    edit.setBlockConfig(val)
+    if (!isEqual(val, edit.blockConfig)) {
+      edit.setBlockConfig(val)
+    }
   },
   { deep: true },
 )
 watch(
   () => edit.blockConfig,
   (val) => {
-    list.value = val
+    if (!isEqual(val, list.value)) {
+      list.value = val
+    }
   },
   { deep: true },
 )
@@ -50,8 +57,9 @@ const onDrop = (event: DragEvent) => {
   if (!data) return
   try {
     const block = JSON.parse(data) as BaseBlock
-    if (event.target instanceof HTMLElement) {
-      const rect = event.target?.getBoundingClientRect()
+    const target = event.target as HTMLElement
+    if (target) {
+      const rect = target?.getBoundingClientRect()
       if (rect) {
         block.x = event.clientX - rect.left
         block.y = event.clientY - rect.top
