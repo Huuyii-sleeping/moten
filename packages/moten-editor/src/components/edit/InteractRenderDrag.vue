@@ -1048,6 +1048,7 @@ watch(
   { immediate: true },
 )
 
+
 watch(
   () => edit.zoomRatio,
   (radio) => {
