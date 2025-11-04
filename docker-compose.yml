@@ -1,0 +1,30 @@
+
+
+services:
+  # 前端服务
+  frontend:
+    # 构建配置：从前端 Dockerfile 构建
+    build:
+      context: .  # 构建上下文为根目录
+      dockerfile: packages/moten-editor/Dockerfile  # 前端 Dockerfile 路径
+    ports:
+      - "80:80"  # 本地端口:容器端口（访问 http://localhost 就是前端）
+    depends_on:
+      - backend  # 前端启动前先启动后端
+
+  # 后端服务
+  backend:
+    # 构建配置：从后端 Dockerfile 构建
+    build:
+      context: .
+      dockerfile: packages/moten-server/Dockerfile
+    ports:
+      - "8081:8081"  # 本地 8081 对应容器 8081（后端接口）
+    environment:
+      # 后端环境变量（根据你的 .env 配置，这里举例）
+      - NODE_ENV=production  # 生产环境
+      - PORT=8081  # 后端端口（和代码一致）
+      - SECRET_KEY=your_secret  # 替换成你的实际密钥
+    volumes:
+      # 挂载本地 uploads 目录到容器（确保上传的文件不会因容器删除丢失）
+      - ./packages/moten-server/uploads:/app/packages/moten-server/uploads
