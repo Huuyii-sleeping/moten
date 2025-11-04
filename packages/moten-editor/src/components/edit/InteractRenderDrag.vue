@@ -170,7 +170,17 @@ import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
 import pluginManager from '@/utils/pluginManager'
 import { COMPONENT_PREFIX } from '@moten/ui'
-import { computed, h, onMounted, onUnmounted, ref, nextTick, watch, createTextVNode } from 'vue'
+import {
+  computed,
+  h,
+  onMounted,
+  onUnmounted,
+  ref,
+  nextTick,
+  watch,
+  createTextVNode,
+  shallowRef,
+} from 'vue'
 import interact from 'interactjs'
 import performanceMonitorWrapper from '../performance/performanceMonitorWrapper.vue'
 import { nestedClass } from './utils/nested'
@@ -178,6 +188,7 @@ import getStroke from 'perfect-freehand'
 import type { DrawLine } from '@/types/canvas'
 import { useCanvasStateStore } from '@/stores/canvasState'
 import { generateUniqueId } from '@/utils'
+import { throttle } from 'lodash-es'
 const edit = useEditStore()
 const collabStore = useCollaborationStore()
 const props = defineProps({
@@ -201,23 +212,12 @@ const emit = defineEmits<{
 }>()
 const canvasRef = ref<HTMLElement | null>(null)
 const hoverId = ref('')
-// 扁平化列表 用来统一渲染所有的可拖拽项 包括嵌套
-const flattenedList = computed(() => {
-  const result: BaseBlock[] = []
-  const traverse = (items: BaseBlock[]) => {
-    items.forEach((item) => {
-      result.push(item)
-      if (item.children && item.nested) {
-        item.children.forEach((childList) => {
-          traverse(childList)
-        })
-      }
-    })
-  }
-  traverse(props.list)
-  return result
-})
-// canvas 画笔相关api
+const flattenedListRef = shallowRef<BaseBlock[]>([])
+const flattenedList = computed(() => flattenedListRef.value)
+// 缓存节点ID，和所在数组，索引的映射（当引用变化更新时候触发）
+const nodeMap = ref<Map<string, { array: BaseBlock[]; index: number }>>(new Map())
+
+// 画笔相关的操作
 const drawCanvasRef = ref<HTMLCanvasElement | null>(null)
 const drawCtx = ref<CanvasRenderingContext2D | null>(null)
 const isDrawing = ref(false)
@@ -714,14 +714,19 @@ const startDrawTouch = (e: TouchEvent) => {
   }
 }
 
+// 使用节流对绘画操作进行更新,限制绘画频率
+const throttledDrawPoints = throttle(() => {
+  drawPoints()
+}, 16)
+
 const drawing = (e: MouseEvent | TouchEvent) => {
   if (edit.isArrowMode && isDrawingArrow.value) {
     const pos = getDrawPos(e)
     arrowEndPos.value = { x: pos.x, y: pos.y }
-    drawPoints()
+    throttledDrawPoints() // 节流绘制
   } else if (edit.isFreehandMode && isDrawing.value && drawCtx.value) {
     points.value.push(getDrawPos(e))
-    drawPoints()
+    throttledDrawPoints()
   }
 }
 
@@ -892,18 +897,6 @@ const retryInit = (count = 0) => {
   })
 }
 
-watch(
-  () => edit.isPreview,
-  (isPreview) => {
-    if (isPreview) {
-      interact('.element').unset()
-      document.body.style.cursor = ''
-    } else {
-      nextTick(() => retryInit()) // 修复：用nextTick确保DOM更新后初始化
-    }
-  },
-)
-
 // 修复：删除重复的hanleElementClick，在正确的函数里添加预览判断
 const handleElementClick = (element: BaseBlock) => {
   if (edit.isPreview) return // 预览模式禁用选中
@@ -950,6 +943,18 @@ const clear = (id: string) => {
   emit('update:list', newList)
   edit.setCurrentSelect(null)
 }
+
+watch(
+  () => edit.isPreview,
+  (isPreview) => {
+    if (isPreview) {
+      interact('.element').unset()
+      document.body.style.cursor = ''
+    } else {
+      nextTick(() => retryInit()) // 修复：用nextTick确保DOM更新后初始化
+    }
+  },
+)
 
 watch(
   () => edit.isPreview,
@@ -1029,7 +1034,6 @@ watch(
     arrowStartPos.value = null
     arrowEndPos.value = null
     if (isActive) {
-      // todo 箭头操作逻辑
       if (drawCtx.value) {
         drawCtx.value.strokeStyle = lineColor.value
         drawCtx.value.lineWidth = lineWidth.value
@@ -1065,8 +1069,45 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () => props.list,
+  (newList) => {
+    const result: BaseBlock[] = []
+    const traverse = (items: BaseBlock[]) => {
+      items.forEach((item) => {
+        result.push(item)
+        if (item.children && item.nested) {
+          item.children.forEach((childList) => {
+            traverse(childList)
+          })
+        }
+      })
+    }
+    traverse(newList)
+    flattenedListRef.value = result
+  },
+  { immediate: true },
+)
+
+watch(
+  () => props.list,
+  (newList) => {
+    const map = new Map()
+    const traverse = (items: BaseBlock[], parentArray: BaseBlock[]) => {
+      items.forEach((item, index) => {
+        map.set(item.id, { array: parentArray, index })
+        if (item.children && item.nested) {
+          item.children.forEach((childList) => traverse(childList, childList))
+        }
+      })
+    }
+    traverse(newList, newList)
+    nodeMap.value = map
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
-  // 初始化元素拖拽
   edit.setCanvasInstance({
     undo,
     redo,
@@ -1211,7 +1252,6 @@ onUnmounted(() => {
   height: 100%;
   background-color: #f9fafb;
 
-  // 点阵背景（仅编辑模式）
   &:not(.is-preview) {
     background-color: #f8f9fa;
     background-image:
@@ -1235,7 +1275,7 @@ onUnmounted(() => {
 
   &.is-preview {
     pointer-events: auto;
-    background-image: none; // 预览模式无网格
+    background-image: none;
   }
 
   .element {
@@ -1254,23 +1294,20 @@ onUnmounted(() => {
   }
 }
 
-// 元素样式确保层级正确
 .element {
   position: absolute;
   user-select: none;
-  // 确保元素始终在Canvas之上（如果启用）
   z-index: 10;
 }
 
-// Canvas层级调整（绘制时在元素上方，平时在下方）
 .freehand-overlay {
   position: absolute;
-  top: 60px; // 与工具栏高度对齐
+  top: 60px;
   left: 0;
   width: 100vw;
   height: calc(100vh - 60px);
   pointer-events: auto;
-  z-index: 20; // 绘制时覆盖元素
+  z-index: 20;
 }
 
 .nested-item {
@@ -1319,7 +1356,6 @@ onUnmounted(() => {
   }
 }
 
-// 补充：插件占位符样式（防止未加载时样式错乱）
 .plugin-placeholder {
   display: flex;
   align-items: center;
