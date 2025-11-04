@@ -16,7 +16,7 @@
 import { useEditStore } from '@/stores/edit'
 import { ref, watch } from 'vue'
 import { blockSchema, type BlockSchema, type BlockSchemaKeys } from '@/config/schema'
-import { findNodeById } from './nested'
+import { findNodeById } from './utils/nested'
 import deepmerge from 'deepmerge'
 const edit = useEditStore()
 const list = ref<any[]>([])

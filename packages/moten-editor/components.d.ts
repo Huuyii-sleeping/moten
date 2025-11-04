@@ -59,7 +59,6 @@ declare module 'vue' {
     ElTimeline: typeof import('element-plus/es')['ElTimeline']
     ElTimelineItem: typeof import('element-plus/es')['ElTimelineItem']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
-    FreehandCanvas: typeof import('./src/components/edit/utils/freehandCanvas.vue')['default']
     InteractEditBlockDrag: typeof import('./src/components/edit/InteractEditBlockDrag.vue')['default']
     InteractEditRender: typeof import('./src/components/edit/InteractEditRender.vue')['default']
     InteractPreviewRender: typeof import('./src/components/edit/InteractPreviewRender.vue')['default']

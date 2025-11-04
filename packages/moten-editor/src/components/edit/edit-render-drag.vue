@@ -161,7 +161,7 @@
 
 <script setup lang="ts">
 import { computed, h, ref } from 'vue'
-import { findNodeById, move, nestedClass, replaceNodeId } from './nested'
+import { findNodeById, move, nestedClass, replaceNodeId } from './utils/nested'
 import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
 import { COMPONENT_PREFIX } from '@/config'

@@ -11,7 +11,7 @@
       @click="onClick(element)"
     >
       <v-icon class="block-icon" :icon="element.icon" />
-      <div class="block-name" v-html="element.name" />
+      <div class="block-name">{{ element.name }}</div>
     </div>
   </div>
 </template>
@@ -22,6 +22,7 @@ import { useEditStore } from '@/stores/edit'
 import type { BaseBlock } from '@/types/edit'
 import { generateUniqueId } from '@/utils'
 import { ref } from 'vue'
+import { createNewBlock } from './utils'
 
 const edit = useEditStore()
 const canvasState = useCanvasStateStore()
@@ -41,10 +42,7 @@ const onDragStart = (event: DragEvent, element: BaseBlock) => {
 
   event.stopPropagation()
   // 克隆一份新数据（避免引用）
-  const cloned = JSON.parse(JSON.stringify(element))
-  cloned.id = generateUniqueId()
-  cloned.width = cloned.width || 200
-  cloned.height = cloned.height || 200
+  const cloned = createNewBlock(element)
 
   // 通过 dataTransfer 传递 JSON 字符串
   event.dataTransfer.setData('application/json', JSON.stringify(cloned))
@@ -58,14 +56,10 @@ const onDragStart = (event: DragEvent, element: BaseBlock) => {
     isDragging.value = false
   }
   document.addEventListener('dragend', cleanup, { once: true })
-  document.addEventListener('dragleave', () => {
-    isDragging.value = false
-  })
 }
 
 // 点击也触发添加（方便移动端或不想拖拽的用户）
 const onClick = (element: BaseBlock) => {
-  debugger
   if (isDragging.value) return
   const { viewportOffsetX, viewportOffsetY } = canvasState
   const canvasEl = document.querySelector('.edit-render-drag')
@@ -73,13 +67,9 @@ const onClick = (element: BaseBlock) => {
   const canvasRect = canvasEl.getBoundingClientRect()
   const centerX = canvasRect.width / 2 - 300
   const centerY = canvasRect.height / 2 - 200
-  const cloned = JSON.parse(JSON.stringify(element))
-  console.log('click:', cloned)
-  cloned.id = generateUniqueId()
+  const cloned = createNewBlock(element)
   cloned.x = centerX - viewportOffsetX
   cloned.y = centerY - viewportOffsetY
-  cloned.width = cloned.width || 200
-  cloned.height = cloned.height || 200
   edit.addBlock(cloned)
 }
 

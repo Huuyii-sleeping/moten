@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import InteractPreviewRender from '@/components/edit/InteractPreviewRender.vue'
-import { getPageList } from '@/components/edit/nested'
+import { getPageList } from '@/components/edit/utils/nested'
 import { useEditStore } from '@/stores/edit'
 import { useUserStore } from '@/stores/user'
 import { computed, onMounted, onUnmounted, ref } from 'vue'

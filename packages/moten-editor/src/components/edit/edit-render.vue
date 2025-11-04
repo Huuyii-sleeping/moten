@@ -1,10 +1,6 @@
 <template>
   <div class="edit-render" :class="pageClass">
-    <edit-render-drag
-      :list="list"
-      :group="dragGroup"
-      class="render"
-    ></edit-render-drag>
+    <edit-render-drag :list="list" :group="dragGroup" class="render"></edit-render-drag>
     <el-empty class="empty" v-if="!list?.length" description="请将左侧的组件拖入到此处">
       <template #image>
         <v-icon icon="dragBlank" class="icon"></v-icon>
@@ -16,7 +12,7 @@
 <script setup lang="ts">
 import type { BaseBlock } from '@/types/edit'
 import { computed, ref, watch } from 'vue'
-import { dragGroup, getPageList } from './nested'
+import { dragGroup, getPageList } from './utils/nested'
 import { useEditStore } from '@/stores/edit'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'

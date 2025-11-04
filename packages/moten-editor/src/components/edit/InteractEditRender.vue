@@ -15,7 +15,7 @@ import { useUserStore } from '@/stores/user'
 import type { BaseBlock } from '@/types/edit'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { getPageList } from './nested'
+import { getPageList } from './utils/nested'
 import InteractRenderDrag from './InteractRenderDrag.vue'
 
 const route = useRoute()
