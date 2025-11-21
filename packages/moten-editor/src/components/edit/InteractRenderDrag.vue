@@ -315,32 +315,33 @@ const initDrawCanvas = () => {
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
   ctx.globalCompositeOperation = 'source-over'
-  ctx.translate(-canvasState.viewportOffsetX, -canvasState.viewportOffsetY)
+  // ctx.translate(-canvasState.viewportOffsetX, -canvasState.viewportOffsetY)
 
-  const savedData = edit.canvasDrawData?.[edit.viewport] || ''
-  if (savedData) {
-    const img = new Image()
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, rect.width, rect.height)
-      if (edit.drawHistory.length === 0) {
-        const backgroundLine: DrawLine = {
-          points: [],
-          color: '',
-          width: 0,
-          isEraser: false,
-          isBackground: true,
-          imageData: savedData,
-        }
-        edit.drawHistory = [backgroundLine]
-        edit.historyIndex = 0
-      }
-    }
-    img.src = savedData
-  } else {
-    ctx.clearRect(0, 0, rect.width, rect.height)
-    edit.drawHistory = []
-    edit.historyIndex = -1
-  }
+  // const savedData = edit.canvasDrawData?.[edit.viewport] || ''
+  // if (savedData) {
+  //   const img = new Image()
+  //   img.onload = () => {
+  //     ctx.drawImage(img, 0, 0, rect.width, rect.height)
+  //     if (edit.drawHistory.length === 0) {
+  //       const backgroundLine: DrawLine = {
+  //         points: [],
+  //         color: '',
+  //         width: 0,
+  //         isEraser: false,
+  //         isBackground: true,
+  //         imageData: savedData,
+  //       }
+  //       edit.drawHistory = [backgroundLine]
+  //       edit.historyIndex = 0
+  //     }
+  //   }
+  //   img.src = savedData
+  // } else {
+  //   ctx.clearRect(0, 0, rect.width, rect.height)
+  //   edit.drawHistory = []
+  //   edit.historyIndex = -1
+  // }
+  drawPoints()
 }
 
 // 绘制操作
@@ -352,7 +353,7 @@ const drawPoints = () => {
 
   ctx.save()
   ctx.setTransform(dpr.value, 0, 0, dpr.value, 0, 0)
-  ctx.translate(-canvasState.viewportOffsetX, -canvasState.viewportOffsetY)
+  ctx.translate(canvasState.viewportOffsetX, canvasState.viewportOffsetY)
 
   ctx.clearRect(
     -canvasState.viewportOffsetX,
@@ -363,17 +364,18 @@ const drawPoints = () => {
 
   if (edit.historyIndex >= 0) {
     const visibleHistory = edit.drawHistory.slice(0, edit.historyIndex + 1)
-    const backgroundLine = visibleHistory.find((line) => line.isBackground)
-    if (backgroundLine && backgroundLine.imageData) {
-      const img = new Image()
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, containerRect.width, containerRect.height)
-        drawOtherLines(visibleHistory, ctx)
-      }
-      img.src = backgroundLine.imageData
-    } else {
-      drawOtherLines(visibleHistory, ctx)
-    }
+    drawOtherLines(visibleHistory, ctx)
+    // const backgroundLine = visibleHistory.find((line) => line.isBackground)
+    // if (backgroundLine && backgroundLine.imageData) {
+    //   const img = new Image()
+    //   img.onload = () => {
+    //     ctx.drawImage(img, 0, 0, containerRect.width, containerRect.height)
+    //     drawOtherLines(visibleHistory, ctx)
+    //   }
+    //   img.src = backgroundLine.imageData
+    // } else {
+    //   drawOtherLines(visibleHistory, ctx)
+    // }
   }
 
   // 2. 绘制当前正在画的线条（如果处于绘制中）
@@ -679,8 +681,8 @@ const getDrawPos = (e: MouseEvent | TouchEvent): { x: number; y: number; pressur
     y = touch.clientY - rect.top
     pressure = touch.force || 0.5
   }
-  x = Math.max(0, Math.min(x, rect.width))
-  y = Math.max(0, Math.min(y, rect.height))
+  x -= canvasState.viewportOffsetX
+  y -= canvasState.viewportOffsetY
   return { x, y, pressure }
 }
 
@@ -1048,7 +1050,6 @@ watch(
   { immediate: true },
 )
 
-
 watch(
   () => edit.zoomRatio,
   (radio) => {
@@ -1290,7 +1291,8 @@ onUnmounted(() => {
 
     &.preview-disabled {
       cursor: default !important;
-      pointer-events: none;
+      pointer-events: auto;
+      user-select: auto;
     }
   }
 }
