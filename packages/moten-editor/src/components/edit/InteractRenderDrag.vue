@@ -7,10 +7,12 @@
     @drop.prevent="handleDrop"
   >
     <canvas
-      v-if="!edit.isPreview && edit.isFreehandMode"
       ref="drawCanvasRef"
       class="freehand-overlay"
-      :style="{ pointerEvents: edit.isFreehandMode || edit.isArrowMode ? 'auto' : 'none' }"
+      :style="{
+        pointerEvents: edit.isFreehandMode || edit.isArrowMode ? 'auto' : 'none',
+        zIndex: edit.isFreehandMode || edit.isArrowMode ? 999 : 1,
+      }"
       @mousedown="startDraw"
       @mousemove="drawing"
       @mouseup="stopDraw"
@@ -299,7 +301,7 @@ const handleCanvasMouseUp = () => {
 
 // 初始化操作
 const initDrawCanvas = () => {
-  if (edit.isPreview || !canvasRef.value || !drawCanvasRef.value) return
+  if (!canvasRef.value || !drawCanvasRef.value) return
   const container = canvasRef.value
   const canvas = drawCanvasRef.value
   const rect = container.getBoundingClientRect()
@@ -315,32 +317,6 @@ const initDrawCanvas = () => {
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
   ctx.globalCompositeOperation = 'source-over'
-  // ctx.translate(-canvasState.viewportOffsetX, -canvasState.viewportOffsetY)
-
-  // const savedData = edit.canvasDrawData?.[edit.viewport] || ''
-  // if (savedData) {
-  //   const img = new Image()
-  //   img.onload = () => {
-  //     ctx.drawImage(img, 0, 0, rect.width, rect.height)
-  //     if (edit.drawHistory.length === 0) {
-  //       const backgroundLine: DrawLine = {
-  //         points: [],
-  //         color: '',
-  //         width: 0,
-  //         isEraser: false,
-  //         isBackground: true,
-  //         imageData: savedData,
-  //       }
-  //       edit.drawHistory = [backgroundLine]
-  //       edit.historyIndex = 0
-  //     }
-  //   }
-  //   img.src = savedData
-  // } else {
-  //   ctx.clearRect(0, 0, rect.width, rect.height)
-  //   edit.drawHistory = []
-  //   edit.historyIndex = -1
-  // }
   drawPoints()
 }
 
@@ -365,17 +341,6 @@ const drawPoints = () => {
   if (edit.historyIndex >= 0) {
     const visibleHistory = edit.drawHistory.slice(0, edit.historyIndex + 1)
     drawOtherLines(visibleHistory, ctx)
-    // const backgroundLine = visibleHistory.find((line) => line.isBackground)
-    // if (backgroundLine && backgroundLine.imageData) {
-    //   const img = new Image()
-    //   img.onload = () => {
-    //     ctx.drawImage(img, 0, 0, containerRect.width, containerRect.height)
-    //     drawOtherLines(visibleHistory, ctx)
-    //   }
-    //   img.src = backgroundLine.imageData
-    // } else {
-    //   drawOtherLines(visibleHistory, ctx)
-    // }
   }
 
   // 2. 绘制当前正在画的线条（如果处于绘制中）
@@ -961,8 +926,15 @@ watch(
 watch(
   () => edit.isPreview,
   (isPreview) => {
-    if (!isPreview) {
+    if (isPreview) {
+      interact('.element').unset()
+      document.body.style.cursor = ''
       nextTick(() => initDrawCanvas())
+    } else {
+      nextTick(() => {
+        initDrawCanvas()
+        retryInit()
+      })
     }
   },
 )
@@ -1071,6 +1043,12 @@ watch(
   { immediate: true },
 )
 
+watch([() => canvasState.viewportOffsetX, () => canvasState.viewportOffsetY], () => {
+  requestAnimationFrame(() => {
+    drawPoints()
+  })
+})
+
 watch(
   () => props.list,
   (newList) => {
@@ -1115,12 +1093,12 @@ onMounted(() => {
     redo,
     clearAllDraw,
   })
-  if (!edit.isPreview) {
-    nextTick(() => {
-      initDrawCanvas()
+  nextTick(() => {
+    initDrawCanvas()
+    if (!edit.isPreview) {
       retryInit()
-    })
-  }
+    }
+  })
   if (canvasRef.value) {
     canvasRef.value.addEventListener('mousedown', handleCanvasMouseDown)
     window.addEventListener('mousemove', handleCanvasMouseMove)
@@ -1270,9 +1248,9 @@ onUnmounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: auto;
-    cursor: crosshair;
-    z-index: 999;
+    pointer-events: none;
+    // cursor: crosshair;
+    z-index: 1;
   }
 
   &.is-preview {
