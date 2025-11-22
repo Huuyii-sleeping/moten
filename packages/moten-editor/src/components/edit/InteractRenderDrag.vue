@@ -191,6 +191,7 @@ import type { DrawLine } from '@/types/canvas'
 import { useCanvasStateStore } from '@/stores/canvasState'
 import { generateUniqueId } from '@/utils'
 import { throttle } from 'lodash-es'
+import { isRectIntersect } from './utils'
 const edit = useEditStore()
 const collabStore = useCollaborationStore()
 const props = defineProps({
@@ -231,6 +232,7 @@ const lineWidth = ref(3)
 const isDrawingArrow = ref(false)
 const arrowStartPos = ref<{ x: number; y: number } | null>(null)
 const arrowEndPos = ref<{ x: number; y: number } | null>(null)
+const pathCache = new Map<DrawLine, Path2D>()
 const canvasState = useCanvasStateStore()
 let isHandingDrop = ref(false)
 let isDraggingCanvas = ref(false)
@@ -427,9 +429,26 @@ const drawGrid = () => {
 }
 
 const drawOtherLines = (lines: DrawLine[], ctx: CanvasRenderingContext2D) => {
+  if (!canvasRef.value) return
+  const containerRect = canvasRef.value.getBoundingClientRect()
+  const viewportRect = {
+    x: -canvasState.viewportOffsetX,
+    y: -canvasState.viewportOffsetY,
+    w: containerRect.width,
+    h: containerRect.height,
+  }
   lines.forEach((line) => {
+    if (line.points.length > 0) {
+      const xs = line.points.map((p) => p.x)
+      const ys = line.points.map((p) => p.y)
+      const minX = Math.min(...xs) - line.width
+      const maxX = Math.max(...xs) + line.width
+      const minY = Math.min(...ys) - line.width
+      const maxY = Math.max(...ys) + line.width
+      const lineRect = { x: minX, y: minY, w: maxX - minX, h: maxY - minY }
+      if (!isRectIntersect(viewportRect, lineRect)) return
+    }
     if (line.isBackground) return
-
     // 保存原始的混合模式和样式
     const originalComnposite = ctx.globalCompositeOperation
     const originalFillStyle = ctx.fillStyle
@@ -446,21 +465,28 @@ const drawOtherLines = (lines: DrawLine[], ctx: CanvasRenderingContext2D) => {
       } else {
         ctx.globalCompositeOperation = 'source-over'
       }
-      const stroke = getStroke(line.points, {
-        size: lineWidth,
-        thinning: 0.6,
-        smoothing: 0.5,
-        streamline: 0.5,
-      })
-      ctx.fillStyle = lineColor
-      ctx.beginPath()
-      if (stroke.length > 0) {
-        ctx.moveTo(stroke[0][0], stroke[0][1])
-        for (let i = 1; i < stroke.length; i++) {
-          ctx.lineTo(stroke[i][0], stroke[i][1])
+      let path = pathCache.get(line)
+      if (!path) {
+        const stroke = getStroke(line.points, {
+          size: lineWidth,
+          thinning: 0.6,
+          smoothing: 0.5,
+          streamline: 0.5,
+        })
+        path = new Path2D()
+        if (stroke.length > 0) {
+          path.moveTo(stroke[0][0], stroke[0][1])
+          for (let i = 1; i < stroke.length; i++) {
+            path.lineTo(stroke[i][0], stroke[i][1])
+          }
         }
+        path.closePath()
+        pathCache.set(line, path)
       }
-      ctx.fill()
+
+      ctx.fill(path)
+      ctx.globalCompositeOperation = originalComnposite
+      ctx.fillStyle = originalFillStyle
     }
 
     ctx.globalCompositeOperation = originalComnposite
@@ -1085,6 +1111,13 @@ watch(
     nodeMap.value = map
   },
   { immediate: true },
+)
+
+watch(
+  () => edit.drawHistory,
+  () => {
+    if (edit.drawHistory.length === 0) pathCache.clear()
+  },
 )
 
 onMounted(() => {

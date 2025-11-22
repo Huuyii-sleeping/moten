@@ -8,3 +8,12 @@ export const createNewBlock = (element: BaseBlock) => {
   cloned.height = cloned.height ? cloned.height : 200
   return cloned
 }
+
+export const isRectIntersect = (
+  r1: { x: number; y: number; w: number; h: number },
+  r2: { x: number; y: number; w: number; h: number },
+) => {
+  return !(r2.x > r1.x + r1.w || r2.x + r2.w < r1.x || r2.y > r1.y + r1.h || r2.y + r2.h < r1.y)
+}
+
+
