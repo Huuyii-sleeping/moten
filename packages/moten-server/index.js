@@ -19,7 +19,7 @@ import { permissionHandler } from "./middleware/permission.js";
 import { BasicCollabService } from "./services/collab/collab-basic-service.js";
 import { exportRoute } from "./routes/export.js";
 import performanceRouter from "./routes/performance.js";
-dotenv.config()
+dotenv.config();
 const app = express();
 app.use(cors());
 const server = createServer(app);
@@ -39,6 +39,7 @@ app.use(
     path: [
       "/rest/v1/user/register",
       "/rest/v1/user/login",
+      "/rest/v1/user/refresh",
       "/",
       "/api/export",
       "/api/performance/component",
@@ -59,6 +60,7 @@ app.post("/rest/v1/user/register", userController.register());
 app.post("/rest/v1/user/login", userController.login());
 app.get("/rest/v1/user", userController.findAll());
 app.post("/rest/v1/user/disabled", userController.disable());
+app.post("/rest/v1/user/refresh", userController.refresh());
 
 // 页面
 app.get("/rest/v1/page", pageController.findAll());

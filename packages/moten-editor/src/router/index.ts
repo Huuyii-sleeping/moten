@@ -66,20 +66,21 @@ const router = createRouter({
   ],
 })
 
-// router.beforeEach(async (to, from, next) => {
-//   const userStore = useUserStore()
-//   const isLogin = !!userStore.token
-//   if (isLogin && ['/login', '/register'].includes(to.path)) {
-//     next('/')
-//     return
-//   }
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore()
 
-//   if (!isLogin && to.meta.requiresAuth) {
-//     next(`/login`)
-//     return
-//   }
+  const canAccess = !!userStore.token || !!userStore.refreshToken
+  if (canAccess && ['/login', '/register'].includes(to.path)) {
+    next('/')
+    return
+  }
 
-//   next()
-// })
+  if (!canAccess && to.meta.requiresAuth) {
+    next(`/login`)
+    return
+  }
+
+  next()
+})
 
 export default router

@@ -32,11 +32,48 @@ export class UserController {
           res.json(response.accessDenied());
           return;
         }
-        const token = jwt.sign({ id: resultFirst.user_id }, process.env.SECRET_KEY, {
-          expiresIn: "24h",
-        });
-        return res.json(response.success({ ...resultFirst, token }));
+        const token = jwt.sign(
+          { id: resultFirst.user_id },
+          process.env.SECRET_KEY,
+          {
+            expiresIn: "15m",
+          }
+        );
+        const refreshToken = jwt.sign(
+          { id: resultFirst.user_id, type: "refresh" },
+          process.env.SECRET_KEY,
+          {
+            expiresIn: "7d",
+          }
+        );
+        return res.json(
+          response.success({ ...resultFirst, token, refreshToken })
+        );
       } else res.json(response.authorizeFailed());
+    };
+    return [validate(rules, "body"), handler];
+  }
+
+  refresh() {
+    const rules = Joi.object({
+      refreshToken: Joi.string().required(),
+    });
+
+    const handler = async (req, res) => {
+      const { refreshToken } = req.body;
+      try {
+        const decoded = jwt.verify(refreshToken, process.env.SECRET_KEY);
+        const newToken = jwt.sign({ id: decoded.id }, process.env.SECRET_KEY, {
+          expiresIn: "15m",
+        });
+        return res.json(
+          response.success({
+            token: newToken,
+          })
+        );
+      } catch (error) {
+        return res.json(response.authorizeFailed());
+      }
     };
     return [validate(rules, "body"), handler];
   }

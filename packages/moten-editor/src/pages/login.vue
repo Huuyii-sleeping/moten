@@ -163,11 +163,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           message: '登录成功',
           type: 'success',
         })
-        const { role_id, token } = data
+        const { role_id, token, refreshToken } = data
         userStore.setRole(role_id)
         userStore.setToken(token)
+        userStore.setRefreshToken(refreshToken)
 
-        // 如果勾选了记住密码，可以在这里进行本地存储
 
         router.push('/')
       } else {

@@ -1,11 +1,17 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { setToken as setLocalStore } from '@/utils/store'
+import {
+  setToken as setLocalStore,
+  setRefreshToken as setLocalRefreshToken,
+  getToken,
+  getRefreshToken,
+} from '@/utils/store'
 
 export const useUserStore = defineStore('user', () => {
-  const token = ref('')
+  const token = ref(getToken() || '')
   const role = ref(10)
   const list = ref([])
+  const refreshToken = ref(getRefreshToken() || '')
 
   const isAdminRole = computed(() => role.value === 20)
 
@@ -19,11 +25,17 @@ export const useUserStore = defineStore('user', () => {
   const setList = (value: any) => {
     list.value = value
   }
+  const setRefreshToken = (value: string) => {
+    setLocalRefreshToken(value)
+    refreshToken.value = value
+  }
   return {
     token,
     role,
     isAdminRole,
     list,
+    refreshToken,
+    setRefreshToken,
     setList,
     setToken,
     setRole,

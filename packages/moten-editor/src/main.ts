@@ -10,7 +10,7 @@ import '@moten/ui/dist/theme/moten.css'
 import 'element-plus/dist/index.css'
 import ElementPlus from 'element-plus'
 import { useUserStore } from './stores/user'
-import { getToken } from './utils/store'
+import { getRefreshToken, getToken } from './utils/store'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
@@ -28,5 +28,3 @@ app.component('draggable', Draggable)
 app.component('QuillEditor', QuillEditor)
 app.mount('#app')
 
-const userStore = useUserStore()
-userStore.setToken(getToken())
