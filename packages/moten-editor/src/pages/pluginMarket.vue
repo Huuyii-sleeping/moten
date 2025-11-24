@@ -58,7 +58,7 @@
             </div>
             <div class="meta-item">
               <el-icon class="meta-icon"><StarFilled /></el-icon>
-              <span class="meta-text">{{ plugin.rating.toFixed(1) }}⭐</span>
+              <!-- <span class="meta-text">{{ plugin.rating.toFixed(1) }}⭐</span> -->
             </div>
             <div class="meta-item">
               <el-icon class="meta-icon"><DownloadFilled /></el-icon>
@@ -136,7 +136,7 @@ const formatDownloadCount = (count: number) => {
   if (count >= 1000) {
     return (count / 1000).toFixed(1) + 'k'
   }
-  return count.toString()
+  return String(count)
 }
 
 // 安装插件

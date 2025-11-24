@@ -143,9 +143,6 @@ const formatTime = (timeStr: string) => {
 const formatTags = (tags: string) => {
   if (!tags) return '无'
   return tags
-    .split(',')
-    .filter((tag) => tag.trim())
-    .join('、')
 }
 
 // 切换插件详情展开/收起
