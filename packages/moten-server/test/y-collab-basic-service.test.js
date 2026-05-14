@@ -125,3 +125,112 @@ test("handleConnection sends current online presence to the connected client", a
   assert.equal(presenceMessage.payload.userCount, 1);
   assert.equal(presenceMessage.payload.users[0].username, "alice");
 });
+
+test("personal workspace seeds a new document from page content when no snapshot exists", async (t) => {
+  const pageRepository = {
+    async findOne(pageId) {
+      assert.equal(pageId, "12");
+      return {
+        status: true,
+        result: [
+          {
+            content: [
+              {
+                id: "block-a",
+                code: "button",
+                value: { content: { desktop: "Hello" } },
+                children: [],
+                nested: false,
+                type: "component",
+              },
+            ],
+          },
+        ],
+      };
+    },
+  };
+
+  const storage = {
+    async loadDocState() {
+      return null;
+    },
+    async saveDocUpdate() {
+      return null;
+    },
+    async getComments() {
+      return [];
+    },
+    async getHistory() {
+      return [];
+    },
+  };
+
+  const service = new BasicCollabService({
+    storage,
+    pageRepository,
+    logger: createLogger(),
+  });
+  const { ydoc } = await service.getOrCreateDoc("personal:12:alice");
+  t.after(async () => {
+    await service.cleanupDoc("personal:12:alice");
+  });
+
+  const seededBlocks = ydoc.getArray("blockConfig").toArray();
+  assert.equal(seededBlocks.length, 1);
+  assert.equal(seededBlocks[0].id, "block-a");
+  assert.deepEqual(seededBlocks[0].formData, { content: { desktop: "Hello" } });
+});
+
+test("shared workspace seeds a new document from the source workspace snapshot", async (t) => {
+  const sourceDoc = new Y.Doc();
+  sourceDoc.getArray("blockConfig").push([
+    {
+      id: "shared-block",
+      code: "button",
+      formData: { content: { desktop: "Shared seed" } },
+      children: [],
+      nested: false,
+      type: "component",
+    },
+  ]);
+
+  const storage = {
+    async loadDocState(docId) {
+      if (docId === "shared:12:design-review") {
+        return null;
+      }
+      if (docId === "personal:12:alice") {
+        return {
+          update: Y.encodeStateAsUpdate(sourceDoc),
+          version: 1,
+        };
+      }
+      return null;
+    },
+    async saveDocUpdate() {
+      return null;
+    },
+    async getComments() {
+      return [];
+    },
+    async getHistory() {
+      return [];
+    },
+  };
+
+  const service = new BasicCollabService({ storage, logger: createLogger() });
+  const { ydoc } = await service.getOrCreateDoc("shared:12:design-review", {
+    seedFromDocId: "personal:12:alice",
+  });
+  t.after(async () => {
+    await service.cleanupDoc("shared:12:design-review");
+  });
+
+  const seededBlocks = ydoc.getArray("blockConfig").toArray();
+  assert.equal(seededBlocks.length, 1);
+  assert.equal(seededBlocks[0].id, "shared-block");
+  assert.equal(
+    seededBlocks[0].formData.content.desktop,
+    "Shared seed",
+  );
+});

@@ -3,6 +3,7 @@ import { Awareness } from "y-protocols/awareness";
 import { WebSocketServer, WebSocket } from "ws";
 import { CollabStorage } from "../collab/collab-storage.js";
 import { generateUniqueId, parseWsParams } from "../collab/collab-utils.js";
+import { pageDAO } from "../../dao/page.js";
 
 function createNoopLogger() {
   return {
@@ -14,9 +15,10 @@ function createNoopLogger() {
 }
 
 export class BasicCollabService {
-  constructor({ storage, logger } = {}) {
+  constructor({ storage, logger, pageRepository } = {}) {
     this.storage = storage ?? new CollabStorage();
     this.logger = logger ?? createNoopLogger();
+    this.pageRepository = pageRepository ?? pageDAO;
     this.wss = null;
     this.yDocs = new Map();
     this.awarenessByDoc = new Map();
@@ -39,7 +41,7 @@ export class BasicCollabService {
   }
 
   async handleConnection(ws, req) {
-    const { docId, isEditor = false, username = "匿名用户" } = parseWsParams(
+    const { docId, isEditor = false, username = "匿名用户", seedFrom } = parseWsParams(
       req?.url || "",
     );
 
@@ -53,7 +55,9 @@ export class BasicCollabService {
     ws.username = username;
     ws.isEditor = isEditor;
 
-    const { ydoc } = await this.getOrCreateDoc(docId);
+    const { ydoc } = await this.getOrCreateDoc(docId, {
+      seedFromDocId: seedFrom,
+    });
     const connections = this._getDocConnections(docId);
     connections.add(ws);
 
@@ -74,7 +78,7 @@ export class BasicCollabService {
     });
   }
 
-  async getOrCreateDoc(docId) {
+  async getOrCreateDoc(docId, options = {}) {
     if (this.yDocs.has(docId)) {
       return {
         ydoc: this.yDocs.get(docId),
@@ -90,6 +94,7 @@ export class BasicCollabService {
       Y.applyUpdate(ydoc, savedState.update, "storage");
       this.logger.info(`已从持久化恢复文档 ${docId}`);
     } else {
+      await this._seedNewDoc(ydoc, docId, options);
       this.logger.info(`创建新的 Yjs 文档 ${docId}`);
     }
 
@@ -321,5 +326,82 @@ export class BasicCollabService {
       return this.storage.getHistoryRecords(docId) || [];
     }
     return [];
+  }
+
+  async _seedNewDoc(ydoc, docId, options) {
+    const sharedSeed = await this._loadSharedSeed(options.seedFromDocId);
+    if (sharedSeed) {
+      Y.applyUpdate(ydoc, sharedSeed, "seed");
+      return;
+    }
+
+    const personalSeed = await this._loadPersonalSeed(docId);
+    if (!personalSeed) {
+      return;
+    }
+
+    this._applyDocSeed(ydoc, personalSeed);
+  }
+
+  async _loadSharedSeed(seedFromDocId) {
+    if (!seedFromDocId) {
+      return null;
+    }
+
+    const savedState = await this.storage.loadDocState(seedFromDocId);
+    return savedState?.update || null;
+  }
+
+  async _loadPersonalSeed(docId) {
+    const personalMatch = /^personal:(?<pageId>[^:]+):(?<username>.+)$/.exec(docId);
+    if (!personalMatch?.groups?.pageId) {
+      return null;
+    }
+
+    const pageResult = await this.pageRepository.findOne(personalMatch.groups.pageId);
+    if (!pageResult?.status) {
+      return null;
+    }
+
+    const page = Array.isArray(pageResult.result)
+      ? pageResult.result[0]
+      : pageResult.result;
+
+    if (!page?.content) {
+      return null;
+    }
+
+    const rawContent =
+      typeof page.content === "string" ? JSON.parse(page.content) : page.content;
+
+    return {
+      blockConfig: Array.isArray(rawContent) ? rawContent.map((item) => this._normalizeBlock(item)) : [],
+      pageConfig: page.pageConfig ?? {},
+    };
+  }
+
+  _applyDocSeed(ydoc, seedState) {
+    const blockConfig = ydoc.getArray("blockConfig");
+    if (Array.isArray(seedState.blockConfig) && seedState.blockConfig.length > 0) {
+      blockConfig.push(seedState.blockConfig);
+    }
+
+    const pageConfig = ydoc.getMap("pageConfig");
+    for (const [key, value] of Object.entries(seedState.pageConfig || {})) {
+      pageConfig.set(key, value);
+    }
+  }
+
+  _normalizeBlock(block) {
+    return {
+      id: block.id,
+      code: block.code,
+      formData: block.formData ?? block.value ?? {},
+      children: block.children ?? [],
+      nested: Boolean(block.nested),
+      type: block.type ?? "",
+      x: block.x,
+      y: block.y,
+    };
   }
 }
