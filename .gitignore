@@ -1,3 +1,14 @@
 node_modules/
+.pnpm-store/
+dist/
+coverage/
+.vite/
+.cache/
+.temp/
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.env.*.local
 logs/
 uploads/
