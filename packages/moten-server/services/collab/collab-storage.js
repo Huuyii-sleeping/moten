@@ -22,6 +22,8 @@ export class CollabStorage {
     this.canvasStates = new Map();
     // 存储画板的工具
     this.userToolState = new Map();
+    // Yjs 文档快照：docId -> { update, version }
+    this.docSnapshots = new Map();
   }
 
   /**
@@ -199,6 +201,31 @@ export class CollabStorage {
     return this.comments.get(docId);
   }
 
+  getHistory(docId) {
+    return this.getHistoryRecords(docId);
+  }
+
+  saveComment(docId, comment) {
+    this.addComment(docId, comment);
+    return comment;
+  }
+
+  resolveComment(docId, commentId) {
+    this.updateCommentStatus(docId, commentId, true);
+  }
+
+  async saveDocUpdate(docId, update, version = 0) {
+    this.docSnapshots.set(docId, {
+      update,
+      version,
+    });
+    return this.docSnapshots.get(docId);
+  }
+
+  async loadDocState(docId) {
+    return this.docSnapshots.get(docId) || null;
+  }
+
   setCanvasState(docId, canvasDataUrl) {
     if (!this.canvasStates.has(docId)) {
       this.initDocument(docId);
@@ -229,6 +256,7 @@ export class CollabStorage {
     this.comments.delete(docId);
     this.canvasStates.delete(docId);
     this.users.delete(docId);
+    this.docSnapshots.delete(docId);
     console.log(`[Storage] Cleared all data for doc: ${docId}`);
   }
 }
