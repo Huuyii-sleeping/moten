@@ -8,7 +8,10 @@
     "v3": "pnpm -F @moten/playground-vue3 dev",
     "clear": "rimraf --glob ./node_modules ./packages/**/node_modules ./packages/**/dist",
     "prepare": "husky",
-    "cz": "git add . && npx git-cz",
+    "cz": "git-cz",
+    "commit": "git-cz",
+    "commit:setup": "git config commit.template .gitmessage.txt",
+    "commit:check": "node scripts/validate-commit-msg.mjs .git/COMMIT_EDITMSG",
     "dev": "pnpm -F @moten/editor dev"
   },
   "config": {

@@ -1,0 +1,5 @@
+- [x] 1. 补齐 OpenSpec artifacts，并明确提交工作流的能力边界
+- [x] 2. 重写 `.cz-config.js`，统一允许的 type、scope 和中文提示，移除不合规或高风险配置
+- [x] 3. 新增 `.gitmessage.txt` 和 `scripts/validate-commit-msg.mjs`，实现模板和提交消息校验
+- [x] 4. 新增 `.husky/commit-msg` 并更新根 `package.json` scripts，形成统一的提交入口和初始化命令
+- [x] 5. 运行验证命令，确认提交校验脚本和 OpenSpec change 状态正常

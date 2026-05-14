@@ -1,0 +1,16 @@
+# <type>(<scope>): <subject>
+#
+# 允许的 type:
+# feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
+#
+# 示例:
+# feat(editor): add block schema validator
+# fix(collab): prevent duplicate remote patch apply
+# docs(agent): unify repository workflow
+#
+# 说明:
+# - scope 建议填写，使用小写 kebab-case
+# - subject 使用祈使语气，简洁明确
+# - 破坏性变更使用 ! ，例如:
+#   feat(api)!: remove legacy page endpoint
+
