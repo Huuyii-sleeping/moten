@@ -204,6 +204,21 @@ export class BasicCollabService {
     return this._getDocConnections(docId).size;
   }
 
+  getPrivatedocData(docId) {
+    const ydoc = this.yDocs.get(docId);
+    if (!ydoc) {
+      return {
+        blockConfig: [],
+        pageConfig: {},
+      };
+    }
+
+    return {
+      blockConfig: this._materializeArray(ydoc.getArray("blockConfig")),
+      pageConfig: Object.fromEntries(ydoc.getMap("pageConfig").entries()),
+    };
+  }
+
   async handleDisconnect(ws) {
     const { docId } = ws;
     const connections = this._getDocConnections(docId);

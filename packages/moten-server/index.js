@@ -16,7 +16,7 @@ import {
 import { expressjwt } from "express-jwt";
 import { authFailedHandler } from "./middleware/auth.js";
 import { permissionHandler } from "./middleware/permission.js";
-import { BasicCollabService } from "./services/collab/collab-basic-service.js";
+import { BasicCollabService } from "./services/y-collab/collab-basic-service.js";
 import { exportRoute } from "./routes/export.js";
 import performanceRouter from "./routes/performance.js";
 dotenv.config();

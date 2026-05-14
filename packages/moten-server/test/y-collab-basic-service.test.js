@@ -234,3 +234,44 @@ test("shared workspace seeds a new document from the source workspace snapshot",
     "Shared seed",
   );
 });
+
+test("getPrivatedocData returns block and page state from the current Yjs document", async (t) => {
+  const storage = {
+    async loadDocState() {
+      return null;
+    },
+    async saveDocUpdate() {
+      return null;
+    },
+    async getComments() {
+      return [];
+    },
+    async getHistory() {
+      return [];
+    },
+  };
+
+  const service = new BasicCollabService({ storage, logger: createLogger() });
+  const { ydoc } = await service.getOrCreateDoc("personal:77:alice");
+  t.after(async () => {
+    await service.cleanupDoc("personal:77:alice");
+  });
+
+  ydoc.getArray("blockConfig").push([
+    {
+      id: "block-export",
+      code: "button",
+      formData: { content: { desktop: "Export me" } },
+      children: [],
+      nested: false,
+      type: "component",
+    },
+  ]);
+  ydoc.getMap("pageConfig").set("title", "Workspace title");
+
+  const content = service.getPrivatedocData("personal:77:alice");
+
+  assert.equal(content.blockConfig.length, 1);
+  assert.equal(content.blockConfig[0].id, "block-export");
+  assert.equal(content.pageConfig.title, "Workspace title");
+});

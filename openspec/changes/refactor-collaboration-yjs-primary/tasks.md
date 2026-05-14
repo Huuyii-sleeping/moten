@@ -2,7 +2,7 @@
 
 - [x] 1.1 修正并增强 `packages/moten-server/services/y-collab/collab-basic-service.js`，使其能稳定处理房间连接、加载、保存和在线状态广播
 - [x] 1.2 为个人房间和共享房间实现初始化种子逻辑，并补齐从页面数据库或个人房间快照创建 Yjs 文档的流程
-- [ ] 1.3 将 `packages/moten-server/index.js` 的协同入口切换到 Yjs 服务，并保留旧服务仅作为回退参考
+- [x] 1.3 将 `packages/moten-server/index.js` 的协同入口切换到 Yjs 服务，并保留旧服务仅作为回退参考
 
 ## 2. 前端房间模型与核心同步
 
